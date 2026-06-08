@@ -1,0 +1,12 @@
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# package build artifacts
+/man/        # regenerate with devtools::document()
+/docs/
+..Rcheck/
+*.tar.gz
