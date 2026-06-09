@@ -10,3 +10,6 @@
 /docs/
 ..Rcheck/
 *.tar.gz
+
+# Claude session files
+.claude/
