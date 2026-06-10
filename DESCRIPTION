@@ -1,6 +1,6 @@
 Package: tritonIngest
 Title: Tabular Data Ingestion Toolkit
-Version: 0.2.0
+Version: 0.3.0
 Authors@R:
     person("Travis", "Shepherd", email = "travis.shepherd@tritonenv.com",
            role = c("aut", "cre"))
@@ -15,7 +15,6 @@ Description: Domain-agnostic primitives for ingesting messy field and laboratory
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
 Depends:
     R (>= 4.2)
 Imports:
@@ -30,3 +29,4 @@ Suggests:
     arrow,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
