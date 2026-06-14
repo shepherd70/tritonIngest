@@ -30,7 +30,13 @@ version, and slug-collision edges.
   `renv/activate.R:642` / `:648` — these are stock vendored renv bootstrap code
   (`renv_bootstrap_github_token()` driving a `curl`/`wget` download of renv with
   an `Authorization: token` header). Confirmed standard renv boilerplate, not
-  injected. Triaged as false positives.
+  injected. Triaged as false positives. A second pass (2026-06-14) re-ran the
+  scanner and got the same 9 findings — these 2 renv CRITICALs plus 7 MEDIUM
+  `agent:secretly-silently` hits, every one the benign English word "silently"
+  in two roxygen comments (`R/cache.R:9`, `R/units.R:11`) and in the body of this
+  report quoting its own findings. Zero genuine hits; no secrets, invisible-
+  Unicode, or HTML-comment payloads. `git fsck` returns clean and the working
+  tree is clean.
 
 ## Major
 
@@ -116,6 +122,27 @@ version, and slug-collision edges.
   `cache.R` already guards source-*derived* keys with a path hash
   (`.key_from_source`), but an explicit `key=`/profile name does not. Fix: detect
   an existing-but-different-name collision, or append a short hash.
+
+- `R/layout.R:25-26` vs `R/censored.R:17` — **the non-detect token lists diverge.**
+  `is_value_like()` (used by `detect_layout()`) recognises only
+  `ND, N.D., BDL, DNQ, U`, while `parse_censored()`'s `ND_TOKENS` recognises eight
+  (adds `B.D.L.`, `NON-DETECT`, `NONDETECT`). A wide column whose non-detects use
+  the longer notation therefore may not clear the `is_value_like()` threshold, so
+  `detect_layout()` can undercount value columns and misclassify a wide table —
+  even though `parse_censored()` would happily read those same cells as censored.
+  The two functions also each carry their own copy of the `^<\s*[0-9.eE+-]+$`
+  "<DL" regex. Fix: hoist one shared token vector + regex and reference it from
+  both, so a future token addition can't fall out of sync.
+
+- `R/layout.R:102-103` — `melt_wide()` unconditionally does `long$units <- ...`
+  and then selects `c(id_cols, "parameter", "value_raw", "units")`. If the source
+  already has an id column literally named `units` (plausible: wide lab/field
+  files often carry a units column), its real values are overwritten with `NA`
+  (whenever the `units=` argument is not passed) and `units` then appears twice in
+  the final selection, producing a duplicated/garbled output column. A pre-existing
+  `parameter` or `value_raw` id column collides the same way. Fix: detect the name
+  clash and error (or suffix the reserved output names) instead of silently
+  clobbering.
 
 - `R/utils.R:5-7` — the local `%||%` is **NA-coalescing** (returns `b` when `a`
   is `NULL`, length-0, *or* `is.na(a)[1]`), which diverges from base R's `%||%`
