@@ -23,8 +23,11 @@ Imports:
     purrr,
     readr,
     readxl,
+    stats,
     tibble,
-    tidyr
+    tidyr,
+    tools,
+    utils
 Suggests:
     arrow,
     testthat (>= 3.0.0)
