@@ -13,6 +13,9 @@ the cross-repo migration plan.
 
 - **Read** CSV/TSV/XLSX as all-text (`read_tabular`) so fragile notation
   survives; coerce mixed Excel-serial/ISO dates (`coerce_excel_date`).
+- **Clean** structural junk — find the real header row and strip blank rows /
+  spacer columns when a workbook has title or metadata rows above the data
+  (`clean_table`, `find_header_row`, `drop_blank_rows`, `drop_blank_cols`).
 - **Reshape** — detect long vs wide layout (`detect_layout`) and melt wide →
   long (`melt_wide`).
 - **Map to a schema** — declare a contract (`cf_field` + `as_contract`),
@@ -36,9 +39,11 @@ remotes::install_github("shepherd70/tritonIngest")
 ```r
 library(tritonIngest)
 
-raw   <- read_tabular("workbook.xlsx", sheet = "Data")
-long  <- if (detect_layout(raw)$layout == "wide")
-           melt_wide(raw, param_cols = c("Zinc", "Copper")) else raw
+# read header-less so title/metadata rows above the header can be stripped
+raw   <- read_tabular("workbook.xlsx", sheet = "Data", col_names = FALSE)
+tidy  <- clean_table(raw)                         # find header, drop blank rows/cols
+long  <- if (detect_layout(tidy)$layout == "wide")
+           melt_wide(tidy, param_cols = c("Zinc", "Copper")) else tidy
 
 # declare what the analysis needs (each project keeps its own contracts)
 chem <- as_contract(list(

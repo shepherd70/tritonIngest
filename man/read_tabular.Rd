@@ -4,7 +4,7 @@
 \alias{read_tabular}
 \title{Read a tabular data file (CSV/TSV/XLSX) as all-text columns.}
 \usage{
-read_tabular(path, sheet = NULL, col_types = NULL)
+read_tabular(path, sheet = NULL, col_types = NULL, col_names = TRUE)
 }
 \arguments{
 \item{path}{File path. The extension selects the reader (csv/txt, tsv,
@@ -14,6 +14,11 @@ xlsx/xls).}
 
 \item{col_types}{Optional column-type spec passed through to the underlying
 reader; default reads everything as text.}
+
+\item{col_names}{Treat the first row as the header (\code{TRUE}, the default) or
+read every row as data with positional names (\code{FALSE}). Use \code{FALSE} when a
+workbook has title/metadata rows above the real header, then recover it with
+\code{\link[=clean_table]{clean_table()}}.}
 }
 \value{
 A tibble.

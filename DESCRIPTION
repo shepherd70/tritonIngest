@@ -1,6 +1,6 @@
 Package: tritonIngest
 Title: Tabular Data Ingestion Toolkit
-Version: 0.3.1
+Version: 0.4.0
 Authors@R:
     person("Travis", "Shepherd", email = "travis.shepherd@tritonenv.com",
            role = c("aut", "cre"))

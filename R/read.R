@@ -18,20 +18,25 @@
 #' @param sheet Sheet name or index for Excel files (default: first sheet).
 #' @param col_types Optional column-type spec passed through to the underlying
 #'   reader; default reads everything as text.
+#' @param col_names Treat the first row as the header (`TRUE`, the default) or
+#'   read every row as data with positional names (`FALSE`). Use `FALSE` when a
+#'   workbook has title/metadata rows above the real header, then recover it with
+#'   [clean_table()].
 #' @return A tibble.
 #' @export
-read_tabular <- function(path, sheet = NULL, col_types = NULL) {
+read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE) {
   if (!file.exists(path)) stop("File not found: ", path)
   ext <- tolower(tools::file_ext(path))
 
   if (ext %in% c("csv", "txt")) {
     ct <- col_types %||% readr::cols(.default = readr::col_character())
-    readr::read_csv(path, col_types = ct, progress = FALSE)
+    readr::read_csv(path, col_names = col_names, col_types = ct, progress = FALSE)
   } else if (ext == "tsv") {
     ct <- col_types %||% readr::cols(.default = readr::col_character())
-    readr::read_tsv(path, col_types = ct, progress = FALSE)
+    readr::read_tsv(path, col_names = col_names, col_types = ct, progress = FALSE)
   } else if (ext %in% c("xlsx", "xls")) {
-    readxl::read_excel(path, sheet = sheet, col_types = col_types %||% "text")
+    readxl::read_excel(path, sheet = sheet, col_names = col_names,
+                       col_types = col_types %||% "text")
   } else {
     stop("Unsupported file type: .", ext, " (use CSV, TSV, or XLSX)")
   }
