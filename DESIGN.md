@@ -1,6 +1,6 @@
 # tritonIngest — Design Document
 
-**Status:** Implemented (v0.4.1) — Phase 0–1 complete, plus an added validation
+**Status:** Implemented (v0.4.2) — Phase 0–1 complete, plus an added validation
 kernel and materialisation cache; consumer migration (Phases 2–4) pending ·
 **Author:** drafted for Travis Shepherd · **Date drafted:** 2026-06-08 ·
 **Last reconciled:** 2026-06-16
@@ -168,7 +168,7 @@ tritonIngest/
 ## 5. Migration plan
 
 Each phase ends with **both repos' full test suites green**. Status as of
-v0.4.1 (2026-06-16): ✅ done · ⬜ not started.
+v0.4.2 (2026-06-16): ✅ done · ⬜ not started.
 
 ### Phase 0 — scaffold ✅
 Create the `tritonIngest` repo (DESCRIPTION, package skeleton, roxygen, testthat).
@@ -224,7 +224,7 @@ the original §2 scope, plus project infrastructure:
 
 - New public/private GitHub repo `shepherd70/tritonIngest`, semver tags
   (`v0.1.0` …).
-- Consumers pin it: `DESCRIPTION` `Remotes: github::shepherd70/tritonIngest@v0.4.1`
+- Consumers pin it: `DESCRIPTION` `Remotes: github::shepherd70/tritonIngest@v0.4.2`
   (current release) and the resolved ref recorded in each repo's `renv.lock`.
 - Breaking changes to the shared API bump the minor version while both repos are
   pre-1.0; never force-push tags.

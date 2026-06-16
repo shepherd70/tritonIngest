@@ -4,3 +4,5 @@
 ^\.Rproj\.user$
 ^\.claude$
 ^\.github$
+^DESIGN\.md$
+^\.Rhistory$
