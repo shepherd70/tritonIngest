@@ -13,6 +13,9 @@ the cross-repo migration plan.
 
 - **Read** CSV/TSV/XLSX as all-text (`read_tabular`) so fragile notation
   survives; coerce mixed Excel-serial/ISO dates (`coerce_excel_date`).
+- **Clean** structural junk — find the real header row and strip blank rows /
+  spacer columns when a workbook has title or metadata rows above the data
+  (`clean_table`, `find_header_row`, `drop_blank_rows`, `drop_blank_cols`).
 - **Reshape** — detect long vs wide layout (`detect_layout`) and melt wide →
   long (`melt_wide`).
 - **Map to a schema** — declare a contract (`cf_field` + `as_contract`),
@@ -23,6 +26,14 @@ the cross-repo migration plan.
   (`save_mapping_profile`, `load_mapping_profile`, …).
 - **Lab values** — parse non-detects (`parse_censored`), substitute
   (`apply_substitution`, `working_values`), reconcile units (`convert_units`).
+- **Validate (generic)** — run a battery of domain-agnostic schema checks that
+  each return failure messages, then abort once with the collected set
+  (`check_required_columns`, `check_column_types`, `check_no_na`,
+  `validation_abort`). Domain rules stay in the consuming packages.
+- **Cache** — materialise the parsed canonical object to a fast-reload cache
+  keyed by a fingerprint of the source file, so an unchanged source skips
+  re-ingestion and a moved source auto-invalidates (`write_cache`, `read_cache`,
+  `cached_ingest`; `rds` or `parquet` backend).
 
 ## Install
 
@@ -36,9 +47,11 @@ remotes::install_github("shepherd70/tritonIngest")
 ```r
 library(tritonIngest)
 
-raw   <- read_tabular("workbook.xlsx", sheet = "Data")
-long  <- if (detect_layout(raw)$layout == "wide")
-           melt_wide(raw, param_cols = c("Zinc", "Copper")) else raw
+# read header-less so title/metadata rows above the header can be stripped
+raw   <- read_tabular("workbook.xlsx", sheet = "Data", col_names = FALSE)
+tidy  <- clean_table(raw)                         # find header, drop blank rows/cols
+long  <- if (detect_layout(tidy)$layout == "wide")
+           melt_wide(tidy, param_cols = c("Zinc", "Copper")) else tidy
 
 # declare what the analysis needs (each project keeps its own contracts)
 chem <- as_contract(list(
@@ -55,5 +68,9 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.1.0 — Phase 0–1 (standalone package, ported and tested). Migration of the two
-consumer repos is staged in [`DESIGN.md`](DESIGN.md) §5.
+v0.4.1 — current release (documentation reconciled against the v0.4.0 engine).
+Standalone package, ported and tested, with an R-CMD-check CI workflow and renv
+lockfile. Beyond the original Phase 0–1 engine it also ships a generic
+validation kernel (`validate.R`) and a materialisation cache (`cache.R`).
+Migration of the consumer repos (`DESIGN.md` §5, Phases 2–4) has not started
+here yet.
