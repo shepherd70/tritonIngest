@@ -17,8 +17,10 @@
 #' @export
 convert_units <- function(value, from, to) {
   norm <- function(u) gsub("\\s+", "", tolower(ifelse(is.na(u), "", u)))
-  # Factors to a common base (mg/L).
-  fac <- c("g/l" = 1e3, "mg/l" = 1, "ug/l" = 1e-3, "µg/l" = 1e-3,
+  # Factors to a common base (mg/L). The micro-sign spelling of ug/L is written
+  # as the unicode escape "\u00b5g/l" so this source file stays pure ASCII
+  # (R CMD check --as-cran flags non-ASCII characters in code files).
+  fac <- c("g/l" = 1e3, "mg/l" = 1, "ug/l" = 1e-3, "\u00b5g/l" = 1e-3,
            "ng/l" = 1e-6)
   f <- norm(rep(from, length.out = length(value)))
   t <- norm(to)

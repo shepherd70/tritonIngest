@@ -115,7 +115,7 @@ cache_dir <- function(dir = getOption("tritonIngest.cache_dir"),
 #'
 #' @param x The object to cache. For `format = "parquet"` it must be a data
 #'   frame; any classes/attributes beyond the plain table are dropped (with a
-#'   warning) — use `"rds"` to preserve a classed object exactly.
+#'   warning) -- use `"rds"` to preserve a classed object exactly.
 #' @param source Path(s) to the source file(s) the object was parsed from. Used
 #'   to fingerprint the inputs; may be `NULL` to cache without invalidation.
 #' @param key Cache key (file stem). Defaults to one derived from `source`.
@@ -180,8 +180,8 @@ write_cache <- function(x, source = NULL, key = NULL,
 
 #' Read from the materialisation cache, if present and still fresh.
 #'
-#' Returns the cached object when the data file and its sidecar exist and — when
-#' the sidecar recorded a source fingerprint — the current `source` still matches
+#' Returns the cached object when the data file and its sidecar exist and -- when
+#' the sidecar recorded a source fingerprint -- the current `source` still matches
 #' it. A miss or a stale/changed source returns `NULL` (with a message), so the
 #' caller re-parses rather than trusting an out-of-date cache.
 #'
