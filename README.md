@@ -26,6 +26,14 @@ the cross-repo migration plan.
   (`save_mapping_profile`, `load_mapping_profile`, …).
 - **Lab values** — parse non-detects (`parse_censored`), substitute
   (`apply_substitution`, `working_values`), reconcile units (`convert_units`).
+- **Validate (generic)** — run a battery of domain-agnostic schema checks that
+  each return failure messages, then abort once with the collected set
+  (`check_required_columns`, `check_column_types`, `check_no_na`,
+  `validation_abort`). Domain rules stay in the consuming packages.
+- **Cache** — materialise the parsed canonical object to a fast-reload cache
+  keyed by a fingerprint of the source file, so an unchanged source skips
+  re-ingestion and a moved source auto-invalidates (`write_cache`, `read_cache`,
+  `cached_ingest`; `rds` or `parquet` backend).
 
 ## Install
 
@@ -60,5 +68,9 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.1.0 — Phase 0–1 (standalone package, ported and tested). Migration of the two
-consumer repos is staged in [`DESIGN.md`](DESIGN.md) §5.
+v0.4.1 — current release (documentation reconciled against the v0.4.0 engine).
+Standalone package, ported and tested, with an R-CMD-check CI workflow and renv
+lockfile. Beyond the original Phase 0–1 engine it also ships a generic
+validation kernel (`validate.R`) and a materialisation cache (`cache.R`).
+Migration of the consumer repos (`DESIGN.md` §5, Phases 2–4) has not started
+here yet.
