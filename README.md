@@ -68,9 +68,9 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.4.1 — current release (documentation reconciled against the v0.4.0 engine).
-Standalone package, ported and tested, with an R-CMD-check CI workflow and renv
-lockfile. Beyond the original Phase 0–1 engine it also ships a generic
-validation kernel (`validate.R`) and a materialisation cache (`cache.R`).
-Migration of the consumer repos (`DESIGN.md` §5, Phases 2–4) has not started
-here yet.
+v0.4.2 — current release (engine reconciled with docs at v0.4.1; v0.4.2 makes
+`R CMD check --as-cran` fully clean). Standalone package, ported and tested,
+with an R-CMD-check CI workflow and renv lockfile. Beyond the original Phase
+0–1 engine it also ships a generic validation kernel (`validate.R`) and a
+materialisation cache (`cache.R`). Migration of the consumer repos
+(`DESIGN.md` §5, Phases 2–4) has not started here yet.
