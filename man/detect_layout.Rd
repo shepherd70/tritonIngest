@@ -6,17 +6,19 @@
 \usage{
 detect_layout(
   df,
-  param_names = c("parameter", "param", "analyte", "characteristic",
-    "characteristicname", "variable", "constituent"),
-  value_names = c("value", "result", "resultvalue", "value_raw", "concentration", "conc",
-    "measurement")
+  param_names = c("parameter", "parameters", "param", "params", "analyte", "analytes",
+    "characteristic", "characteristics", "characteristicname", "variable", "variables",
+    "constituent", "constituents"),
+  value_names = c("value", "values", "result", "results", "resultvalue", "value_raw",
+    "concentration", "concentrations", "conc", "measurement", "measurements")
 )
 }
 \arguments{
 \item{df}{A data frame (typically read all-text via \code{\link[=read_tabular]{read_tabular()}}).}
 
 \item{param_names, value_names}{Character vectors of lowercase column names
-that signal a long-format parameter / value column. Override to match a
+that signal a long-format parameter / value column. Matched after
+lowercasing and whitespace-trimming the data's names. Override to match a
 domain's vocabulary.}
 }
 \value{
@@ -26,4 +28,14 @@ A list: \code{layout} (\code{"long"}/\code{"wide"}), \code{value_like_cols}, \co
 Long signals: a parameter-ish column name AND a value-ish column name, or a
 single value-like column. Wide signals: two or more value-like columns
 (variables spread across columns). The caller can override the result.
+}
+\details{
+Column names are matched case-insensitively and after trimming surrounding
+whitespace, so a header exported as \code{"Analyte "} (a trailing space is common
+in lab reports) still hits the vocabulary. The default vocabularies carry both
+singular and plural forms (\code{"result"}/\code{"results"}, \code{"analyte"}/\code{"analytes"},
+...) because labs are inconsistent: an ALS export, for instance, labels its
+value column \code{"Results"}. Missing the plural would drop the long signal and,
+when two or more numeric columns are present (value + detection limit + a
+numeric QC-lot id), misclassify the table as wide.
 }

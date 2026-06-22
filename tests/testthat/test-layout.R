@@ -18,6 +18,38 @@ test_that("detect_layout finds wide via multiple value-like columns", {
   expect_setequal(d$value_like_cols, c("zinc", "copper"))
 })
 
+test_that("detect_layout recognises plural parameter/value column names", {
+  df <- tibble::tibble(site = "A", Analytes = "zinc", Results = "1.2")
+  expect_equal(detect_layout(df)$layout, "long")
+})
+
+test_that("detect_layout trims surrounding whitespace from column names", {
+  # Lab exports routinely pad headers, e.g. "Analyte ".
+  df <- tibble::tibble("parameter " = "zinc", " value" = "1.2")
+  expect_equal(detect_layout(df)$layout, "long")
+})
+
+test_that("detect_layout reads a real ALS header as long, not wide", {
+  # Regression for the ALS export that motivated the wq-side guard: the value
+  # column is the plural "Results", the parameter header carries a trailing
+  # space, and three numeric-ish columns (Results, Detection Limit, numeric
+  # QC Lot id) would otherwise trip the >=2-value-like-columns wide heuristic.
+  df <- tibble::tibble(
+    "Analyte "         = c("Zinc", "Copper", "Lead"),
+    "ALS Sample ID "   = c("VA26B0991-001", "VA26B0991-001", "VA26B0991-001"),
+    "Client Sample ID" = c("KV-1", "KV-1", "KV-1"),
+    "Matrix"           = c("Water", "Water", "Water"),
+    "Method"           = c("EP200", "EP200", "EP200"),
+    "Results"          = c("1.2", "0.4", "<0.5"),
+    "Detection Limit"  = c("0.1", "0.1", "0.5"),
+    "Units"            = c("mg/L", "mg/L", "mg/L"),
+    "QC Lot"           = c("2580895", "2580895", "2580896")
+  )
+  d <- detect_layout(df)
+  expect_equal(d$layout, "long")
+  expect_match(d$reason, "parameter and value")
+})
+
 test_that("melt_wide reshapes analyte columns to long and drops empties", {
   df <- tibble::tibble(site = c("A", "B"),
                        zinc = c("1.2", ""), copper = c("0.4", "0.5"))
