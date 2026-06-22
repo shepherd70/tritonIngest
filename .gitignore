@@ -6,7 +6,7 @@
 *.Rproj
 
 # package build artifacts
-/man/        # regenerate with devtools::document()
+# man/*.Rd is committed (regenerate with devtools::document()); intentionally not ignored
 /docs/
 ..Rcheck/
 *.tar.gz
