@@ -1,5 +1,11 @@
 # tritonIngest
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/shepherd70/tritonIngest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/shepherd70/tritonIngest/actions/workflows/R-CMD-check.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/v/release/shepherd70/tritonIngest)](https://github.com/shepherd70/tritonIngest/releases)
+<!-- badges: end -->
+
 Domain-agnostic R primitives for ingesting messy field and laboratory data
 workbooks. Shared plumbing for the `water-chemistry-qaqc` (chemistry) and
 `bw-analysis-code` (fish / effort / habitat) projects so they don't duplicate
@@ -38,7 +44,6 @@ the cross-repo migration plan.
 ## Install
 
 ```r
-# once published:
 remotes::install_github("shepherd70/tritonIngest")
 ```
 
@@ -68,9 +73,10 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.4.2 — current release (engine reconciled with docs at v0.4.1; v0.4.2 makes
-`R CMD check --as-cran` fully clean). Standalone package, ported and tested,
-with an R-CMD-check CI workflow and renv lockfile. Beyond the original Phase
-0–1 engine it also ships a generic validation kernel (`validate.R`) and a
-materialisation cache (`cache.R`). Migration of the consumer repos
-(`DESIGN.md` §5, Phases 2–4) has not started here yet.
+v0.4.3 — current release (`R CMD check --as-cran` clean as of v0.4.2; v0.4.3
+adds plural-column-name recognition and whitespace trimming to layout
+detection). Standalone package, ported and tested, with an R-CMD-check CI
+workflow and renv lockfile. Beyond the original Phase 0–1 engine it also ships
+a generic validation kernel (`validate.R`) and a materialisation cache
+(`cache.R`). Migration of the consumer repos (`DESIGN.md` §5, Phases 2–4) has
+not started here yet.
