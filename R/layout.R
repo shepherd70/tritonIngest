@@ -33,20 +33,37 @@ is_value_like <- function(x, threshold = 0.8) {
 #' single value-like column. Wide signals: two or more value-like columns
 #' (variables spread across columns). The caller can override the result.
 #'
+#' Column names are matched case-insensitively and after trimming surrounding
+#' whitespace, so a header exported as `"Analyte "` (a trailing space is common
+#' in lab reports) still hits the vocabulary. The default vocabularies carry both
+#' singular and plural forms (`"result"`/`"results"`, `"analyte"`/`"analytes"`,
+#' ...) because labs are inconsistent: an ALS export, for instance, labels its
+#' value column `"Results"`. Missing the plural would drop the long signal and,
+#' when two or more numeric columns are present (value + detection limit + a
+#' numeric QC-lot id), misclassify the table as wide.
+#'
 #' @param df A data frame (typically read all-text via [read_tabular()]).
 #' @param param_names,value_names Character vectors of lowercase column names
-#'   that signal a long-format parameter / value column. Override to match a
+#'   that signal a long-format parameter / value column. Matched after
+#'   lowercasing and whitespace-trimming the data's names. Override to match a
 #'   domain's vocabulary.
 #' @return A list: `layout` (`"long"`/`"wide"`), `value_like_cols`, `reason`.
 #' @export
 detect_layout <- function(df,
-                          param_names = c("parameter", "param", "analyte",
-                                          "characteristic", "characteristicname",
-                                          "variable", "constituent"),
-                          value_names = c("value", "result", "resultvalue",
-                                          "value_raw", "concentration", "conc",
-                                          "measurement")) {
-  nms <- tolower(names(df))
+                          param_names = c("parameter", "parameters",
+                                          "param", "params",
+                                          "analyte", "analytes",
+                                          "characteristic", "characteristics",
+                                          "characteristicname",
+                                          "variable", "variables",
+                                          "constituent", "constituents"),
+                          value_names = c("value", "values",
+                                          "result", "results", "resultvalue",
+                                          "value_raw",
+                                          "concentration", "concentrations",
+                                          "conc",
+                                          "measurement", "measurements")) {
+  nms <- trimws(tolower(names(df)))
   param_name_hit <- nms %in% param_names
   value_name_hit <- nms %in% value_names
 
