@@ -75,10 +75,20 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.4.3 — current release (`R CMD check --as-cran` clean as of v0.4.2;
-v0.4.3 adds plural-column-name recognition and whitespace trimming to
-layout detection). Standalone package, ported and tested, with an
-R-CMD-check CI workflow and renv lockfile. Beyond the original Phase 0–1
-engine it also ships a generic validation kernel (`validate.R`) and a
+v0.4.3 — current release (0.4.2 made `R CMD check --as-cran` fully
+clean; 0.4.3 taught
+[`detect_layout()`](https://shepherd70.github.io/tritonIngest/reference/detect_layout.md)
+to recognise plural value-column names). Standalone package, ported and
+tested, with an R-CMD-check CI workflow and renv lockfile. Beyond the
+original Phase 0–1 engine it also ships a generic validation kernel
+(`validate.R`) and a materialisation cache (`cache.R`). Phase 2 of the
+cross-repo migration is done — `bw-analysis-code` consumes the package
+(pinned `v0.4.3`); Phases 3–4 (`water-chemistry-qaqc`, chemistry
+ingestion in bw) remain. v0.4.3 — current release
+(`R CMD check --as-cran` clean as of v0.4.2; v0.4.3 adds
+plural-column-name recognition and whitespace trimming to layout
+detection). Standalone package, ported and tested, with an R-CMD-check
+CI workflow and renv lockfile. Beyond the original Phase 0–1 engine it
+also ships a generic validation kernel (`validate.R`) and a
 materialisation cache (`cache.R`). Migration of the consumer repos
 (`DESIGN.md` §5, Phases 2–4) has not started here yet.

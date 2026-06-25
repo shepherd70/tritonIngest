@@ -25,7 +25,7 @@ write_cache(
 
   The object to cache. For `format = "parquet"` it must be a data frame;
   any classes/attributes beyond the plain table are dropped (with a
-  warning) — use `"rds"` to preserve a classed object exactly.
+  warning) – use `"rds"` to preserve a classed object exactly.
 
 - source:
 

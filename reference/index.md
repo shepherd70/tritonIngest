@@ -8,7 +8,7 @@ mixed date encodings.
 - [`read_tabular()`](https://shepherd70.github.io/tritonIngest/reference/read_tabular.md)
   : Read a tabular data file (CSV/TSV/XLSX) as all-text columns.
 - [`coerce_excel_date()`](https://shepherd70.github.io/tritonIngest/reference/coerce_excel_date.md)
-  : Coerce mixed Excel-serial / ISO-string dates to Date.
+  : Coerce mixed Excel-serial / date-string values to Date.
 
 ## Clean structural junk
 
@@ -85,7 +85,8 @@ Parse non-detects, substitute working values, and reconcile units.
 - [`working_values()`](https://shepherd70.github.io/tritonIngest/reference/working_values.md)
   : Working numeric values for a censoring method.
 - [`convert_units()`](https://shepherd70.github.io/tritonIngest/reference/convert_units.md)
-  : Convert mass-concentration values between common units.
+  : Convert mass-concentration or mass-fraction values between common
+  units.
 
 ## Validation (generic)
 

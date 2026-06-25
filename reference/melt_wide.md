@@ -1,6 +1,8 @@
 # Melt a wide table (variables as columns) to long form.
 
-Melt a wide table (variables as columns) to long form.
+Errors if a retained id column is named `parameter`, `value_raw`, or
+`units` (the reshape's output names) rather than silently overwriting
+it.
 
 ## Usage
 

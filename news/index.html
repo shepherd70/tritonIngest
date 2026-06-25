@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,11 +33,28 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="tritoningest-050">tritonIngest 0.5.0<a class="anchor" aria-label="anchor" href="#tritoningest-050"></a></h2>
+<p>Audit follow-up (2026-06): closes the open correctness findings recorded in <code>audits/tritonIngest-audit-2026-06.md</code>.</p>
+<ul><li>
+<code><a href="../reference/convert_units.html">convert_units()</a></code> gains the <strong>mass/mass</strong> ladder (<code>g/kg</code>, <code>mg/kg</code>, <code>ug/kg</code>, <code>ng/kg</code>, <code>mg/g</code>, <code>ug/g</code>, <code>ng/g</code>) alongside the existing mass/volume ladder, for tissue/sediment data. Conversions stay within a ladder (mass/volume and mass/mass are not interconvertible without a density). The Greek small mu (U+03BC) now folds onto the micro sign (U+00B5), so an instrument export’s <code>"μg/L"</code> matches <code>"µg/L"</code>. A non-identity conversion that cannot be resolved now returns <code>NA</code> <strong>with a warning</strong> rather than a silent <code>NA</code>, so an unsupported unit class is distinguishable from a genuinely missing value.</li>
+<li>
+<code><a href="../reference/parse_censored.html">parse_censored()</a></code> and <code><a href="../reference/apply_substitution.html">apply_substitution()</a></code> now <strong>validate vector lengths</strong> (<code>detection_limit</code> must be length 1 or match the data; <code>censored</code> must match <code>value</code>) and error on a mismatch instead of silently recycling/misaligning.</li>
+<li>
+<code><a href="../reference/coerce_excel_date.html">coerce_excel_date()</a></code> gains <code>formats=</code> (defaulting to unambiguous year-first layouts, so <code>"2024/08/22"</code> now parses), <code>origin=</code> (for the Mac/1904 date system), and <code>serial_range=</code> (to stop bare year-like integers being misread as serials). Values matching neither a serial nor any format now return <code>NA</code> <strong>with a warning</strong>.</li>
+<li>
+<code><a href="../reference/melt_wide.html">melt_wide()</a></code> now errors when a retained id column is named <code>parameter</code>, <code>value_raw</code>, or <code>units</code> rather than silently clobbering it.</li>
+<li>
+<code><a href="../reference/detect_layout.html">detect_layout()</a></code> / <code><a href="../reference/is_value_like.html">is_value_like()</a></code> now share the one non-detect vocabulary (<code>ND_TOKENS</code>) and <code>&lt;DL</code> regex used by <code><a href="../reference/parse_censored.html">parse_censored()</a></code>, so the layout and parsing token lists can no longer drift (e.g. a <code>"NON-DETECT"</code> column is now value-like to both).</li>
+<li>
+<code><a href="../reference/save_mapping_profile.html">save_mapping_profile()</a></code> now errors when a <em>different</em> profile name sanitises to the same file slug (it previously overwrote the unrelated profile silently); <code><a href="../reference/write_cache.html">write_cache()</a></code> warns on the analogous explicit-key cache-slug collision.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.3" id="tritoningest-043">tritonIngest 0.4.3<a class="anchor" aria-label="anchor" href="#tritoningest-043"></a></h2>
 <ul><li>
 <code><a href="../reference/detect_layout.html">detect_layout()</a></code> now recognises plural parameter/value column names (<code>"results"</code>, <code>"values"</code>, <code>"analytes"</code>, <code>"parameters"</code>, …) and trims surrounding whitespace from column names before matching. Lab exports such as ALS reports label their value column <code>"Results"</code> and pad headers (<code>"Analyte "</code>), which previously missed the long-format vocabulary and – when two or more numeric columns were present (result + detection limit + a numeric QC-lot id) – misclassified the table as wide, discarding the analyte column. This removes the need for the interim water-chemistry-qaqc guard.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

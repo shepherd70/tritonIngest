@@ -18,11 +18,12 @@ apply_substitution(value, censored, detection_limit, fraction = 0.5)
 
 - censored:
 
-  Logical vector.
+  Logical vector, the same length as `value`.
 
 - detection_limit:
 
-  Numeric vector of DLs.
+  Numeric vector of DLs (length 1, recycled, or the same length as
+  `value`).
 
 - fraction:
 

@@ -1,7 +1,7 @@
 # Read from the materialisation cache, if present and still fresh.
 
-Returns the cached object when the data file and its sidecar exist and —
-when the sidecar recorded a source fingerprint — the current `source`
+Returns the cached object when the data file and its sidecar exist and –
+when the sidecar recorded a source fingerprint – the current `source`
 still matches it. A miss or a stale/changed source returns `NULL` (with
 a message), so the caller re-parses rather than trusting an out-of-date
 cache.

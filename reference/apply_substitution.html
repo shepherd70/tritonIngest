@@ -11,7 +11,7 @@ Transparent and widely used, but can bias variance estimates."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,12 @@ Transparent and widely used, but can bias variance estimates.</p>
 
 
 <dt id="arg-censored">censored<a class="anchor" aria-label="anchor" href="#arg-censored"></a></dt>
-<dd><p>Logical vector.</p></dd>
+<dd><p>Logical vector, the same length as <code>value</code>.</p></dd>
 
 
 <dt id="arg-detection-limit">detection_limit<a class="anchor" aria-label="anchor" href="#arg-detection-limit"></a></dt>
-<dd><p>Numeric vector of DLs.</p></dd>
+<dd><p>Numeric vector of DLs (length 1, recycled, or the same
+length as <code>value</code>).</p></dd>
 
 
 <dt id="arg-fraction">fraction<a class="anchor" aria-label="anchor" href="#arg-fraction"></a></dt>
