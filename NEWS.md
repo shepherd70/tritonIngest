@@ -1,7 +1,7 @@
 # tritonIngest 0.5.0
 
 Audit follow-up (2026-06): closes the open correctness findings recorded in
-`docs/tritonIngest-audit-2026-06.md`.
+`audits/tritonIngest-audit-2026-06.md`.
 
 * `convert_units()` gains the **mass/mass** ladder (`g/kg`, `mg/kg`, `ug/kg`,
   `ng/kg`, `mg/g`, `ug/g`, `ng/g`) alongside the existing mass/volume ladder, for
