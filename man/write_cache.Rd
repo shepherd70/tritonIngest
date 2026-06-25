@@ -17,7 +17,7 @@ write_cache(
 \arguments{
 \item{x}{The object to cache. For \code{format = "parquet"} it must be a data
 frame; any classes/attributes beyond the plain table are dropped (with a
-warning) — use \code{"rds"} to preserve a classed object exactly.}
+warning) -- use \code{"rds"} to preserve a classed object exactly.}
 
 \item{source}{Path(s) to the source file(s) the object was parsed from. Used
 to fingerprint the inputs; may be \code{NULL} to cache without invalidation.}

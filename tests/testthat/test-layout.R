@@ -4,6 +4,12 @@ test_that("is_value_like recognises numbers and non-detect notation", {
   expect_false(is_value_like(character(0)))
 })
 
+test_that("is_value_like uses the shared non-detect vocabulary", {
+  # "NON-DETECT"/"NONDETECT" live in ND_TOKENS (shared with parse_censored); the
+  # layout side previously carried a shorter list and would have missed them.
+  expect_true(is_value_like(c("1.2", "3.4", "NON-DETECT", "nondetect")))
+})
+
 test_that("detect_layout finds long via parameter/value names", {
   df <- tibble::tibble(site = "A", parameter = "zinc", value = "1.2")
   d <- detect_layout(df)
@@ -65,4 +71,10 @@ test_that("melt_wide reshapes analyte columns to long and drops empties", {
 test_that("melt_wide errors on unknown param columns", {
   df <- tibble::tibble(site = "A", zinc = "1.2")
   expect_error(melt_wide(df, param_cols = "nope"), "not in data")
+})
+
+test_that("melt_wide refuses to clobber a reserved output column", {
+  df <- tibble::tibble(units = "mg/L", zinc = "1.2", copper = "0.4")
+  expect_error(melt_wide(df, param_cols = c("zinc", "copper")),
+               "would overwrite existing column")
 })

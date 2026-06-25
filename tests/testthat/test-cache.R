@@ -102,3 +102,11 @@ test_that("parquet refuses a non-data-frame object", {
   expect_error(write_cache(list(1, 2), key = "k", dir = s$dir, format = "parquet"),
                "data frame")
 })
+
+test_that("write_cache warns when an explicit key collides with a different one", {
+  s <- setup_src()
+  write_cache(read_tabular(s$src), key = "lab data", dir = s$dir)
+  # "lab_data" sanitises to the same "lab-data" stem
+  expect_warning(write_cache(read_tabular(s$src), key = "lab_data", dir = s$dir),
+                 "collides with previously cached")
+})

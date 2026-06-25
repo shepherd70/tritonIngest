@@ -27,5 +27,6 @@ Long tibble with columns: \code{id_cols...}, \code{parameter}, \code{value_raw},
 \code{units}.
 }
 \description{
-Melt a wide table (variables as columns) to long form.
+Errors if a retained id column is named \code{parameter}, \code{value_raw}, or \code{units}
+(the reshape's output names) rather than silently overwriting it.
 }

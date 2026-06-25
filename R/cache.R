@@ -137,8 +137,19 @@ write_cache <- function(x, source = NULL, key = NULL,
     if (is.null(source)) stop("Provide `key=` or `source=` to name the cache.", call. = FALSE)
     key <- .key_from_source(source)
   }
+  key_in <- as.character(key)
   key <- .cache_slug(key)
   paths <- .cache_files(key, dir, format)
+  # Warn if this slug was previously written under a different original key: an
+  # explicit-key slug collision would otherwise overwrite another cache silently.
+  if (file.exists(paths$meta)) {
+    prev <- tryCatch(jsonlite::fromJSON(paths$meta)$key_original, error = function(e) NULL)
+    if (!is.null(prev) && !identical(as.character(prev), key_in)) {
+      warning(sprintf(paste0("Cache key '%s' collides with previously cached ",
+                            "'%s' (both slug to '%s'); overwriting."),
+                     key_in, prev, key), call. = FALSE)
+    }
+  }
 
   if (format == "parquet") {
     if (!is.data.frame(x)) {
@@ -164,6 +175,7 @@ write_cache <- function(x, source = NULL, key = NULL,
   payload <- list(
     schema             = "triton-cache/v1",
     key                = key,
+    key_original       = key_in,
     source             = if (is.null(source)) NULL else as.character(source),
     fingerprint_method = fingerprint,
     source_fingerprint = fp,

@@ -21,7 +21,7 @@ A tibble with contract-named (subset of) columns.
 \description{
 Selects the mapped source columns, renames them to their contract field
 names, and (optionally) coerces each to its declared type. Fields whose
-mapping is \code{NA}/missing are dropped — use \code{\link[=validate_against_contract]{validate_against_contract()}}
+mapping is \code{NA}/missing are dropped -- use \code{\link[=validate_against_contract]{validate_against_contract()}}
 afterwards to flag missing required fields. Unreferenced source columns are
 discarded, so downstream code sees only contract-named columns.
 }

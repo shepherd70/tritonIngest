@@ -16,6 +16,11 @@
 
 ND_TOKENS <- c("ND", "N.D.", "BDL", "B.D.L.", "DNQ", "U", "NON-DETECT", "NONDETECT")
 
+# Shared "<DL" notation: a literal "<" then a number (e.g. "<0.01", "< 5e-3").
+# Defined once here and reused by layout::is_value_like() so the non-detect
+# vocabulary used for parsing and for layout detection cannot drift apart.
+ND_LT_REGEX <- "^<\\s*[0-9.eE+-]+$"
+
 #' Parse raw result text into value / censored / detection_limit.
 #'
 #' @param value_raw Character vector of raw results as read from file.
@@ -29,6 +34,10 @@ ND_TOKENS <- c("ND", "N.D.", "BDL", "B.D.L.", "DNQ", "U", "NON-DETECT", "NONDETE
 parse_censored <- function(value_raw, detection_limit = NULL) {
   raw <- trimws(as.character(value_raw))
   n <- length(raw)
+  if (!is.null(detection_limit) && !length(detection_limit) %in% c(1L, n)) {
+    stop("`detection_limit` length (", length(detection_limit),
+         ") must be 1 or match `value_raw` (", n, ").", call. = FALSE)
+  }
 
   dl_col <- if (is.null(detection_limit)) {
     rep(NA_real_, n)
@@ -46,7 +55,7 @@ parse_censored <- function(value_raw, detection_limit = NULL) {
   note[empty] <- "missing"
 
   # "<DL" notation ------------------------------------------------------------
-  lt <- grepl("^<\\s*[0-9.eE+-]+$", raw)
+  lt <- grepl(ND_LT_REGEX, raw)
   lt_dl <- suppressWarnings(as.numeric(sub("^<\\s*", "", raw[lt])))
   censored[lt] <- TRUE
   dl_out[lt] <- lt_dl
@@ -80,8 +89,9 @@ parse_censored <- function(value_raw, detection_limit = NULL) {
 #' Transparent and widely used, but can bias variance estimates.
 #'
 #' @param value Numeric vector (NA where censored).
-#' @param censored Logical vector.
-#' @param detection_limit Numeric vector of DLs.
+#' @param censored Logical vector, the same length as `value`.
+#' @param detection_limit Numeric vector of DLs (length 1, recycled, or the same
+#'   length as `value`).
 #' @param fraction Substitution fraction: 0.5 (default, = 1/2 DL), 1 (DL), or 0.
 #' @return Numeric vector with censored entries substituted (NA where the DL
 #'   itself is unknown).
@@ -90,9 +100,19 @@ apply_substitution <- function(value, censored, detection_limit, fraction = 0.5)
   if (!fraction %in% c(0, 0.5, 1)) {
     stop("fraction must be one of 0, 0.5, 1 (got ", fraction, ")")
   }
+  n <- length(value)
+  if (length(censored) != n) {
+    stop("`censored` length (", length(censored), ") must match `value` (", n,
+         ").", call. = FALSE)
+  }
+  if (!length(detection_limit) %in% c(1L, n)) {
+    stop("`detection_limit` length (", length(detection_limit),
+         ") must be 1 or match `value` (", n, ").", call. = FALSE)
+  }
+  dl  <- if (length(detection_limit) == 1L) rep(detection_limit, n) else detection_limit
   out <- value
   idx <- !is.na(censored) & censored
-  out[idx] <- fraction * detection_limit[idx]
+  out[idx] <- fraction * dl[idx]
   out
 }
 
