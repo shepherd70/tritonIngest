@@ -77,8 +77,18 @@ save_mapping_profile <- function(name, mappings, meta = NULL,
   stopifnot(is.list(mappings))
   slug <- .mp_slug(name)
   path <- file.path(mapping_profiles_dir(dir, create = TRUE), paste0(slug, ".json"))
-  if (file.exists(path) && !overwrite) {
-    stop(sprintf("Profile '%s' already exists (overwrite = FALSE).", name), call. = FALSE)
+  if (file.exists(path)) {
+    existing <- tryCatch(jsonlite::fromJSON(path)$name, error = function(e) NULL)
+    # A different name mapping to the same slug is a collision, not an overwrite:
+    # silently replacing it would destroy an unrelated saved profile.
+    if (!is.null(existing) && !identical(as.character(existing), as.character(name))) {
+      stop(sprintf(paste0("Profile name '%s' collides with existing profile ",
+                          "'%s' (both map to '%s.json'); choose a more distinct name."),
+                   name, existing, slug), call. = FALSE)
+    }
+    if (!overwrite) {
+      stop(sprintf("Profile '%s' already exists (overwrite = FALSE).", name), call. = FALSE)
+    }
   }
   # Coerce each role's mapping to a *named list* so jsonlite serialises it as a
   # JSON object (key-preserving), not a positional array.

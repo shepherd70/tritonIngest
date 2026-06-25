@@ -9,9 +9,10 @@ apply_substitution(value, censored, detection_limit, fraction = 0.5)
 \arguments{
 \item{value}{Numeric vector (NA where censored).}
 
-\item{censored}{Logical vector.}
+\item{censored}{Logical vector, the same length as \code{value}.}
 
-\item{detection_limit}{Numeric vector of DLs.}
+\item{detection_limit}{Numeric vector of DLs (length 1, recycled, or the same
+length as \code{value}).}
 
 \item{fraction}{Substitution fraction: 0.5 (default, = 1/2 DL), 1 (DL), or 0.}
 }

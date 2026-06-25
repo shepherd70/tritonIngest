@@ -22,8 +22,10 @@ is_value_like <- function(x, threshold = 0.8) {
   if (!length(x)) return(FALSE)
   x <- trimws(x)
   numeric_ok <- suppressWarnings(!is.na(as.numeric(x)))
-  nd_ok <- grepl("^<\\s*[0-9.eE+-]+$", x) |
-    toupper(x) %in% c("ND", "N.D.", "BDL", "DNQ", "U")
+  # Reuse the shared non-detect vocabulary (ND_TOKENS) and "<DL" regex defined in
+  # censored.R, so layout detection and value parsing recognise the same tokens
+  # and cannot drift (e.g. a "NON-DETECT" column is value-like to both).
+  nd_ok <- grepl(ND_LT_REGEX, x) | toupper(x) %in% ND_TOKENS
   mean(numeric_ok | nd_ok) >= threshold
 }
 
@@ -93,6 +95,9 @@ detect_layout <- function(df,
 
 #' Melt a wide table (variables as columns) to long form.
 #'
+#' Errors if a retained id column is named `parameter`, `value_raw`, or `units`
+#' (the reshape's output names) rather than silently overwriting it.
+#'
 #' @param df Wide data frame.
 #' @param param_cols Character vector of measured-variable column names to melt.
 #' @param id_cols Columns to keep as identifiers; default everything else.
@@ -107,6 +112,15 @@ melt_wide <- function(df, param_cols, id_cols = setdiff(names(df), param_cols),
   missing_cols <- setdiff(param_cols, names(df))
   if (length(missing_cols)) {
     stop("param_cols not in data: ", paste(missing_cols, collapse = ", "))
+  }
+  # The reshape produces fixed output names; if a retained id column already uses
+  # one, pivoting/`$units<-` would duplicate or silently clobber it. Fail clearly.
+  clash <- intersect(c("parameter", "value_raw", "units"), id_cols)
+  if (length(clash)) {
+    stop("melt_wide() would overwrite existing column(s) ",
+         paste0("'", clash, "'", collapse = ", "),
+         " with reshape output of the same name; rename or drop them first ",
+         "(reserved output names: parameter, value_raw, units).", call. = FALSE)
   }
   long <- tidyr::pivot_longer(
     df,

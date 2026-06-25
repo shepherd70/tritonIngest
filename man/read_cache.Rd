@@ -25,8 +25,8 @@ recorded fingerprint. \code{NULL} skips the freshness check.}
 The cached object, or \code{NULL} on a miss / stale source.
 }
 \description{
-Returns the cached object when the data file and its sidecar exist and — when
-the sidecar recorded a source fingerprint — the current \code{source} still matches
+Returns the cached object when the data file and its sidecar exist and -- when
+the sidecar recorded a source fingerprint -- the current \code{source} still matches
 it. A miss or a stale/changed source returns \code{NULL} (with a message), so the
 caller re-parses rather than trusting an out-of-date cache.
 }

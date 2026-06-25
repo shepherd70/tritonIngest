@@ -40,3 +40,16 @@ test_that("the profiles dir can come from a package option", {
   save_mapping_profile("opt", mappings = list(r = list(a = "A")))
   expect_equal(list_mapping_profiles()$name, "opt")
 })
+
+test_that("save_mapping_profile errors on a slug collision with a different name", {
+  dir <- file.path(tempdir(), paste0("mp_col_", as.integer(Sys.time())))
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  save_mapping_profile("2025 master", mappings = list(r = list(a = "A")), dir = dir)
+  # "2025_master" sanitises to the same "2025-master.json"
+  expect_error(
+    save_mapping_profile("2025_master", mappings = list(r = list(b = "B")), dir = dir),
+    "collides with existing profile")
+  # re-saving the SAME name is a normal overwrite, not a collision
+  expect_silent(
+    save_mapping_profile("2025 master", mappings = list(r = list(a = "A2")), dir = dir))
+})

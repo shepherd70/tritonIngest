@@ -14,6 +14,13 @@ test_that("parse_censored uses a supplied DL column for tokens and flags disagre
   expect_match(p$parse_note[2], "differs from detection-limit column")
 })
 
+test_that("parse_censored rejects a detection_limit of the wrong length", {
+  expect_error(
+    parse_censored(c("<0.01", "ND", "5"), detection_limit = c(0.01, 0.02)),
+    "must be 1 or match")
+  expect_silent(parse_censored(c("ND", "ND"), detection_limit = 0.05))  # length 1 recycles
+})
+
 test_that("apply_substitution replaces censored with fraction*DL", {
   v  <- c(NA, 5)
   cn <- c(TRUE, FALSE)
@@ -21,6 +28,14 @@ test_that("apply_substitution replaces censored with fraction*DL", {
   expect_equal(apply_substitution(v, cn, dl, fraction = 0.5), c(0.005, 5))
   expect_equal(apply_substitution(v, cn, dl, fraction = 0),   c(0, 5))
   expect_error(apply_substitution(v, cn, dl, fraction = 0.25), "fraction must be")
+})
+
+test_that("apply_substitution validates vector lengths", {
+  expect_error(apply_substitution(c(NA, 5), TRUE, c(0.01, NA)), "`censored` length")
+  expect_error(apply_substitution(c(NA, 5), c(TRUE, FALSE), c(0.01, 0.02, 0.03)),
+               "`detection_limit` length")
+  # a length-1 detection_limit recycles over the value vector
+  expect_equal(apply_substitution(c(NA, NA), c(TRUE, TRUE), 0.02), c(0.01, 0.01))
 })
 
 test_that("working_values switches on method", {

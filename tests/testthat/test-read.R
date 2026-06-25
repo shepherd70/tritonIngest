@@ -25,3 +25,28 @@ test_that("coerce_excel_date handles serial / ISO / NA mixes", {
   expect_equal(coerce_excel_date(c(45847, 45909)),
                as.Date("1899-12-30") + c(45847, 45909))
 })
+
+test_that("coerce_excel_date parses year-first slash dates and respects origin", {
+  expect_equal(coerce_excel_date("2023/08/22"), as.Date("2023-08-22"))
+  # the same serial under the 1904 system lands later than under the 1900 default
+  d1900 <- coerce_excel_date(1000)
+  d1904 <- coerce_excel_date(1000, origin = "1904-01-01")
+  expect_equal(as.numeric(d1904 - d1900),
+               as.numeric(as.Date("1904-01-01") - as.Date("1899-12-30")))
+})
+
+test_that("coerce_excel_date warns on values matching neither serial nor format", {
+  expect_warning(d <- coerce_excel_date(c("2023-08-22", "not-a-date")),
+                 "neither an Excel serial nor a known date format")
+  expect_equal(d[1], as.Date("2023-08-22"))
+  expect_true(is.na(d[2]))
+})
+
+test_that("coerce_excel_date can exclude year-like integers via serial_range", {
+  # tightened range: a bare 4-digit year is no longer misread as a serial
+  expect_warning(d <- coerce_excel_date("2024", serial_range = c(10000, 60000)),
+                 "neither an Excel serial")
+  expect_true(is.na(d))
+  # the full default range still treats it as a serial (documented hazard)
+  expect_s3_class(coerce_excel_date("2024"), "Date")
+})

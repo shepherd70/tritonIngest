@@ -2,23 +2,52 @@
 % Please edit documentation in R/read.R
 \name{coerce_excel_date}
 \alias{coerce_excel_date}
-\title{Coerce mixed Excel-serial / ISO-string dates to Date.}
+\title{Coerce mixed Excel-serial / date-string values to Date.}
 \usage{
-coerce_excel_date(x)
+coerce_excel_date(
+  x,
+  formats = c("\%Y-\%m-\%d", "\%Y/\%m/\%d"),
+  origin = "1899-12-30",
+  serial_range = c(1, 2958465)
+)
 }
 \arguments{
-\item{x}{A vector (numeric or character) of Excel-serial numbers and/or ISO
-\code{"YYYY-MM-DD"} strings.}
+\item{x}{A vector (numeric or character) of Excel-serial numbers and/or date
+strings.}
+
+\item{formats}{Character vector of \code{\link[=strptime]{strptime()}} formats tried, in order, for
+string (non-serial) elements. Defaults to year-first ISO layouts.}
+
+\item{origin}{Date origin for Excel serials: \code{"1899-12-30"} (1900 system,
+default) or \code{"1904-01-01"} (1904 system).}
+
+\item{serial_range}{Length-2 \code{c(min, max)} bounding which numbers are treated
+as Excel serials. Defaults to the full valid Excel range; tighten it (e.g.
+\code{c(10000, 60000)}) when bare year-like integers like \code{"2024"} would
+otherwise be misread as serials.}
 }
 \value{
 A \code{Date} vector the same length as \code{x}.
 }
 \description{
-Worksheet date columns ingested from Excel sometimes arrive as a mix of Excel
-serial numbers (e.g. \code{"45909"} or \code{45909}) and ISO date strings (e.g.
+Worksheet date columns ingested from Excel often arrive as a mix of Excel
+serial numbers (e.g. \code{"45909"} or \code{45909}) and date strings (e.g.
 \code{"2023-08-22"}), depending on how each cell was formatted. A naive \code{as.Date()}
-mangles the serials and a naive serial conversion drops the ISO strings to
-\code{NA}. This detects each element's encoding and coerces both to a single \code{Date}
-vector (1900 date system, origin 1899-12-30), leaving genuinely
-missing/unparseable values as \code{NA}.
+mangles the serials and a naive serial conversion drops the strings to \code{NA}.
+This detects each element's encoding and coerces both to a single \code{Date}
+vector, leaving genuinely missing/unparseable values as \code{NA}.
+}
+\details{
+Detection is by value: anything that parses as a number \emph{within}
+\code{serial_range} is treated as an Excel serial; every other non-empty element is
+parsed against \code{formats} in order (first match wins, per element). The default
+\code{formats} are the unambiguous \strong{year-first} layouts; pass \code{formats} for day-
+or month-first data (e.g. \code{"\%d/\%m/\%Y"}) rather than relying on a guess, which
+would silently misread ambiguous values such as \code{"05/06/2024"}. A non-empty
+value matching neither a serial nor any format becomes \code{NA} \emph{with a warning},
+so a silently-dropped date column does not pass unnoticed.
+
+The Excel \strong{1900} date system is the default (\code{origin = "1899-12-30"}, so
+serial 1 is 1900-01-01); pass \code{origin = "1904-01-01"} for a workbook saved
+under the Mac/1904 system.
 }

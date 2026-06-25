@@ -124,7 +124,10 @@ auto_map <- function(source_cols, contract, max_distance = 2L) {
   out
 }
 
-# Coerce a single vector to a contract type.
+# Coerce a single vector to a contract type. The integer path rounds half-to-
+# even (round(80.5) == 80) and returns NA above .Machine$integer.max with the
+# overflow warning suppressed -- fine for years/counts, but declare a large
+# numeric id as "numeric" or "character", not "integer".
 .cf_coerce <- function(x, type) {
   switch(type,
     integer   = suppressWarnings(as.integer(round(as.numeric(x)))),
