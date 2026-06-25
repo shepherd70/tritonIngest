@@ -1,9 +1,11 @@
 # tritonIngest — Design Document
 
-**Status:** Implemented (v0.4.2) — Phase 0–1 complete, plus an added validation
-kernel and materialisation cache; consumer migration (Phases 2–4) pending ·
+**Status:** Implemented (v0.4.3) — Phase 0–1 complete, plus an added validation
+kernel and materialisation cache. Phase 2 done: `bw-analysis-code` consumes the
+shared package (pinned `v0.4.3`); Phases 3–4 (`water-chemistry-qaqc`, chemistry
+ingestion in bw) pending ·
 **Author:** drafted for Travis Shepherd · **Date drafted:** 2026-06-08 ·
-**Last reconciled:** 2026-06-16
+**Last reconciled:** 2026-06-24
 
 A lean, domain-agnostic R package for **tabular data ingestion**: read messy
 field/lab workbooks, detect their layout, map their columns onto a declared
@@ -168,7 +170,7 @@ tritonIngest/
 ## 5. Migration plan
 
 Each phase ends with **both repos' full test suites green**. Status as of
-v0.4.2 (2026-06-16): ✅ done · ⬜ not started.
+v0.4.3 (2026-06-24): ✅ done · ⬜ not started.
 
 ### Phase 0 — scaffold ✅
 Create the `tritonIngest` repo (DESCRIPTION, package skeleton, roxygen, testthat).
@@ -193,7 +195,12 @@ the original §2 scope, plus project infrastructure:
   object (rds / parquet backends, source-fingerprint invalidation).
 - CI (`R-CMD-check.yaml`) and a pinned `renv` environment.
 
-### Phase 2 — migrate `bw-analysis-code` ⬜
+### Phase 2 — migrate `bw-analysis-code` ✅
+**Done** — `bwanalysis` imports `tritonIngest` and its `data_contract.R`,
+`mapping_profiles.R`, and `coerce_excel_date.R` are thin role-based wrappers that
+delegate to the shared engine (`DATA_CONTRACTS` stays local). Initial adoption
+landed 2026-06-09 (tracker task 131); pin bumped to `v0.4.3` on 2026-06-24.
+
 - Add `tritonIngest` to bw `Imports` (+ `Remotes`/renv git ref).
 - Replace the bodies of bw `data_contract.R`/`mapping_profiles.R`/
   `coerce_excel_date.R` with re-exports or thin wrappers:
@@ -224,7 +231,7 @@ the original §2 scope, plus project infrastructure:
 
 - New public/private GitHub repo `shepherd70/tritonIngest`, semver tags
   (`v0.1.0` …).
-- Consumers pin it: `DESCRIPTION` `Remotes: github::shepherd70/tritonIngest@v0.4.2`
+- Consumers pin it: `DESCRIPTION` `Remotes: github::shepherd70/tritonIngest@v0.4.3`
   (current release) and the resolved ref recorded in each repo's `renv.lock`.
 - Breaking changes to the shared API bump the minor version while both repos are
   pre-1.0; never force-push tags.
