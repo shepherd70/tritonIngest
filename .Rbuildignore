@@ -6,3 +6,6 @@
 ^\.github$
 ^DESIGN\.md$
 ^\.Rhistory$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

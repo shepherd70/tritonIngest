@@ -13,6 +13,8 @@ Description: Domain-agnostic primitives for ingesting messy field and laboratory
     same ingestion plumbing without duplicating it. Contains no domain knowledge,
     statistics, or plotting.
 License: MIT + file LICENSE
+URL: https://github.com/shepherd70/tritonIngest, https://shepherd70.github.io/tritonIngest/
+BugReports: https://github.com/shepherd70/tritonIngest/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:

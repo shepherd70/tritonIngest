@@ -1,0 +1,65 @@
+url: https://shepherd70.github.io/tritonIngest/
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Read & dates
+  desc: Read tabular sources as all-text so fragile notation survives; coerce mixed date encodings.
+  contents:
+  - read_tabular
+  - coerce_excel_date
+- title: Clean structural junk
+  desc: Recover the real header row and strip blank rows / spacer columns from dirty workbooks.
+  contents:
+  - clean_table
+  - find_header_row
+  - drop_blank_rows
+  - drop_blank_cols
+- title: Reshape layout
+  desc: Detect long vs wide layout and melt wide to long.
+  contents:
+  - detect_layout
+  - melt_wide
+- title: Column contracts & mapping
+  desc: Declare a schema, auto-map source columns onto it by exact / synonym / fuzzy match, coerce, and complete.
+  contents:
+  - cf_field
+  - as_contract
+  - contract_fields
+  - auto_map
+  - apply_column_map
+  - complete_to_contract
+  - contract_is_ready
+  - type_matches
+  - is_value_like
+- title: Mapping profiles
+  desc: Save, load, and manage named JSON column-mapping profiles for reuse across runs.
+  contents:
+  - save_mapping_profile
+  - load_mapping_profile
+  - list_mapping_profiles
+  - delete_mapping_profile
+  - mapping_profiles_dir
+- title: Lab values
+  desc: Parse non-detects, substitute working values, and reconcile units.
+  contents:
+  - parse_censored
+  - apply_substitution
+  - working_values
+  - convert_units
+- title: Validation (generic)
+  desc: Domain-agnostic schema checks that each return failures, then abort once with the collected set.
+  contents:
+  - check_required_columns
+  - check_column_types
+  - check_no_na
+  - validate_against_contract
+  - validation_abort
+- title: Cache
+  desc: Materialise the canonical object to a fingerprinted fast-reload cache.
+  contents:
+  - write_cache
+  - read_cache
+  - cached_ingest
+  - cache_dir
