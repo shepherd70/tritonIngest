@@ -1,11 +1,11 @@
 # tritonIngest — Design Document
 
-**Status:** Implemented (v0.4.3) — Phase 0–1 complete, plus an added
+**Status:** Implemented (v0.5.0) — Phase 0–1 complete, plus an added
 validation kernel and materialisation cache. Phase 2 done:
 `bw-analysis-code` consumes the shared package (pinned `v0.4.3`); Phases
 3–4 (`water-chemistry-qaqc`, chemistry ingestion in bw) pending ·
 **Author:** drafted for Travis Shepherd · **Date drafted:** 2026-06-08 ·
-**Last reconciled:** 2026-06-24
+**Last reconciled:** 2026-06-25
 
 A lean, domain-agnostic R package for **tabular data ingestion**: read
 messy field/lab workbooks, detect their layout, map their columns onto a
@@ -181,7 +181,7 @@ mapped$working <- working_values(mapped$value, mapped$censored, mapped$detection
 ## 5. Migration plan
 
 Each phase ends with **both repos’ full test suites green**. Status as
-of v0.4.3 (2026-06-24): ✅ done · ⬜ not started.
+of v0.5.0 (2026-06-25): ✅ done · ⬜ not started.
 
 ### Phase 0 — scaffold ✅
 
@@ -258,7 +258,7 @@ thin role-based wrappers that delegate to the shared engine
 - New public/private GitHub repo `shepherd70/tritonIngest`, semver tags
   (`v0.1.0` …).
 - Consumers pin it: `DESCRIPTION`
-  `Remotes: github::shepherd70/tritonIngest@v0.4.3` (current release)
+  `Remotes: github::shepherd70/tritonIngest@v0.5.0` (current release)
   and the resolved ref recorded in each repo’s `renv.lock`.
 - Breaking changes to the shared API bump the minor version while both
   repos are pre-1.0; never force-push tags.

@@ -34,7 +34,7 @@
 
 <div id="tritoningest--design-document" class="section level1">
 
-<p><strong>Status:</strong> Implemented (v0.4.3) — Phase 0–1 complete, plus an added validation kernel and materialisation cache. Phase 2 done: <code>bw-analysis-code</code> consumes the shared package (pinned <code>v0.4.3</code>); Phases 3–4 (<code>water-chemistry-qaqc</code>, chemistry ingestion in bw) pending · <strong>Author:</strong> drafted for Travis Shepherd · <strong>Date drafted:</strong> 2026-06-08 · <strong>Last reconciled:</strong> 2026-06-24</p>
+<p><strong>Status:</strong> Implemented (v0.5.0) — Phase 0–1 complete, plus an added validation kernel and materialisation cache. Phase 2 done: <code>bw-analysis-code</code> consumes the shared package (pinned <code>v0.4.3</code>); Phases 3–4 (<code>water-chemistry-qaqc</code>, chemistry ingestion in bw) pending · <strong>Author:</strong> drafted for Travis Shepherd · <strong>Date drafted:</strong> 2026-06-08 · <strong>Last reconciled:</strong> 2026-06-25</p>
 <p>A lean, domain-agnostic R package for <strong>tabular data ingestion</strong>: read messy field/lab workbooks, detect their layout, map their columns onto a declared schema, parse non-detects/units, and validate the result — shared by <code>water-chemistry-qaqc</code> (chemistry) and <code>bw-analysis-code</code> (fish, effort, habitat, and eventually metals).</p>
 <hr><div class="section level2">
 <h2 id="id_1-why">1. Why<a class="anchor" aria-label="anchor" href="#id_1-why"></a></h2>
@@ -220,7 +220,7 @@
 <hr></div>
 <div class="section level2">
 <h2 id="id_5-migration-plan">5. Migration plan<a class="anchor" aria-label="anchor" href="#id_5-migration-plan"></a></h2>
-<p>Each phase ends with <strong>both repos’ full test suites green</strong>. Status as of v0.4.3 (2026-06-24): ✅ done · ⬜ not started.</p>
+<p>Each phase ends with <strong>both repos’ full test suites green</strong>. Status as of v0.5.0 (2026-06-25): ✅ done · ⬜ not started.</p>
 <div class="section level3">
 <h3 id="phase-0--scaffold-white_check_mark">Phase 0 — scaffold ✅<a class="anchor" aria-label="anchor" href="#phase-0--scaffold-white_check_mark"></a></h3>
 <p>Create the <code>tritonIngest</code> repo (DESCRIPTION, package skeleton, roxygen, testthat). GitHub: <code>shepherd70/tritonIngest</code>.</p>
@@ -263,7 +263,7 @@
 <div class="section level2">
 <h2 id="id_6-distribution--versioning">6. Distribution &amp; versioning<a class="anchor" aria-label="anchor" href="#id_6-distribution--versioning"></a></h2>
 <ul><li>New public/private GitHub repo <code>shepherd70/tritonIngest</code>, semver tags (<code>v0.1.0</code> …).</li>
-<li>Consumers pin it: <code>DESCRIPTION</code> <code>Remotes: github::shepherd70/tritonIngest@v0.4.3</code> (current release) and the resolved ref recorded in each repo’s <code>renv.lock</code>.</li>
+<li>Consumers pin it: <code>DESCRIPTION</code> <code>Remotes: github::shepherd70/tritonIngest@v0.5.0</code> (current release) and the resolved ref recorded in each repo’s <code>renv.lock</code>.</li>
 <li>Breaking changes to the shared API bump the minor version while both repos are pre-1.0; never force-push tags.</li>
 </ul><hr></div>
 <div class="section level2">
