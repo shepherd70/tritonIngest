@@ -24,7 +24,10 @@ separately by \code{\link[=check_required_columns]{check_required_columns()}}.
 \seealso{
 Other validation:
 \code{\link[=check_column_types]{check_column_types()}},
+\code{\link[=check_monotonic]{check_monotonic()}},
+\code{\link[=check_range]{check_range()}},
 \code{\link[=check_required_columns]{check_required_columns()}},
+\code{\link[=check_unique]{check_unique()}},
 \code{\link[=type_matches]{type_matches()}},
 \code{\link[=validation_abort]{validation_abort()}}
 }

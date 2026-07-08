@@ -72,17 +72,34 @@ contract_fields <- function(contract) as_contract(contract)$field
 #'
 #' For each contract field, picks the best source column by: (1) normalised exact
 #' match on the field name, (2) normalised match against the field's synonyms,
-#' (3) fuzzy match (`utils::adist`) within a small edit-distance budget. A source
-#' column is used at most once; earlier (higher-priority) fields win ties.
+#' (3) optionally, a fuzzy match (`utils::adist`) within an edit-distance budget.
+#' A source column is used at most once; earlier (higher-priority) fields win ties,
+#' so the mapping depends on contract field **order**.
+#'
+#' @section Fuzzy matching is opt-in:
+#' `max_distance` defaults to `0` (exact and synonym matching only). Edit distance
+#' over short, systematically-related analyte names is unsafe: `"LEPH_C10_C19"` is
+#' distance 1 from `"EPH_C10_C19"` but distance 9 from the correct
+#' `"LEPH_C10_C19_less_PAH"`, and a two-character synonym such as `"dl"` is
+#' distance 2 from a `"pH"` column. Set `max_distance = 2L` to restore the
+#' pre-0.6.0 behaviour; every fuzzy match is then reported with a warning.
+#'
+#' @section Exact names outrank synonyms:
+#' A contract field always binds to a column whose *name* matches it, even when a
+#' synonym matches a different column. That is intended -- but it is also how a
+#' column innocently named `Analyte` that holds a sample-matrix label (`"Effluent"`)
+#' captures the `analyte` field ahead of the `parameter` column holding the real
+#' analyte names. When both are present, `auto_map()` warns.
 #'
 #' @param source_cols Character vector of column names from the source data.
 #' @param contract A contract (list of specs or tibble).
-#' @param max_distance Integer max edit distance for the fuzzy fallback; set to 0
-#'   to disable fuzzy matching.
+#' @param max_distance Integer max edit distance for the fuzzy fallback. `0`
+#'   (default) disables fuzzy matching.
+#' @param warn Emit warnings for fuzzy matches and exact/synonym ambiguity.
 #' @return A named list, one element per contract field, holding the matched
 #'   source-column name or `NA_character_`.
 #' @export
-auto_map <- function(source_cols, contract, max_distance = 2L) {
+auto_map <- function(source_cols, contract, max_distance = 0L, warn = TRUE) {
   ct       <- as_contract(contract)
   src      <- as.character(source_cols)
   src_norm <- .cf_norm(src)
@@ -94,13 +111,24 @@ auto_map <- function(source_cols, contract, max_distance = 2L) {
     candidate_idx[1]
   }
 
-  out <- stats::setNames(vector("list", nrow(ct)), ct$field)
+  out       <- stats::setNames(vector("list", nrow(ct)), ct$field)
+  fuzzy     <- character(0)
+  exact_syn <- list()   # field -> synonym-matched source indices, decided post-pass
 
   for (i in seq_len(nrow(ct))) {
     field_norm <- .cf_norm(ct$field[i])
     syn_norm   <- .cf_norm(ct$synonyms[[i]])
 
     hit <- pick(which(src_norm == field_norm))
+    if (!is.na(hit) && length(syn_norm)) {
+      # Exact-name match won. Remember any *other* column a synonym also matches,
+      # but decide whether that is a real ambiguity only after the whole mapping
+      # is known: a column that some other field legitimately claims is not
+      # contested. Deciding here would false-positive on that case.
+      exact_syn[[ct$field[i]]] <- list(
+        col = src[hit],
+        others = setdiff(which(src_norm %in% syn_norm), hit))
+    }
     if (is.na(hit) && length(syn_norm)) {
       hit <- pick(which(src_norm %in% syn_norm))
     }
@@ -110,7 +138,11 @@ auto_map <- function(source_cols, contract, max_distance = 2L) {
       if (length(free)) {
         d  <- vapply(free, function(j) min(utils::adist(src_norm[j], targets)), numeric(1))
         ok <- which(d <= max_distance)
-        if (length(ok)) hit <- free[ok[which.min(d[ok])]]
+        if (length(ok)) {
+          hit <- free[ok[which.min(d[ok])]]
+          fuzzy <- c(fuzzy, sprintf("'%s' -> '%s' (edit distance %d)",
+                                    ct$field[i], src[hit], as.integer(min(d[ok]))))
+        }
       }
     }
 
@@ -120,6 +152,30 @@ auto_map <- function(source_cols, contract, max_distance = 2L) {
     } else {
       out[[ct$field[i]]] <- NA_character_
     }
+  }
+
+  # Ambiguity is only real when the synonym-matched other column is claimed by NO
+  # field. A column that ended up mapped (to this or any field) is not contested.
+  ambig <- character(0)
+  for (f in names(exact_syn)) {
+    contested <- exact_syn[[f]]$others[!used[exact_syn[[f]]$others]]
+    if (length(contested)) {
+      ambig <- c(ambig, sprintf(
+        "'%s' bound to column '%s' by exact name, but synonym(s) also match unmapped column(s) %s",
+        f, exact_syn[[f]]$col, paste0("'", src[contested], "'", collapse = ", ")))
+    }
+  }
+
+  if (isTRUE(warn) && length(fuzzy)) {
+    warning("auto_map(): matched by fuzzy edit distance, not by name or synonym:\n  ",
+            paste(fuzzy, collapse = "\n  "),
+            "\nVerify each; set max_distance = 0 to disable fuzzy matching.", call. = FALSE)
+  }
+  if (isTRUE(warn) && length(ambig)) {
+    warning("auto_map(): ambiguous mapping (exact name wins over synonym):\n  ",
+            paste(ambig, collapse = "\n  "),
+            "\nCheck that the exactly-named column really holds this field's data.",
+            call. = FALSE)
   }
   out
 }
@@ -146,13 +202,24 @@ auto_map <- function(source_cols, contract, max_distance = 2L) {
 #' afterwards to flag missing required fields. Unreferenced source columns are
 #' discarded, so downstream code sees only contract-named columns.
 #'
+#' @section Coercion is lossy, and says so:
+#' Coercing a `numeric` field runs `as.numeric()`, which turns every censored
+#' result (`"<0.25"`, `"ND"`, `">2420"`) into `NA`. That is exactly the
+#' information [parse_censored()] exists to preserve, and the contract path does
+#' not call it. Parse first, then map the parsed columns. When coercion does drop
+#' non-missing values, `warn_coercion` reports the field, the count and a few
+#' example tokens rather than letting them vanish.
+#'
 #' @param df A source data frame.
 #' @param mapping Named list/character vector: contract field -> source column.
 #' @param contract A contract (list of specs or tibble).
 #' @param coerce Logical; coerce each output column to its declared type.
+#' @param warn_coercion Warn when coercion turns non-missing source values into
+#'   `NA`.
 #' @return A tibble with contract-named (subset of) columns.
 #' @export
-apply_column_map <- function(df, mapping, contract, coerce = TRUE) {
+apply_column_map <- function(df, mapping, contract, coerce = TRUE,
+                             warn_coercion = TRUE) {
   ct <- as_contract(contract)
   stopifnot(is.data.frame(df))
 
@@ -166,10 +233,31 @@ apply_column_map <- function(df, mapping, contract, coerce = TRUE) {
   names(out) <- names(mapping)
 
   if (coerce) {
-    types <- stats::setNames(ct$type, ct$field)
+    types  <- stats::setNames(ct$type, ct$field)
+    losses <- character(0)
     for (f in names(out)) {
       ty <- types[[f]]
-      if (!is.null(ty)) out[[f]] <- .cf_coerce(out[[f]], ty)
+      if (is.null(ty)) next
+      before <- out[[f]]
+      after  <- .cf_coerce(before, ty)
+      if (ty %in% c("numeric", "integer", "date")) {
+        present <- !is.na(before) & nzchar(trimws(as.character(before)))
+        lost    <- which(is.na(after) & present)
+        if (length(lost)) {
+          ex <- utils::head(unique(as.character(before)[lost]), 3)
+          losses <- c(losses, sprintf("'%s' (%s): %d of %d non-missing values -> NA (e.g. %s)",
+                                      f, ty, length(lost), sum(present),
+                                      paste0("'", ex, "'", collapse = ", ")))
+        }
+      }
+      out[[f]] <- after
+    }
+    if (isTRUE(warn_coercion) && length(losses)) {
+      warning("apply_column_map(): type coercion discarded non-missing values:\n  ",
+              paste(losses, collapse = "\n  "),
+              "\nparse_censored() recovers non-detects and over-range results that ",
+              "as.numeric() destroys; parse before mapping a numeric field.",
+              call. = FALSE)
     }
   }
   out

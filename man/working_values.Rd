@@ -9,19 +9,28 @@ working_values(
   censored,
   detection_limit,
   method = c("substitution"),
-  fraction = 0.5
+  fraction = 0.5,
+  censor_direction = NULL,
+  censor_limit = NULL
 )
 }
 \arguments{
-\item{value}{Numeric vector (NA where censored).}
+\item{value}{Numeric vector (NA where censored), \strong{or} a tibble returned by
+\code{\link[=parse_censored]{parse_censored()}}, in which case the remaining columns are taken from it.}
 
 \item{censored}{Logical vector (NA = unparseable).}
 
-\item{detection_limit}{Numeric vector of DLs.}
+\item{detection_limit}{Numeric vector of detection limits.}
 
 \item{method}{Censoring method; currently only \code{"substitution"}.}
 
 \item{fraction}{Substitution fraction (0, 0.5, or 1).}
+
+\item{censor_direction}{Optional \code{"none"}/\code{"left"}/\code{"right"} vector; see
+\code{\link[=apply_substitution]{apply_substitution()}}.}
+
+\item{censor_limit}{Optional numeric vector of censoring bounds; see
+\code{\link[=apply_substitution]{apply_substitution()}}.}
 }
 \value{
 Numeric vector with censored entries handled per method.
@@ -31,4 +40,11 @@ A single censoring "switch" for code that needs a plain numeric vector. Maps
 (value, censored, detection_limit) to working values under the chosen
 non-detect handling. Only substitution is supported here; robust group-level
 estimators (KM/ROS) live in the consuming package.
+}
+\details{
+Pass the whole \code{\link[=parse_censored]{parse_censored()}} tibble as \code{value} to handle both censoring
+directions correctly with no further arguments:
+\code{working_values(parse_censored(x))}. The vector form is kept for callers that
+carry the columns separately; without \code{censor_direction} it treats every
+censored entry as left-censored (see \code{\link[=apply_substitution]{apply_substitution()}}).
 }

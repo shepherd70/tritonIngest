@@ -10,7 +10,8 @@ detect_layout(
     "characteristic", "characteristics", "characteristicname", "variable", "variables",
     "constituent", "constituents"),
   value_names = c("value", "values", "result", "results", "resultvalue", "value_raw",
-    "concentration", "concentrations", "conc", "measurement", "measurements")
+    "concentration", "concentrations", "conc", "measurement", "measurements"),
+  na_strings = c("-", "--", "n/a", "N/A")
 )
 }
 \arguments{
@@ -20,9 +21,12 @@ detect_layout(
 that signal a long-format parameter / value column. Matched after
 lowercasing and whitespace-trimming the data's names. Override to match a
 domain's vocabulary.}
+
+\item{na_strings}{Placeholders treated as missing by \code{\link[=is_value_like]{is_value_like()}}.}
 }
 \value{
-A list: \code{layout} (\code{"long"}/\code{"wide"}), \code{value_like_cols}, \code{reason}.
+A list: \code{layout} (\code{"long"}/\code{"wide"}/\code{"transposed"}), \code{value_like_cols},
+\code{reason}.
 }
 \description{
 Long signals: a parameter-ish column name AND a value-ish column name, or a
@@ -39,3 +43,12 @@ value column \code{"Results"}. Missing the plural would drop the long signal and
 when two or more numeric columns are present (value + detection limit + a
 numeric QC-lot id), misclassify the table as wide.
 }
+\section{Transposed tables}{
+
+A third shape exists in the wild: analytes down the first column and one
+\emph{sample} per column (a lab's "results matrix"). Its columns are numeric, so
+this function reports \code{"wide"} and a caller melting on \code{value_like_cols} would
+emit one \code{parameter} per sample. \code{\link[=looks_transposed]{looks_transposed()}} tests for that shape and
+\code{\link[=transpose_table]{transpose_table()}} converts it; \code{detect_layout()} reports \code{layout = "transposed"} when the test fires.
+}
+

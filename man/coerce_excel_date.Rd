@@ -8,7 +8,8 @@ coerce_excel_date(
   x,
   formats = c("\%Y-\%m-\%d", "\%Y/\%m/\%d"),
   origin = "1899-12-30",
-  serial_range = c(1, 2958465)
+  serial_range = c(1, 2958465),
+  strict = TRUE
 )
 }
 \arguments{
@@ -24,7 +25,12 @@ default) or \code{"1904-01-01"} (1904 system).}
 \item{serial_range}{Length-2 \code{c(min, max)} bounding which numbers are treated
 as Excel serials. Defaults to the full valid Excel range; tighten it (e.g.
 \code{c(10000, 60000)}) when bare year-like integers like \code{"2024"} would
-otherwise be misread as serials.}
+otherwise be misread as serials. Values in 1500-2500 that are treated as
+serials raise a warning, because they are far more often bare years than
+dates in 1904-1906.}
+
+\item{strict}{Require a format to match an element over its whole length
+before accepting the parse. See \emph{Strict format matching}.}
 }
 \value{
 A \code{Date} vector the same length as \code{x}.
@@ -43,11 +49,26 @@ Detection is by value: anything that parses as a number \emph{within}
 parsed against \code{formats} in order (first match wins, per element). The default
 \code{formats} are the unambiguous \strong{year-first} layouts; pass \code{formats} for day-
 or month-first data (e.g. \code{"\%d/\%m/\%Y"}) rather than relying on a guess, which
-would silently misread ambiguous values such as \code{"05/06/2024"}. A non-empty
-value matching neither a serial nor any format becomes \code{NA} \emph{with a warning},
-so a silently-dropped date column does not pass unnoticed.
+would silently misread ambiguous values such as \code{"05/06/2024"}.
+}
+\section{Strict format matching}{
+
+Base \code{as.Date()} accepts a format that consumes only a \emph{prefix} of the string.
+\code{as.Date("18-08-2024", "\%Y-\%m-\%d")} therefore returns \code{0018-08-20} rather than
+\code{NA}: \verb{\%Y} takes \code{"18"} and the trailing \code{"24"} is discarded. With
+\code{strict = TRUE} (the default) an element must match a format over its \strong{whole
+length} before the parse is accepted, so day-first strings fall through to the
+unparsed branch and are reported. Set \code{strict = FALSE} for the old, lenient
+behaviour.
+
+A non-empty value matching neither a serial nor any format becomes \code{NA} \emph{with a
+warning}, so a silently-dropped date column does not pass unnoticed. Leading
+and trailing whitespace (including the newlines Excel leaves in wrapped cells)
+is trimmed before matching.
 
 The Excel \strong{1900} date system is the default (\code{origin = "1899-12-30"}, so
 serial 1 is 1900-01-01); pass \code{origin = "1904-01-01"} for a workbook saved
-under the Mac/1904 system.
+under the Mac/1904 system. There is no way to detect the date system from the
+values alone.
 }
+

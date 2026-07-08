@@ -1,16 +1,18 @@
 Package: tritonIngest
 Title: Tabular Data Ingestion Toolkit
-Version: 0.5.0
+Version: 0.6.0
 Authors@R:
     person("Travis", "Shepherd", email = "travis.shepherd@tritonenv.com",
            role = c("aut", "cre"))
 Description: Domain-agnostic primitives for ingesting messy field and laboratory
-    data workbooks: all-as-text reading of CSV/TSV/XLSX, long/wide layout
-    detection and reshaping, declarative column contracts with synonym and fuzzy
-    auto-mapping, reusable JSON column-mapping profiles, non-detect (left-
-    censored) value parsing and substitution, and unit reconciliation. Shared by
-    the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the
-    same ingestion plumbing without duplicating it. Contains no domain knowledge,
+    data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type
+    sniffing, worksheet enumeration including hidden sheets, long/wide/transposed
+    layout detection and reshaping, declarative column contracts with synonym and
+    opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored
+    (non-detect and over-range) value parsing and substitution, unit
+    reconciliation, and row-level validation checks. Shared by the
+    water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same
+    ingestion plumbing without duplicating it. Contains no domain knowledge,
     statistics, or plotting.
 License: MIT + file LICENSE
 URL: https://github.com/shepherd70/tritonIngest, https://shepherd70.github.io/tritonIngest/
@@ -31,6 +33,7 @@ Imports:
     tools,
     utils
 Suggests:
+    zip,
     arrow,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

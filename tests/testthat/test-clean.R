@@ -46,13 +46,62 @@ test_that("clean_table is a no-op on already-clean input (header on row 1)", {
   expect_equal(out$count, c("2", "1"))
 })
 
-test_that("clean_table fills blank and de-dupes duplicate header names", {
+test_that("clean_table fills blank and de-dupes duplicate header names, loudly (RC6/RC7)", {
   dup <- tibble::tibble(a = c("site", "A", "B"),
                         b = c("site", "x", "y"),     # duplicate of "site"
-                        c = c("",     "9", "8"))      # blank header
-  out <- clean_table(dup)
+                        c = c("",     "9", "8"))      # blank header over real data
+  expect_warning(out <- clean_table(dup), "duplicate header name")
+  expect_warning(clean_table(dup), "header cell\\(s\\) blank over populated column")
   expect_equal(names(out), c("site", "site_1", "col_3"))
   expect_equal(nrow(out), 2)
+  # a blank header over a blank column is normal spacer padding and stays silent
+  pad <- tibble::tibble(a = c("site", "A"), b = c("count", "2"), c = c("", ""))
+  expect_silent(out <- clean_table(pad))
+  expect_equal(names(out), c("site", "count"))   # the spacer column is dropped
+})
+
+test_that("clean_table reconstructs a multi-row header (RC7)", {
+  # readxl leaves a merged group label only in its top-left cell
+  multi <- tibble::tibble(
+    a = c("Date", "",           "45521", "45522"),
+    b = c("EPH",  "C10-C19",    "<0.25", "0.3"),
+    c = c("",     "C19-C32",    "<0.25", "0.4")
+  )
+  out <- clean_table(multi, header_rows = 1:2)
+  expect_equal(names(out), c("Date", "EPH C10-C19", "C19-C32"))
+  expect_equal(nrow(out), 2)
+  expect_equal(out[["EPH C10-C19"]], c("<0.25", "0.3"))
+  expect_error(clean_table(multi, header_rows = c(1, 99)), "out of range")
+})
+
+test_that("drop_label_rows removes section dividers and footnote banners (RC7)", {
+  df <- tibble::tibble(
+    a = c("Physical Tests", "TSS", "Notes:",  "pH"),
+    b = c("",               "mg/L", "",       "-"),
+    c = c("",               "3.0",  "",       "7.2")
+  )
+  out <- drop_label_rows(df)
+  expect_equal(nrow(out), 2)
+  expect_equal(out$a, c("TSS", "pH"))
+  # clean_table can do it in one pass
+  grid <- tibble::tibble(a = c("analyte", "Physical Tests", "TSS"),
+                         b = c("value",   "",               "3.0"))
+  expect_equal(nrow(clean_table(grid, drop_labels = TRUE)), 1)
+  expect_equal(nrow(clean_table(grid, drop_labels = FALSE)), 2)
+})
+
+test_that("clean_table still keeps a populated metadata row (documented limit)", {
+  # the "Permit limit" row is not blank and not a label row: it survives on purpose
+  grid <- tibble::tibble(a = c("Date", "Permit limit", "45521"),
+                         b = c("TSS",  "75",           "3.0"))
+  out <- clean_table(grid, drop_labels = TRUE)
+  expect_equal(names(out), c("Date", "TSS"))
+  expect_equal(nrow(out), 2)
+  expect_equal(out$Date[1], "Permit limit")
+  # the only signal is coerce_excel_date() refusing the string; check_not_metadata_row
+  # would be the real fix and does not exist. Recorded here so the gap is visible.
+  expect_warning(d <- coerce_excel_date(out$Date), "neither an Excel serial")
+  expect_true(is.na(d[1]))
 })
 
 test_that("clean_table honours an explicit header_row and errors out of range", {

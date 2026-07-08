@@ -8,7 +8,8 @@ melt_wide(
   df,
   param_cols,
   id_cols = setdiff(names(df), param_cols),
-  units = NULL
+  units = NULL,
+  na_strings = c("-", "--", "n/a", "N/A")
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ melt_wide(
 \item{units}{Optional named character vector mapping parameter -> units, since
 wide files usually carry units in a header or codebook rather than per cell.
 Unmatched parameters get NA units.}
+
+\item{na_strings}{Cell values dropped alongside blanks as "not measured".
+Excel exports commonly write \code{"-"}; before 0.6.0 those rows survived the melt
+and became \code{"unparseable result text: '-'"} downstream.}
 }
 \value{
 Long tibble with columns: \code{id_cols...}, \code{parameter}, \code{value_raw},

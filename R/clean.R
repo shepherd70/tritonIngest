@@ -101,51 +101,133 @@ find_header_row <- function(df, max_scan = 20L) {
   NA_integer_
 }
 
+#' Drop label rows: rows carrying fewer than `min_cells` populated cells.
+#'
+#' [clean_table()] deliberately keeps every row that is not *fully* blank, because
+#' deciding that a sparse row is not a record needs the schema. But two sparse-row
+#' species are structural, not data, in almost every lab export: the single-cell
+#' **section divider** (`"Physical Tests"`, `"Total Metals"`) that separates analyte
+#' blocks, and the trailing **footnote banner**. Both carry one populated cell.
+#'
+#' This is the generic form of the rule; a caller that knows its schema can pass a
+#' different `min_cells`.
+#'
+#' @param df A data frame.
+#' @param min_cells Minimum number of non-blank cells a row must have to be kept.
+#' @return `df` without its label rows.
+#' @export
+drop_label_rows <- function(df, min_cells = 2L) {
+  if (!nrow(df) || !ncol(df)) return(df)
+  bm <- .blank_matrix(df)
+  populated <- ncol(df) - rowSums(bm)
+  df[populated >= as.integer(min_cells), , drop = FALSE]
+}
+
+# Build column names from one or more header rows. A multi-row header spreads a
+# name across rows (a merged group label above, a sub-name below); readxl gives
+# the merged value only in its top-left cell, so pasting the non-blank pieces down
+# each column reconstructs "EPH C10-C19 (mg/L)" from "…(EPH)" + "C10-C19 (mg/L)".
+.promote_header <- function(df, rows, sep = " ") {
+  cells <- lapply(rows, function(r) trimws(as.character(unlist(df[r, ], use.names = FALSE))))
+  vapply(seq_len(ncol(df)), function(j) {
+    parts <- vapply(cells, function(x) x[j], character(1))
+    parts <- parts[!is.na(parts) & nzchar(parts)]
+    if (!length(parts)) "" else paste(parts, collapse = sep)
+  }, character(1))
+}
+
 #' Clean a freshly-read table: promote the header and strip junk.
 #'
-#' Locates the header row (or uses `header_row`), makes it the column names,
-#' drops everything above it, then removes fully-blank rows and columns and
-#' optionally trims whitespace. Cell *values* are never coerced -- the all-text
-#' contract from [read_tabular()] is preserved.
+#' Locates the header row (or uses `header_row`/`header_rows`), makes it the
+#' column names, drops everything above it, then removes fully-blank rows and
+#' columns and optionally trims whitespace. Cell *values* are never coerced -- the
+#' all-text contract from [read_tabular()] is preserved.
 #'
 #' Expects a header-less frame, i.e. read with `col_names = FALSE` so the real
-#' header is still a data row to be found. Blank or duplicated header names are
-#' filled (`col_<position>`) and made unique rather than silently collapsed.
-#' Only fully blank rows/columns are dropped (see the note in `clean.R`).
+#' header is still a data row to be found. Blank header names are filled
+#' (`col_<position>`) and duplicates made unique, both with a warning: a duplicated
+#' header is usually a mislabelled column, and a blank one usually means the
+#' promoted row was not the whole header.
+#'
+#' @section What this does not do:
+#' Only fully-blank rows are dropped. An embedded metadata row -- a `"Permit limit"`
+#' row whose analyte cells are ordinary numbers -- survives and becomes a record.
+#' Pass `drop_labels = TRUE` for the single-cell section dividers and footnote
+#' banners; anything richer needs the schema, so filter it in the consumer. A
+#' paginated print report with a *repeated* header every N rows is not a single
+#' table at all: split it on the repeated header rows before calling this.
 #'
 #' @param df A data frame of all-text, header-less rows (see [read_tabular()]).
 #' @param header_row Optional integer: force this row to be the header instead of
 #'   detecting it.
+#' @param header_rows Optional integer vector of two or more rows forming a
+#'   multi-row header; their non-blank cells are pasted down each column. Takes
+#'   precedence over `header_row`. The body starts after `max(header_rows)`.
 #' @param trim_ws Trim leading/trailing whitespace from header and cell text.
+#' @param drop_labels Also drop rows with fewer than two populated cells (see
+#'   [drop_label_rows()]).
+#' @param sep Separator used to join the pieces of a multi-row header.
 #' @return A tibble with promoted names and structural junk removed.
 #' @export
-clean_table <- function(df, header_row = NULL, trim_ws = TRUE) {
+clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRUE,
+                        drop_labels = FALSE, sep = " ") {
   if (!nrow(df) || !ncol(df)) return(tibble::as_tibble(df))
 
-  hr <- header_row
-  if (is.null(hr)) {
-    hr <- find_header_row(df)
-    if (is.na(hr)) {
-      warning("clean_table(): could not detect a header row; using the first ",
-              "non-blank row. Pass header_row= to override.")
-      nonblank <- ncol(df) - rowSums(.blank_matrix(df))
-      hr <- which(nonblank > 0)[1]
-      if (is.na(hr)) return(tibble::as_tibble(df[0, , drop = FALSE]))
+  if (!is.null(header_rows)) {
+    rows <- sort(unique(as.integer(header_rows)))
+    if (any(rows < 1L) || any(rows > nrow(df))) {
+      stop("header_rows out of range: ", paste(rows, collapse = ", "))
     }
+    nm <- .promote_header(df, rows, sep = sep)
+    last <- max(rows)
+  } else {
+    hr <- header_row
+    if (is.null(hr)) {
+      hr <- find_header_row(df)
+      if (is.na(hr)) {
+        warning("clean_table(): could not detect a header row; using the first ",
+                "non-blank row. Pass header_row= to override.")
+        nonblank <- ncol(df) - rowSums(.blank_matrix(df))
+        hr <- which(nonblank > 0)[1]
+        if (is.na(hr)) return(tibble::as_tibble(df[0, , drop = FALSE]))
+      }
+    }
+    hr <- as.integer(hr)
+    if (hr < 1L || hr > nrow(df)) stop("header_row out of range: ", hr)
+    nm <- .promote_header(df, hr, sep = sep)
+    last <- hr
   }
-  hr <- as.integer(hr)
-  if (hr < 1L || hr > nrow(df)) stop("header_row out of range: ", hr)
 
-  # Promote the header row to names: trim, fill blanks positionally, de-dupe.
-  nm <- trimws(as.character(unlist(df[hr, ], use.names = FALSE)))
+  # Fill blanks positionally and de-dupe -- but say so. A blank header cell over a
+  # populated column, or a duplicated name, is evidence the source is malformed.
   blank <- is.na(nm) | nm == ""
-  nm[blank] <- paste0("col_", which(blank))
+  if (any(blank)) {
+    populated <- vapply(which(blank), function(j) {
+      body_rows <- if (last >= nrow(df)) integer(0) else (last + 1L):nrow(df)
+      length(body_rows) && !all(.is_blank(df[[j]][body_rows]))
+    }, logical(1))
+    if (any(populated)) {
+      warning("clean_table(): header cell(s) blank over populated column(s) at position(s) ",
+              paste(which(blank)[populated], collapse = ", "),
+              "; named 'col_<position>'. The promoted row is probably not the whole ",
+              "header -- pass header_rows= for a multi-row header.", call. = FALSE)
+    }
+    nm[blank] <- paste0("col_", which(blank))
+  }
+  dups <- unique(nm[duplicated(nm)])
+  if (length(dups)) {
+    warning("clean_table(): duplicate header name(s) made unique: ",
+            paste0("'", dups, "'", collapse = ", "),
+            ". A duplicated label usually means a mislabelled or copy-pasted column.",
+            call. = FALSE)
+  }
   nm <- make.unique(nm, sep = "_")
 
-  body <- if (hr >= nrow(df)) df[0, , drop = FALSE]
-          else df[(hr + 1):nrow(df), , drop = FALSE]
+  body <- if (last >= nrow(df)) df[0, , drop = FALSE]
+          else df[(last + 1):nrow(df), , drop = FALSE]
   names(body) <- nm
 
+  if (isTRUE(drop_labels)) body <- drop_label_rows(body)
   body <- drop_blank_rows(body)
   body <- drop_blank_cols(body)
 

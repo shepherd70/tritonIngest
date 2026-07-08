@@ -4,15 +4,17 @@
 \alias{auto_map}
 \title{Auto-map source columns onto a contract.}
 \usage{
-auto_map(source_cols, contract, max_distance = 2L)
+auto_map(source_cols, contract, max_distance = 0L, warn = TRUE)
 }
 \arguments{
 \item{source_cols}{Character vector of column names from the source data.}
 
 \item{contract}{A contract (list of specs or tibble).}
 
-\item{max_distance}{Integer max edit distance for the fuzzy fallback; set to 0
-to disable fuzzy matching.}
+\item{max_distance}{Integer max edit distance for the fuzzy fallback. \code{0}
+(default) disables fuzzy matching.}
+
+\item{warn}{Emit warnings for fuzzy matches and exact/synonym ambiguity.}
 }
 \value{
 A named list, one element per contract field, holding the matched
@@ -21,6 +23,26 @@ source-column name or \code{NA_character_}.
 \description{
 For each contract field, picks the best source column by: (1) normalised exact
 match on the field name, (2) normalised match against the field's synonyms,
-(3) fuzzy match (\code{utils::adist}) within a small edit-distance budget. A source
-column is used at most once; earlier (higher-priority) fields win ties.
+(3) optionally, a fuzzy match (\code{utils::adist}) within an edit-distance budget.
+A source column is used at most once; earlier (higher-priority) fields win ties,
+so the mapping depends on contract field \strong{order}.
 }
+\section{Fuzzy matching is opt-in}{
+
+\code{max_distance} defaults to \code{0} (exact and synonym matching only). Edit distance
+over short, systematically-related analyte names is unsafe: \code{"LEPH_C10_C19"} is
+distance 1 from \code{"EPH_C10_C19"} but distance 9 from the correct
+\code{"LEPH_C10_C19_less_PAH"}, and a two-character synonym such as \code{"dl"} is
+distance 2 from a \code{"pH"} column. Set \code{max_distance = 2L} to restore the
+pre-0.6.0 behaviour; every fuzzy match is then reported with a warning.
+}
+
+\section{Exact names outrank synonyms}{
+
+A contract field always binds to a column whose \emph{name} matches it, even when a
+synonym matches a different column. That is intended -- but it is also how a
+column innocently named \code{Analyte} that holds a sample-matrix label (\code{"Effluent"})
+captures the \code{analyte} field ahead of the \code{parameter} column holding the real
+analyte names. When both are present, \code{auto_map()} warns.
+}
+

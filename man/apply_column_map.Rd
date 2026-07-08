@@ -4,7 +4,7 @@
 \alias{apply_column_map}
 \title{Apply a column mapping to a source data frame.}
 \usage{
-apply_column_map(df, mapping, contract, coerce = TRUE)
+apply_column_map(df, mapping, contract, coerce = TRUE, warn_coercion = TRUE)
 }
 \arguments{
 \item{df}{A source data frame.}
@@ -14,6 +14,9 @@ apply_column_map(df, mapping, contract, coerce = TRUE)
 \item{contract}{A contract (list of specs or tibble).}
 
 \item{coerce}{Logical; coerce each output column to its declared type.}
+
+\item{warn_coercion}{Warn when coercion turns non-missing source values into
+\code{NA}.}
 }
 \value{
 A tibble with contract-named (subset of) columns.
@@ -25,3 +28,13 @@ mapping is \code{NA}/missing are dropped -- use \code{\link[=validate_against_co
 afterwards to flag missing required fields. Unreferenced source columns are
 discarded, so downstream code sees only contract-named columns.
 }
+\section{Coercion is lossy, and says so}{
+
+Coercing a \code{numeric} field runs \code{as.numeric()}, which turns every censored
+result (\code{"<0.25"}, \code{"ND"}, \code{">2420"}) into \code{NA}. That is exactly the
+information \code{\link[=parse_censored]{parse_censored()}} exists to preserve, and the contract path does
+not call it. Parse first, then map the parsed columns. When coercion does drop
+non-missing values, \code{warn_coercion} reports the field, the count and a few
+example tokens rather than letting them vanish.
+}
+

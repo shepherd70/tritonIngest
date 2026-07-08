@@ -4,24 +4,55 @@
 \alias{apply_substitution}
 \title{Apply a simple substitution rule to censored values.}
 \usage{
-apply_substitution(value, censored, detection_limit, fraction = 0.5)
+apply_substitution(
+  value,
+  censored,
+  detection_limit,
+  fraction = 0.5,
+  censor_direction = NULL,
+  censor_limit = NULL
+)
 }
 \arguments{
 \item{value}{Numeric vector (NA where censored).}
 
 \item{censored}{Logical vector, the same length as \code{value}.}
 
-\item{detection_limit}{Numeric vector of DLs (length 1, recycled, or the same
-length as \code{value}).}
+\item{detection_limit}{Numeric vector of detection limits (length 1, recycled,
+or the same length as \code{value}).}
 
-\item{fraction}{Substitution fraction: 0.5 (default, = 1/2 DL), 1 (DL), or 0.}
+\item{fraction}{Substitution fraction for left-censored values: 0.5 (default,
+= 1/2 DL), 1 (DL), or 0.}
+
+\item{censor_direction}{Optional character vector of \code{"none"}/\code{"left"}/
+\code{"right"}, the same length as \code{value}.}
+
+\item{censor_limit}{Optional numeric vector of censoring bounds, used for
+right-censored entries. Required whenever \code{censor_direction} names any
+\code{"right"} entry.}
 }
 \value{
-Numeric vector with censored entries substituted (NA where the DL
+Numeric vector with censored entries substituted (NA where the limit
 itself is unknown).
 }
 \description{
-Returns a numeric vector where censored entries are replaced by
-\code{fraction * detection_limit}; detected entries pass through unchanged.
-Transparent and widely used, but can bias variance estimates.
+Returns a numeric vector where censored entries are replaced by a working
+value; detected entries pass through unchanged. Transparent and widely used,
+but can bias variance estimates.
 }
+\details{
+Left-censored entries become \code{fraction * detection_limit}. Right-censored
+entries become \code{censor_limit} itself -- the true value is known only to exceed
+the ceiling, so substituting a fraction of it would understate the result.
+}
+\section{Safe by default}{
+
+When \code{censor_direction} is \code{NULL} every censored entry is treated as
+\strong{left}-censored, which reproduces the pre-0.6.0 behaviour. That is safe
+because \code{\link[=parse_censored]{parse_censored()}} leaves \code{detection_limit} as \code{NA} for right-censored
+rows: a caller that does not pass \code{censor_direction} gets \code{NA} for them, not a
+fabricated \code{fraction * ceiling}. Pass both \code{censor_direction} and
+\code{censor_limit} -- or, more simply, pass the whole \code{\link[=parse_censored]{parse_censored()}} tibble to
+\code{\link[=working_values]{working_values()}} -- to substitute right-censored results properly.
+}
+
