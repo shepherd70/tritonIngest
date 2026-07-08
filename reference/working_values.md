@@ -13,7 +13,9 @@ working_values(
   censored,
   detection_limit,
   method = c("substitution"),
-  fraction = 0.5
+  fraction = 0.5,
+  censor_direction = NULL,
+  censor_limit = NULL
 )
 ```
 
@@ -21,7 +23,9 @@ working_values(
 
 - value:
 
-  Numeric vector (NA where censored).
+  Numeric vector (NA where censored), **or** a tibble returned by
+  [`parse_censored()`](https://shepherd70.github.io/tritonIngest/reference/parse_censored.md),
+  in which case the remaining columns are taken from it.
 
 - censored:
 
@@ -29,7 +33,7 @@ working_values(
 
 - detection_limit:
 
-  Numeric vector of DLs.
+  Numeric vector of detection limits.
 
 - method:
 
@@ -39,6 +43,26 @@ working_values(
 
   Substitution fraction (0, 0.5, or 1).
 
+- censor_direction:
+
+  Optional `"none"`/`"left"`/`"right"` vector; see
+  [`apply_substitution()`](https://shepherd70.github.io/tritonIngest/reference/apply_substitution.md).
+
+- censor_limit:
+
+  Optional numeric vector of censoring bounds; see
+  [`apply_substitution()`](https://shepherd70.github.io/tritonIngest/reference/apply_substitution.md).
+
 ## Value
 
 Numeric vector with censored entries handled per method.
+
+## Details
+
+Pass the whole
+[`parse_censored()`](https://shepherd70.github.io/tritonIngest/reference/parse_censored.md)
+tibble as `value` to handle both censoring directions correctly with no
+further arguments: `working_values(parse_censored(x))`. The vector form
+is kept for callers that carry the columns separately; without
+`censor_direction` it treats every censored entry as left-censored (see
+[`apply_substitution()`](https://shepherd70.github.io/tritonIngest/reference/apply_substitution.md)).

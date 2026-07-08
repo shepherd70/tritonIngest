@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,50 @@
       <small>Source: <a href="https://github.com/shepherd70/tritonIngest/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="tritoningest-060">tritonIngest 0.6.0<a class="anchor" aria-label="anchor" href="#tritoningest-060"></a></h2>
+<p>Pressure-test follow-up (2026-07): fixes the nine root causes recorded in <code>audits/tritonIngest-pressure-test-2026-07-08.md</code>. Four of them corrupted data <strong>silently</strong> – they returned a plausible wrong answer with no error, warning or <code>NA</code> – and are now loud.</p>
+<div class="section level3">
+<h3 id="silent-corruptions-now-loud-0-6-0">Silent corruptions, now loud<a class="anchor" aria-label="anchor" href="#silent-corruptions-now-loud-0-6-0"></a></h3>
+<ul><li><p><strong><code><a href="../reference/coerce_excel_date.html">coerce_excel_date()</a></code> no longer prefix-matches a date format.</strong> Base <code><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date()</a></code> ignores unconsumed trailing characters, so <code>"18-08-2024"</code> matched the default <code>"%Y-%m-%d"</code> as year 18, month 08, day 20 and returned <code>0018-08-20</code> – a valid <code>Date</code>, no warning. An element must now match a format over its <strong>whole length</strong> before the parse is accepted, so day-first strings fall through to the existing “unparsed” warning. Pass <code>strict = FALSE</code> for the old behaviour. <code><a href="../reference/coerce_excel_date.html">coerce_excel_date()</a></code> also trims the whitespace and newlines Excel leaves in wrapped cells, and warns when a value in 1500-2500 is treated as an Excel serial (the bare-year hazard: <code>"2024"</code> -&gt; <code>1905-07-16</code>).</p></li>
+<li><p><strong><code><a href="../reference/read_tabular.html">read_tabular()</a></code> verifies the file’s signature against its extension.</strong> An <code>.xlsx</code> workbook served under a <code>.csv</code> name used to be handed to readr, which read the ZIP’s first member and returned a one-column tibble whose name was an XML declaration – no error. It is now an error naming the real type. New <code><a href="../reference/sniff_format.html">sniff_format()</a></code> exposes the check; new <code>format=</code> overrides the extension.</p></li>
+<li>
+<p><strong><code><a href="../reference/parse_censored.html">parse_censored()</a></code> understands right-censored results.</strong> <code>"&gt;2420"</code>, <code>"&gt; 80"</code> and the <code>TNTC</code> token were <code>"unparseable result text"</code>, i.e. erased – and they are exactly the permit exceedances. They are now <code>censored = TRUE</code> with the new <code>censor_direction</code> column (<code>"none"</code>/<code>"left"</code>/<code>"right"</code>), and their bound in the new <code>censor_limit</code> column.</p>
+<p><code>detection_limit</code> stays <code>NA</code> for a right-censored row, on purpose: a <code>"&gt;2420"</code> result has no detection limit, it has a quantitation ceiling. That split is what keeps the <strong>default safe</strong> for a caller that has not yet learned about right-censoring. <code>apply_substitution(value, censored, detection_limit)</code> returns <code>NA</code> for those rows – exactly as in 0.5.0 – rather than <code>fraction * ceiling</code>, which would fabricate a number <em>below</em> the true value. A supplied DL column is likewise never promoted to a ceiling.</p>
+</li>
+<li><p><strong><code><a href="../reference/read_tabular.html">read_tabular()</a></code> and <code><a href="../reference/clean_table.html">clean_table()</a></code> warn about duplicate source column names</strong> before repairing them. readr’s rename was a <em>message</em>, which <code><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages()</a></code> erased; a duplicated analyte label is the signature of a mislabelled or copy-pasted column.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-6-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-6-0"></a></h3>
+<ul><li>
+<code>auto_map(max_distance = )</code> now defaults to <strong><code>0</code></strong> (exact and synonym matching only). Edit distance over systematically-related analyte names is unsafe: <code>"LEPH_C10_C19"</code> is distance 1 from <code>"EPH_C10_C19"</code> but distance 9 from the correct <code>"LEPH_C10_C19_less_PAH"</code>, and a <code>"dl"</code> synonym is distance 2 from a <code>"pH"</code> column. Pass <code>max_distance = 2L</code> to restore the old behaviour; every fuzzy match is then reported with a warning. <code><a href="../reference/auto_map.html">auto_map()</a></code> also warns when a contract field binds to an exactly-named column while a synonym matches a different one.</li>
+<li>
+<code><a href="../reference/parse_censored.html">parse_censored()</a></code> returns three new columns, <code>censor_direction</code>, <code>censor_limit</code> and <code>qualifier</code>. Existing columns keep their semantics, except that right-censored values are now <code>censored = TRUE</code> rather than <code>censored = NA</code>. Code that does <code>sum(x$censored, na.rm = TRUE)</code> will therefore count over-range results as censored, which they are. Code that binds the result by position rather than by name must be updated.</li>
+<li>
+<code><a href="../reference/parse_censored.html">parse_censored()</a></code> treats <code>"-"</code>, <code>"--"</code>, <code>"n/a"</code> and <code>"N/A"</code> as <strong>missing</strong> (<code>na_strings=</code>) rather than unparseable, and separates laboratory qualifier flags from the number they decorate (<code>"178d"</code> -&gt; value 178, qualifier <code>"d"</code>; <code>qualifiers = FALSE</code> restores the strict reading). Narrative cells such as <code>"5.4 to 8.7"</code> and <code>"50% survival"</code> stay unparseable by design.</li>
+<li>
+<code><a href="../reference/is_value_like.html">is_value_like()</a></code>, <code><a href="../reference/detect_layout.html">detect_layout()</a></code> and <code><a href="../reference/melt_wide.html">melt_wide()</a></code> gain <code>na_strings=</code> and treat those placeholders as missing. Previously a wide sheet whose blanks were written as <code>"-"</code> lost most of its analyte columns to the 0.8 value-like threshold, and <code><a href="../reference/melt_wide.html">melt_wide()</a></code> carried the <code>"-"</code> cells through as data.</li>
+<li>
+<code>ND_LT_REGEX</code> is now digit-strict. <code>"&lt;-"</code>, <code>"&lt;."</code>, <code>"&lt;e"</code> and <code>"&lt;+-"</code> used to match, yielding <code>censored = TRUE</code> with an <code>NA</code> limit and a clean <code>parse_note</code>.</li>
+<li>
+<code><a href="../reference/clean_table.html">clean_table()</a></code> gains <code>header_rows=</code>, <code>drop_labels=</code> and <code>sep=</code>; the positional signature <code>clean_table(df, header_row, trim_ws)</code> is unchanged.</li>
+<li>
+<code><a href="../reference/apply_substitution.html">apply_substitution()</a></code> and <code><a href="../reference/working_values.html">working_values()</a></code> gain <code>censor_direction=</code> and <code>censor_limit=</code>. Right-censored entries substitute to the ceiling itself, not to a fraction of it. Omitting both arguments reproduces the old all-left-censored behaviour <em>safely</em> (right-censored rows become <code>NA</code>, as they did in 0.5.0); naming a <code>"right"</code> entry in <code>censor_direction</code> without supplying <code>censor_limit</code> is an error rather than a guess. <code><a href="../reference/working_values.html">working_values()</a></code> now also accepts the whole <code><a href="../reference/parse_censored.html">parse_censored()</a></code> tibble as its first argument – <code>working_values(parse_censored(x))</code> is the one-liner that handles both directions correctly.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-0-6-0">New<a class="anchor" aria-label="anchor" href="#new-0-6-0"></a></h3>
+<ul><li>
+<code><a href="../reference/list_sheets.html">list_sheets()</a></code> returns every worksheet with its <strong>visibility</strong> (<code>"visible"</code>/<code>"hidden"</code>/<code>"veryHidden"</code>), which <code><a href="https://readxl.tidyverse.org/reference/excel_sheets.html" class="external-link">readxl::excel_sheets()</a></code> does not report; a <code>veryHidden</code> sheet in position 1 is what <code><a href="../reference/read_tabular.html">read_tabular()</a></code> reads by default. <code><a href="../reference/read_all_sheets.html">read_all_sheets()</a></code> reads a whole workbook, optionally skipping hidden sheets. Previously nothing in the package could enumerate sheets, so <code>read_tabular(path)</code> silently ingested sheet 1 and discarded the rest.</li>
+<li>
+<code><a href="../reference/check_unique.html">check_unique()</a></code>, <code><a href="../reference/check_range.html">check_range()</a></code> and <code><a href="../reference/check_monotonic.html">check_monotonic()</a></code> extend the validation kernel from column-level counts to records: duplicate keys, physically impossible values (a pH of 42.4), and a sampling series that steps backwards.</li>
+<li>
+<code><a href="../reference/drop_label_rows.html">drop_label_rows()</a></code> removes single-cell section dividers and footnote banners. <code>clean_table(drop_labels = TRUE)</code> does it in one pass.</li>
+<li>
+<code><a href="../reference/looks_transposed.html">looks_transposed()</a></code> and <code><a href="../reference/transpose_table.html">transpose_table()</a></code> handle the analyte-by-sample results matrix – a third layout, whose columns are numeric and which <code><a href="../reference/detect_layout.html">detect_layout()</a></code> therefore used to call <code>"wide"</code>. <code><a href="../reference/detect_layout.html">detect_layout()</a></code> now reports <code>layout = "transposed"</code> for it.</li>
+<li>
+<code><a href="../reference/apply_column_map.html">apply_column_map()</a></code> warns when type coercion discards non-missing values, naming the field, the count and example tokens. Coercing a <code>numeric</code> field runs <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code>, which destroys every non-detect that <code><a href="../reference/parse_censored.html">parse_censored()</a></code> exists to preserve; the contract path never called it.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="tritoningest-050">tritonIngest 0.5.0<a class="anchor" aria-label="anchor" href="#tritoningest-050"></a></h2>
 <p>Audit follow-up (2026-06): closes the open correctness findings recorded in <code>audits/tritonIngest-audit-2026-06.md</code>.</p>
@@ -62,7 +106,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

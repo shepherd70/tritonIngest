@@ -37,6 +37,9 @@ the full message vector.
 
 Other validation:
 [`check_column_types()`](https://shepherd70.github.io/tritonIngest/reference/check_column_types.md),
+[`check_monotonic()`](https://shepherd70.github.io/tritonIngest/reference/check_monotonic.md),
 [`check_no_na()`](https://shepherd70.github.io/tritonIngest/reference/check_no_na.md),
+[`check_range()`](https://shepherd70.github.io/tritonIngest/reference/check_range.md),
 [`check_required_columns()`](https://shepherd70.github.io/tritonIngest/reference/check_required_columns.md),
+[`check_unique()`](https://shepherd70.github.io/tritonIngest/reference/check_unique.md),
 [`type_matches()`](https://shepherd70.github.io/tritonIngest/reference/type_matches.md)

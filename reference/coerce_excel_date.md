@@ -15,7 +15,8 @@ coerce_excel_date(
   x,
   formats = c("%Y-%m-%d", "%Y/%m/%d"),
   origin = "1899-12-30",
-  serial_range = c(1, 2958465)
+  serial_range = c(1, 2958465),
+  strict = TRUE
 )
 ```
 
@@ -43,7 +44,14 @@ coerce_excel_date(
   Length-2 `c(min, max)` bounding which numbers are treated as Excel
   serials. Defaults to the full valid Excel range; tighten it (e.g.
   `c(10000, 60000)`) when bare year-like integers like `"2024"` would
-  otherwise be misread as serials.
+  otherwise be misread as serials. Values in 1500-2500 that are treated
+  as serials raise a warning, because they are far more often bare years
+  than dates in 1904-1906.
+
+- strict:
+
+  Require a format to match an element over its whole length before
+  accepting the parse. See *Strict format matching*.
 
 ## Value
 
@@ -57,10 +65,25 @@ element is parsed against `formats` in order (first match wins, per
 element). The default `formats` are the unambiguous **year-first**
 layouts; pass `formats` for day- or month-first data (e.g. `"%d/%m/%Y"`)
 rather than relying on a guess, which would silently misread ambiguous
-values such as `"05/06/2024"`. A non-empty value matching neither a
-serial nor any format becomes `NA` *with a warning*, so a
-silently-dropped date column does not pass unnoticed.
+values such as `"05/06/2024"`.
+
+## Strict format matching
+
+Base [`as.Date()`](https://rdrr.io/r/base/as.Date.html) accepts a format
+that consumes only a *prefix* of the string.
+`as.Date("18-08-2024", "%Y-%m-%d")` therefore returns `0018-08-20`
+rather than `NA`: `%Y` takes `"18"` and the trailing `"24"` is
+discarded. With `strict = TRUE` (the default) an element must match a
+format over its **whole length** before the parse is accepted, so
+day-first strings fall through to the unparsed branch and are reported.
+Set `strict = FALSE` for the old, lenient behaviour.
+
+A non-empty value matching neither a serial nor any format becomes `NA`
+*with a warning*, so a silently-dropped date column does not pass
+unnoticed. Leading and trailing whitespace (including the newlines Excel
+leaves in wrapped cells) is trimmed before matching.
 
 The Excel **1900** date system is the default (`origin = "1899-12-30"`,
 so serial 1 is 1900-01-01); pass `origin = "1904-01-01"` for a workbook
-saved under the Mac/1904 system.
+saved under the Mac/1904 system. There is no way to detect the date
+system from the values alone.

@@ -11,7 +11,8 @@ melt_wide(
   df,
   param_cols,
   id_cols = setdiff(names(df), param_cols),
-  units = NULL
+  units = NULL,
+  na_strings = c("-", "--", "n/a", "N/A")
 )
 ```
 
@@ -34,6 +35,12 @@ melt_wide(
   Optional named character vector mapping parameter -\> units, since
   wide files usually carry units in a header or codebook rather than per
   cell. Unmatched parameters get NA units.
+
+- na_strings:
+
+  Cell values dropped alongside blanks as "not measured". Excel exports
+  commonly write `"-"`; before 0.6.0 those rows survived the melt and
+  became `"unparseable result text: '-'"` downstream.
 
 ## Value
 

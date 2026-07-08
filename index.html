@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tabular Data Ingestion Toolkit">
-<meta name="description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX, long/wide layout detection and reshaping, declarative column contracts with synonym and fuzzy auto-mapping, reusable JSON column-mapping profiles, non-detect (left- censored) value parsing and substitution, and unit reconciliation. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
-<meta property="og:description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX, long/wide layout detection and reshaping, declarative column contracts with synonym and fuzzy auto-mapping, reusable JSON column-mapping profiles, non-detect (left- censored) value parsing and substitution, and unit reconciliation. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
+<meta name="description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type sniffing, worksheet enumeration including hidden sheets, long/wide/transposed layout detection and reshaping, declarative column contracts with synonym and opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored (non-detect and over-range) value parsing and substitution, unit reconciliation, and row-level validation checks. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
+<meta property="og:description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type sniffing, worksheet enumeration including hidden sheets, long/wide/transposed layout detection and reshaping, declarative column contracts with synonym and opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored (non-detect and over-range) value parsing and substitution, unit reconciliation, and row-level validation checks. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -161,7 +161,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

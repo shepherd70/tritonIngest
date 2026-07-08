@@ -14,7 +14,8 @@ detect_layout(
     "characteristic", "characteristics", "characteristicname", "variable", "variables",
     "constituent", "constituents"),
   value_names = c("value", "values", "result", "results", "resultvalue", "value_raw",
-    "concentration", "concentrations", "conc", "measurement", "measurements")
+    "concentration", "concentrations", "conc", "measurement", "measurements"),
+  na_strings = c("-", "--", "n/a", "N/A")
 )
 ```
 
@@ -32,9 +33,15 @@ detect_layout(
   whitespace-trimming the data's names. Override to match a domain's
   vocabulary.
 
+- na_strings:
+
+  Placeholders treated as missing by
+  [`is_value_like()`](https://shepherd70.github.io/tritonIngest/reference/is_value_like.md).
+
 ## Value
 
-A list: `layout` (`"long"`/`"wide"`), `value_like_cols`, `reason`.
+A list: `layout` (`"long"`/`"wide"`/`"transposed"`), `value_like_cols`,
+`reason`.
 
 ## Details
 
@@ -47,3 +54,15 @@ inconsistent: an ALS export, for instance, labels its value column
 `"Results"`. Missing the plural would drop the long signal and, when two
 or more numeric columns are present (value + detection limit + a numeric
 QC-lot id), misclassify the table as wide.
+
+## Transposed tables
+
+A third shape exists in the wild: analytes down the first column and one
+*sample* per column (a lab's "results matrix"). Its columns are numeric,
+so this function reports `"wide"` and a caller melting on
+`value_like_cols` would emit one `parameter` per sample.
+[`looks_transposed()`](https://shepherd70.github.io/tritonIngest/reference/looks_transposed.md)
+tests for that shape and
+[`transpose_table()`](https://shepherd70.github.io/tritonIngest/reference/transpose_table.md)
+converts it; `detect_layout()` reports `layout = "transposed"` when the
+test fires.

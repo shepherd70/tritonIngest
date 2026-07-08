@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,8 @@
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">param_cols</span>,</span>
 <span>  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, <span class="va">param_cols</span><span class="op">)</span>,</span>
-<span>  units <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  units <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  na_strings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-"</span>, <span class="st">"--"</span>, <span class="st">"n/a"</span>, <span class="st">"N/A"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -71,6 +72,12 @@
 wide files usually carry units in a header or codebook rather than per cell.
 Unmatched parameters get NA units.</p></dd>
 
+
+<dt id="arg-na-strings">na_strings<a class="anchor" aria-label="anchor" href="#arg-na-strings"></a></dt>
+<dd><p>Cell values dropped alongside blanks as "not measured".
+Excel exports commonly write <code>"-"</code>; before 0.6.0 those rows survived the melt
+and became <code>"unparseable result text: '-'"</code> downstream.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -87,7 +94,7 @@ Unmatched parameters get NA units.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

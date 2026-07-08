@@ -11,7 +11,7 @@ single value-like column. Wide signals: two or more value-like columns
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,8 @@ single value-like column. Wide signals: two or more value-like columns
 <span>    <span class="st">"characteristic"</span>, <span class="st">"characteristics"</span>, <span class="st">"characteristicname"</span>, <span class="st">"variable"</span>, <span class="st">"variables"</span>,</span>
 <span>    <span class="st">"constituent"</span>, <span class="st">"constituents"</span><span class="op">)</span>,</span>
 <span>  value_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"value"</span>, <span class="st">"values"</span>, <span class="st">"result"</span>, <span class="st">"results"</span>, <span class="st">"resultvalue"</span>, <span class="st">"value_raw"</span>,</span>
-<span>    <span class="st">"concentration"</span>, <span class="st">"concentrations"</span>, <span class="st">"conc"</span>, <span class="st">"measurement"</span>, <span class="st">"measurements"</span><span class="op">)</span></span>
+<span>    <span class="st">"concentration"</span>, <span class="st">"concentrations"</span>, <span class="st">"conc"</span>, <span class="st">"measurement"</span>, <span class="st">"measurements"</span><span class="op">)</span>,</span>
+<span>  na_strings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-"</span>, <span class="st">"--"</span>, <span class="st">"n/a"</span>, <span class="st">"N/A"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -69,10 +70,15 @@ that signal a long-format parameter / value column. Matched after
 lowercasing and whitespace-trimming the data's names. Override to match a
 domain's vocabulary.</p></dd>
 
+
+<dt id="arg-na-strings">na_strings<a class="anchor" aria-label="anchor" href="#arg-na-strings"></a></dt>
+<dd><p>Placeholders treated as missing by <code><a href="is_value_like.html">is_value_like()</a></code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list: <code>layout</code> (<code>"long"</code>/<code>"wide"</code>), <code>value_like_cols</code>, <code>reason</code>.</p>
+    <p>A list: <code>layout</code> (<code>"long"</code>/<code>"wide"</code>/<code>"transposed"</code>), <code>value_like_cols</code>,
+<code>reason</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -85,6 +91,16 @@ value column <code>"Results"</code>. Missing the plural would drop the long sign
 when two or more numeric columns are present (value + detection limit + a
 numeric QC-lot id), misclassify the table as wide.</p>
     </div>
+    <div class="section level2">
+    <h2 id="transposed-tables">Transposed tables<a class="anchor" aria-label="anchor" href="#transposed-tables"></a></h2>
+
+
+<p>A third shape exists in the wild: analytes down the first column and one
+<em>sample</em> per column (a lab's "results matrix"). Its columns are numeric, so
+this function reports <code>"wide"</code> and a caller melting on <code>value_like_cols</code> would
+emit one <code>parameter</code> per sample. <code><a href="looks_transposed.html">looks_transposed()</a></code> tests for that shape and
+<code><a href="transpose_table.html">transpose_table()</a></code> converts it; <code>detect_layout()</code> reports <code>layout = "transposed"</code> when the test fires.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -95,7 +111,7 @@ numeric QC-lot id), misclassify the table as wide.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

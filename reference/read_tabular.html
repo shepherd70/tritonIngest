@@ -11,7 +11,7 @@ parsing. Pass col_types to override on a typed read when that is not needed.'></
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,13 @@ parsing. Pass <code>col_types</code> to override on a typed read when that is no
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_tabular</span><span class="op">(</span><span class="va">path</span>, sheet <span class="op">=</span> <span class="cn">NULL</span>, col_types <span class="op">=</span> <span class="cn">NULL</span>, col_names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_tabular</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  sheet <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  format <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -54,11 +60,13 @@ parsing. Pass <code>col_types</code> to override on a typed read when that is no
 
 <dl><dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
 <dd><p>File path. The extension selects the reader (csv/txt, tsv,
-xlsx/xls).</p></dd>
+xlsx/xls) unless <code>format</code> is given.</p></dd>
 
 
 <dt id="arg-sheet">sheet<a class="anchor" aria-label="anchor" href="#arg-sheet"></a></dt>
-<dd><p>Sheet name or index for Excel files (default: first sheet).</p></dd>
+<dd><p>Sheet name or index for Excel files (default: first sheet). Use
+<code><a href="list_sheets.html">list_sheets()</a></code> to enumerate a workbook and <code><a href="read_all_sheets.html">read_all_sheets()</a></code> to read them
+all – <code>read_tabular()</code> reads exactly one sheet.</p></dd>
 
 
 <dt id="arg-col-types">col_types<a class="anchor" aria-label="anchor" href="#arg-col-types"></a></dt>
@@ -72,10 +80,24 @@ read every row as data with positional names (<code>FALSE</code>). Use <code>FAL
 workbook has title/metadata rows above the real header, then recover it with
 <code><a href="clean_table.html">clean_table()</a></code>.</p></dd>
 
+
+<dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
+<dd><p>Force a reader: one of <code>"csv"</code>, <code>"tsv"</code>, <code>"txt"</code>, <code>"xlsx"</code>,
+<code>"xls"</code>. Defaults to <code>NULL</code> (derive from the extension and verify against the
+file's signature).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The file's leading bytes are checked against its extension (see
+<code><a href="sniff_format.html">sniff_format()</a></code>): an <code>.xlsx</code> workbook served under a <code>.csv</code> name is an error,
+not a silent mis-parse. Pass <code>format=</code> to override the extension entirely.</p>
+<p>Duplicate names in the source header are reported with a warning before the
+underlying reader makes them unique.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -87,7 +109,7 @@ workbook has title/metadata rows above the real header, then recover it with
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

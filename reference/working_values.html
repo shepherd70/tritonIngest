@@ -13,7 +13,7 @@ estimators (KM/ROS) live in the consuming package.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,9 @@ estimators (KM/ROS) live in the consuming package.</p>
 <span>  <span class="va">censored</span>,</span>
 <span>  <span class="va">detection_limit</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"substitution"</span><span class="op">)</span>,</span>
-<span>  fraction <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  fraction <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  censor_direction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  censor_limit <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -62,7 +64,8 @@ estimators (KM/ROS) live in the consuming package.</p>
 
 
 <dl><dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
-<dd><p>Numeric vector (NA where censored).</p></dd>
+<dd><p>Numeric vector (NA where censored), <strong>or</strong> a tibble returned by
+<code><a href="parse_censored.html">parse_censored()</a></code>, in which case the remaining columns are taken from it.</p></dd>
 
 
 <dt id="arg-censored">censored<a class="anchor" aria-label="anchor" href="#arg-censored"></a></dt>
@@ -70,7 +73,7 @@ estimators (KM/ROS) live in the consuming package.</p>
 
 
 <dt id="arg-detection-limit">detection_limit<a class="anchor" aria-label="anchor" href="#arg-detection-limit"></a></dt>
-<dd><p>Numeric vector of DLs.</p></dd>
+<dd><p>Numeric vector of detection limits.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -80,10 +83,28 @@ estimators (KM/ROS) live in the consuming package.</p>
 <dt id="arg-fraction">fraction<a class="anchor" aria-label="anchor" href="#arg-fraction"></a></dt>
 <dd><p>Substitution fraction (0, 0.5, or 1).</p></dd>
 
+
+<dt id="arg-censor-direction">censor_direction<a class="anchor" aria-label="anchor" href="#arg-censor-direction"></a></dt>
+<dd><p>Optional <code>"none"</code>/<code>"left"</code>/<code>"right"</code> vector; see
+<code><a href="apply_substitution.html">apply_substitution()</a></code>.</p></dd>
+
+
+<dt id="arg-censor-limit">censor_limit<a class="anchor" aria-label="anchor" href="#arg-censor-limit"></a></dt>
+<dd><p>Optional numeric vector of censoring bounds; see
+<code><a href="apply_substitution.html">apply_substitution()</a></code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Numeric vector with censored entries handled per method.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Pass the whole <code><a href="parse_censored.html">parse_censored()</a></code> tibble as <code>value</code> to handle both censoring
+directions correctly with no further arguments:
+<code>working_values(parse_censored(x))</code>. The vector form is kept for callers that
+carry the columns separately; without <code>censor_direction</code> it treats every
+censored entry as left-censored (see <code><a href="apply_substitution.html">apply_substitution()</a></code>).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -95,7 +116,7 @@ estimators (KM/ROS) live in the consuming package.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

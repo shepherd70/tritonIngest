@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
     <div class="section level2">
       <h2 id="read-dates">Read &amp; dates<a class="anchor" aria-label="anchor" href="#read-dates"></a></h2>
 
-      <div class="section-desc"><p>Read tabular sources as all-text so fragile notation survives; coerce mixed date encodings.</p></div>
+      <div class="section-desc"><p>Read tabular sources as all-text so fragile notation survives; verify the file’s type from its bytes; coerce mixed date encodings.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -50,14 +50,44 @@
 
         <dt>
 
+          <code><a href="sniff_format.html">sniff_format()</a></code>
+
+        </dt>
+        <dd>Identify a file's real type from its leading bytes.</dd>
+
+        <dt>
+
           <code><a href="coerce_excel_date.html">coerce_excel_date()</a></code>
 
         </dt>
         <dd>Coerce mixed Excel-serial / date-string values to Date.</dd>
       </dl></div><div class="section level2">
+      <h2 id="worksheets">Worksheets<a class="anchor" aria-label="anchor" href="#worksheets"></a></h2>
+
+      <div class="section-desc"><p>Enumerate a workbook’s sheets (including hidden ones) and read them all.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="list_sheets.html">list_sheets()</a></code>
+
+        </dt>
+        <dd>List the worksheets of a workbook, with their visibility.</dd>
+
+        <dt>
+
+          <code><a href="read_all_sheets.html">read_all_sheets()</a></code>
+
+        </dt>
+        <dd>Read every worksheet of a workbook.</dd>
+      </dl></div><div class="section level2">
       <h2 id="clean-structural-junk">Clean structural junk<a class="anchor" aria-label="anchor" href="#clean-structural-junk"></a></h2>
 
-      <div class="section-desc"><p>Recover the real header row and strip blank rows / spacer columns from dirty workbooks.</p></div>
+      <div class="section-desc"><p>Recover the real header row and strip blank rows / spacer columns / label rows from dirty workbooks.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -91,10 +121,17 @@
 
         </dt>
         <dd>Drop fully-blank columns from a data frame.</dd>
+
+        <dt>
+
+          <code><a href="drop_label_rows.html">drop_label_rows()</a></code>
+
+        </dt>
+        <dd>Drop label rows: rows carrying fewer than <code>min_cells</code> populated cells.</dd>
       </dl></div><div class="section level2">
       <h2 id="reshape-layout">Reshape layout<a class="anchor" aria-label="anchor" href="#reshape-layout"></a></h2>
 
-      <div class="section-desc"><p>Detect long vs wide layout and melt wide to long.</p></div>
+      <div class="section-desc"><p>Detect long / wide / transposed layout and reshape to long.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -114,6 +151,20 @@
 
         </dt>
         <dd>Melt a wide table (variables as columns) to long form.</dd>
+
+        <dt>
+
+          <code><a href="looks_transposed.html">looks_transposed()</a></code>
+
+        </dt>
+        <dd>Does this table hold analytes down a column and samples across the header?</dd>
+
+        <dt>
+
+          <code><a href="transpose_table.html">transpose_table()</a></code>
+
+        </dt>
+        <dd>Transpose an analyte-by-sample results matrix into a tidy long table.</dd>
       </dl></div><div class="section level2">
       <h2 id="column-contracts-mapping">Column contracts &amp; mapping<a class="anchor" aria-label="anchor" href="#column-contracts-mapping"></a></h2>
 
@@ -185,7 +236,7 @@
           <code><a href="is_value_like.html">is_value_like()</a></code>
 
         </dt>
-        <dd>Does a character vector look numeric-ish (allowing non-detect notation)?</dd>
+        <dd>Does a character vector look numeric-ish (allowing censored notation)?</dd>
       </dl></div><div class="section level2">
       <h2 id="mapping-profiles">Mapping profiles<a class="anchor" aria-label="anchor" href="#mapping-profiles"></a></h2>
 
@@ -245,7 +296,7 @@
           <code><a href="parse_censored.html">parse_censored()</a></code>
 
         </dt>
-        <dd>Parse raw result text into value / censored / detection_limit.</dd>
+        <dd>Parse raw result text into value / censoring / limit / qualifier.</dd>
 
         <dt>
 
@@ -297,6 +348,27 @@
 
         </dt>
         <dd>Check that key columns contain no NA values</dd>
+
+        <dt>
+
+          <code><a href="check_unique.html">check_unique()</a></code>
+
+        </dt>
+        <dd>Check that a set of columns forms a unique key</dd>
+
+        <dt>
+
+          <code><a href="check_range.html">check_range()</a></code>
+
+        </dt>
+        <dd>Check that numeric columns fall inside declared bounds</dd>
+
+        <dt>
+
+          <code><a href="check_monotonic.html">check_monotonic()</a></code>
+
+        </dt>
+        <dd>Check that a date/numeric column runs monotonically</dd>
 
         <dt>
 
@@ -358,7 +430,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
