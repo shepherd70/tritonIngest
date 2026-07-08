@@ -4,7 +4,14 @@
 \alias{clean_table}
 \title{Clean a freshly-read table: promote the header and strip junk.}
 \usage{
-clean_table(df, header_row = NULL, trim_ws = TRUE)
+clean_table(
+  df,
+  header_row = NULL,
+  header_rows = NULL,
+  trim_ws = TRUE,
+  drop_labels = FALSE,
+  sep = " "
+)
 }
 \arguments{
 \item{df}{A data frame of all-text, header-less rows (see \code{\link[=read_tabular]{read_tabular()}}).}
@@ -12,20 +19,40 @@ clean_table(df, header_row = NULL, trim_ws = TRUE)
 \item{header_row}{Optional integer: force this row to be the header instead of
 detecting it.}
 
+\item{header_rows}{Optional integer vector of two or more rows forming a
+multi-row header; their non-blank cells are pasted down each column. Takes
+precedence over \code{header_row}. The body starts after \code{max(header_rows)}.}
+
 \item{trim_ws}{Trim leading/trailing whitespace from header and cell text.}
+
+\item{drop_labels}{Also drop rows with fewer than two populated cells (see
+\code{\link[=drop_label_rows]{drop_label_rows()}}).}
+
+\item{sep}{Separator used to join the pieces of a multi-row header.}
 }
 \value{
 A tibble with promoted names and structural junk removed.
 }
 \description{
-Locates the header row (or uses \code{header_row}), makes it the column names,
-drops everything above it, then removes fully-blank rows and columns and
-optionally trims whitespace. Cell \emph{values} are never coerced -- the all-text
-contract from \code{\link[=read_tabular]{read_tabular()}} is preserved.
+Locates the header row (or uses \code{header_row}/\code{header_rows}), makes it the
+column names, drops everything above it, then removes fully-blank rows and
+columns and optionally trims whitespace. Cell \emph{values} are never coerced -- the
+all-text contract from \code{\link[=read_tabular]{read_tabular()}} is preserved.
 }
 \details{
 Expects a header-less frame, i.e. read with \code{col_names = FALSE} so the real
-header is still a data row to be found. Blank or duplicated header names are
-filled (\verb{col_<position>}) and made unique rather than silently collapsed.
-Only fully blank rows/columns are dropped (see the note in \code{clean.R}).
+header is still a data row to be found. Blank header names are filled
+(\verb{col_<position>}) and duplicates made unique, both with a warning: a duplicated
+header is usually a mislabelled column, and a blank one usually means the
+promoted row was not the whole header.
 }
+\section{What this does not do}{
+
+Only fully-blank rows are dropped. An embedded metadata row -- a \code{"Permit limit"}
+row whose analyte cells are ordinary numbers -- survives and becomes a record.
+Pass \code{drop_labels = TRUE} for the single-cell section dividers and footnote
+banners; anything richer needs the schema, so filter it in the consumer. A
+paginated print report with a \emph{repeated} header every N rows is not a single
+table at all: split it on the repeated header rows before calling this.
+}
+

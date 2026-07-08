@@ -23,8 +23,11 @@ exact class match.
 \seealso{
 Other validation:
 \code{\link[=check_column_types]{check_column_types()}},
+\code{\link[=check_monotonic]{check_monotonic()}},
 \code{\link[=check_no_na]{check_no_na()}},
+\code{\link[=check_range]{check_range()}},
 \code{\link[=check_required_columns]{check_required_columns()}},
+\code{\link[=check_unique]{check_unique()}},
 \code{\link[=validation_abort]{validation_abort()}}
 }
 \concept{validation}

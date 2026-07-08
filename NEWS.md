@@ -1,3 +1,104 @@
+# tritonIngest 0.6.0
+
+Pressure-test follow-up (2026-07): fixes the nine root causes recorded in
+`audits/tritonIngest-pressure-test-2026-07-08.md`. Four of them corrupted data
+**silently** -- they returned a plausible wrong answer with no error, warning or
+`NA` -- and are now loud.
+
+## Silent corruptions, now loud
+
+* **`coerce_excel_date()` no longer prefix-matches a date format.** Base
+  `as.Date()` ignores unconsumed trailing characters, so `"18-08-2024"` matched
+  the default `"%Y-%m-%d"` as year 18, month 08, day 20 and returned
+  `0018-08-20` -- a valid `Date`, no warning. An element must now match a format
+  over its **whole length** before the parse is accepted, so day-first strings
+  fall through to the existing "unparsed" warning. Pass `strict = FALSE` for the
+  old behaviour. `coerce_excel_date()` also trims the whitespace and newlines
+  Excel leaves in wrapped cells, and warns when a value in 1500-2500 is treated
+  as an Excel serial (the bare-year hazard: `"2024"` -> `1905-07-16`).
+* **`read_tabular()` verifies the file's signature against its extension.** An
+  `.xlsx` workbook served under a `.csv` name used to be handed to readr, which
+  read the ZIP's first member and returned a one-column tibble whose name was an
+  XML declaration -- no error. It is now an error naming the real type. New
+  `sniff_format()` exposes the check; new `format=` overrides the extension.
+* **`parse_censored()` understands right-censored results.** `">2420"`, `"> 80"`
+  and the `TNTC` token were `"unparseable result text"`, i.e. erased -- and they
+  are exactly the permit exceedances. They are now `censored = TRUE` with the new
+  `censor_direction` column (`"none"`/`"left"`/`"right"`), and their bound in the
+  new `censor_limit` column.
+
+  `detection_limit` stays `NA` for a right-censored row, on purpose: a `">2420"`
+  result has no detection limit, it has a quantitation ceiling. That split is what
+  keeps the **default safe** for a caller that has not yet learned about
+  right-censoring. `apply_substitution(value, censored, detection_limit)` returns
+  `NA` for those rows -- exactly as in 0.5.0 -- rather than
+  `fraction * ceiling`, which would fabricate a number *below* the true value.
+  A supplied DL column is likewise never promoted to a ceiling.
+* **`read_tabular()` and `clean_table()` warn about duplicate source column
+  names** before repairing them. readr's rename was a *message*, which
+  `suppressMessages()` erased; a duplicated analyte label is the signature of a
+  mislabelled or copy-pasted column.
+
+## Breaking changes
+
+* `auto_map(max_distance = )` now defaults to **`0`** (exact and synonym matching
+  only). Edit distance over systematically-related analyte names is unsafe:
+  `"LEPH_C10_C19"` is distance 1 from `"EPH_C10_C19"` but distance 9 from the
+  correct `"LEPH_C10_C19_less_PAH"`, and a `"dl"` synonym is distance 2 from a
+  `"pH"` column. Pass `max_distance = 2L` to restore the old behaviour; every
+  fuzzy match is then reported with a warning. `auto_map()` also warns when a
+  contract field binds to an exactly-named column while a synonym matches a
+  different one.
+* `parse_censored()` returns three new columns, `censor_direction`,
+  `censor_limit` and `qualifier`. Existing columns keep their semantics, except
+  that right-censored values are now `censored = TRUE` rather than
+  `censored = NA`. Code that does `sum(x$censored, na.rm = TRUE)` will therefore
+  count over-range results as censored, which they are. Code that binds the result
+  by position rather than by name must be updated.
+* `parse_censored()` treats `"-"`, `"--"`, `"n/a"` and `"N/A"` as **missing**
+  (`na_strings=`) rather than unparseable, and separates laboratory qualifier
+  flags from the number they decorate (`"178d"` -> value 178, qualifier `"d"`;
+  `qualifiers = FALSE` restores the strict reading). Narrative cells such as
+  `"5.4 to 8.7"` and `"50% survival"` stay unparseable by design.
+* `is_value_like()`, `detect_layout()` and `melt_wide()` gain `na_strings=` and
+  treat those placeholders as missing. Previously a wide sheet whose blanks were
+  written as `"-"` lost most of its analyte columns to the 0.8 value-like
+  threshold, and `melt_wide()` carried the `"-"` cells through as data.
+* `ND_LT_REGEX` is now digit-strict. `"<-"`, `"<."`, `"<e"` and `"<+-"` used to
+  match, yielding `censored = TRUE` with an `NA` limit and a clean `parse_note`.
+* `clean_table()` gains `header_rows=`, `drop_labels=` and `sep=`; the positional
+  signature `clean_table(df, header_row, trim_ws)` is unchanged.
+* `apply_substitution()` and `working_values()` gain `censor_direction=` and
+  `censor_limit=`. Right-censored entries substitute to the ceiling itself, not to
+  a fraction of it. Omitting both arguments reproduces the old all-left-censored
+  behaviour *safely* (right-censored rows become `NA`, as they did in 0.5.0);
+  naming a `"right"` entry in `censor_direction` without supplying `censor_limit`
+  is an error rather than a guess. `working_values()` now also accepts the whole
+  `parse_censored()` tibble as its first argument -- `working_values(parse_censored(x))`
+  is the one-liner that handles both directions correctly.
+
+## New
+
+* `list_sheets()` returns every worksheet with its **visibility**
+  (`"visible"`/`"hidden"`/`"veryHidden"`), which `readxl::excel_sheets()` does
+  not report; a `veryHidden` sheet in position 1 is what `read_tabular()` reads
+  by default. `read_all_sheets()` reads a whole workbook, optionally skipping
+  hidden sheets. Previously nothing in the package could enumerate sheets, so
+  `read_tabular(path)` silently ingested sheet 1 and discarded the rest.
+* `check_unique()`, `check_range()` and `check_monotonic()` extend the validation
+  kernel from column-level counts to records: duplicate keys, physically
+  impossible values (a pH of 42.4), and a sampling series that steps backwards.
+* `drop_label_rows()` removes single-cell section dividers and footnote banners.
+  `clean_table(drop_labels = TRUE)` does it in one pass.
+* `looks_transposed()` and `transpose_table()` handle the analyte-by-sample
+  results matrix -- a third layout, whose columns are numeric and which
+  `detect_layout()` therefore used to call `"wide"`. `detect_layout()` now
+  reports `layout = "transposed"` for it.
+* `apply_column_map()` warns when type coercion discards non-missing values,
+  naming the field, the count and example tokens. Coercing a `numeric` field runs
+  `as.numeric()`, which destroys every non-detect that `parse_censored()` exists
+  to preserve; the contract path never called it.
+
 # tritonIngest 0.5.0
 
 Audit follow-up (2026-06): closes the open correctness findings recorded in

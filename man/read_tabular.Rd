@@ -4,13 +4,21 @@
 \alias{read_tabular}
 \title{Read a tabular data file (CSV/TSV/XLSX) as all-text columns.}
 \usage{
-read_tabular(path, sheet = NULL, col_types = NULL, col_names = TRUE)
+read_tabular(
+  path,
+  sheet = NULL,
+  col_types = NULL,
+  col_names = TRUE,
+  format = NULL
+)
 }
 \arguments{
 \item{path}{File path. The extension selects the reader (csv/txt, tsv,
-xlsx/xls).}
+xlsx/xls) unless \code{format} is given.}
 
-\item{sheet}{Sheet name or index for Excel files (default: first sheet).}
+\item{sheet}{Sheet name or index for Excel files (default: first sheet). Use
+\code{\link[=list_sheets]{list_sheets()}} to enumerate a workbook and \code{\link[=read_all_sheets]{read_all_sheets()}} to read them
+all -- \code{read_tabular()} reads exactly one sheet.}
 
 \item{col_types}{Optional column-type spec passed through to the underlying
 reader; default reads everything as text.}
@@ -19,6 +27,10 @@ reader; default reads everything as text.}
 read every row as data with positional names (\code{FALSE}). Use \code{FALSE} when a
 workbook has title/metadata rows above the real header, then recover it with
 \code{\link[=clean_table]{clean_table()}}.}
+
+\item{format}{Force a reader: one of \code{"csv"}, \code{"tsv"}, \code{"txt"}, \code{"xlsx"},
+\code{"xls"}. Defaults to \code{NULL} (derive from the extension and verify against the
+file's signature).}
 }
 \value{
 A tibble.
@@ -27,4 +39,12 @@ A tibble.
 Every column is read as character so notation like non-detect markers
 (\code{"<0.01"}, \code{"ND"}) and codes with leading zeros are preserved for downstream
 parsing. Pass \code{col_types} to override on a typed read when that is not needed.
+}
+\details{
+The file's leading bytes are checked against its extension (see
+\code{\link[=sniff_format]{sniff_format()}}): an \code{.xlsx} workbook served under a \code{.csv} name is an error,
+not a silent mis-parse. Pass \verb{format=} to override the extension entirely.
+
+Duplicate names in the source header are reported with a warning before the
+underlying reader makes them unique.
 }

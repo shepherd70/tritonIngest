@@ -2,20 +2,25 @@
 % Please edit documentation in R/layout.R
 \name{is_value_like}
 \alias{is_value_like}
-\title{Does a character vector look numeric-ish (allowing non-detect notation)?}
+\title{Does a character vector look numeric-ish (allowing censored notation)?}
 \usage{
-is_value_like(x, threshold = 0.8)
+is_value_like(x, threshold = 0.8, na_strings = c("-", "--", "n/a", "N/A"))
 }
 \arguments{
 \item{x}{Character vector.}
 
 \item{threshold}{Minimum fraction of non-missing entries that must parse as a
-number or a recognised non-detect token.}
+number or a recognised censored token.}
+
+\item{na_strings}{Placeholders that mean "not measured" and are excluded from
+the denominator alongside \code{NA} and \code{""}. Excel exports commonly write \code{"-"};
+before 0.6.0 such a column scored as \emph{not} value-like and a wide sheet could
+lose most of its analyte columns.}
 }
 \value{
 \code{TRUE}/\code{FALSE}.
 }
 \description{
 Used by layout detection: a measured-variable column in a wide file contains
-numbers and possibly non-detect entries (\code{"<DL"}, \code{"ND"}).
+numbers and possibly censored entries (\code{"<DL"}, \code{">2420"}, \code{"ND"}, \code{"TNTC"}).
 }

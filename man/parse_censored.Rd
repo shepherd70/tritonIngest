@@ -2,22 +2,60 @@
 % Please edit documentation in R/censored.R
 \name{parse_censored}
 \alias{parse_censored}
-\title{Parse raw result text into value / censored / detection_limit.}
+\title{Parse raw result text into value / censoring / limit / qualifier.}
 \usage{
-parse_censored(value_raw, detection_limit = NULL)
+parse_censored(
+  value_raw,
+  detection_limit = NULL,
+  na_strings = c("-", "--", "n/a", "N/A"),
+  nd_tokens = ND_TOKENS,
+  over_tokens = OVER_TOKENS,
+  qualifiers = TRUE
+)
 }
 \arguments{
 \item{value_raw}{Character vector of raw results as read from file.}
 
 \item{detection_limit}{Optional numeric vector (recycled if length 1) from a
-separate DL/RL column; used for token non-detects (\code{"ND"}) and checked for
+separate DL/RL column; used for bare tokens (\code{"ND"}) and checked for
 consistency against \code{"<DL"} notation.}
+
+\item{na_strings}{Values (compared case-insensitively after trimming) that mean
+"not measured" rather than a result. Excel exports commonly write \code{"-"}.}
+
+\item{nd_tokens, over_tokens}{Bare left- / right-censored markers.}
+
+\item{qualifiers}{Extract leading/trailing laboratory flags from an otherwise
+numeric cell. \code{FALSE} restores the strict behaviour in which \code{"178d"} is
+unparseable.}
 }
 \value{
 A tibble: \code{value} (dbl, NA where censored/unparseable), \code{censored}
-(lgl, NA where unparseable), \code{detection_limit} (dbl), \code{parse_note} (chr, NA
-when clean).
+(lgl: TRUE when the true value is not directly observed, in either
+direction; NA where unparseable), \code{censor_direction}
+(\code{"none"}/\code{"left"}/\code{"right"}, NA where unparseable), \code{detection_limit} (dbl,
+left-censored rows only), \code{censor_limit} (dbl, the bound in either
+direction), \code{qualifier} (chr, NA when none), \code{parse_note} (chr, NA when
+clean).
 }
 \description{
-Parse raw result text into value / censored / detection_limit.
+Recognises left-censored (\code{"<x"}, \code{"ND"}), right-censored (\code{">x"}, \code{"TNTC"})
+and detected values, and separates any laboratory qualifier flag from the
+number it decorates (\code{"178d"} -> value 178, qualifier \code{"d"}).
 }
+\section{Two limit columns, on purpose}{
+
+\code{detection_limit} keeps its original meaning -- the detection/reporting limit
+below which a result was not detected. It is populated for left-censored rows
+and is \strong{\code{NA} for right-censored ones}: a \code{">2420"} result has no detection
+limit, it has a quantitation ceiling. That ceiling lives in \code{censor_limit},
+which carries the numeric bound for \emph{either} direction.
+
+The split is what makes the default safe. A caller that does not yet know about
+right-censoring calls \code{apply_substitution(value, censored, detection_limit)};
+the right-censored rows have \code{detection_limit = NA}, so they drop to \code{NA}
+rather than being substituted as \code{fraction * ceiling} -- which would fabricate
+a number \emph{below} the true value. Pass \code{censor_direction} and \code{censor_limit} to
+use them properly.
+}
+
