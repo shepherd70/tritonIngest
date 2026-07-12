@@ -4,7 +4,14 @@
 \alias{apply_column_map}
 \title{Apply a column mapping to a source data frame.}
 \usage{
-apply_column_map(df, mapping, contract, coerce = TRUE, warn_coercion = TRUE)
+apply_column_map(
+  df,
+  mapping,
+  contract,
+  coerce = TRUE,
+  warn_coercion = NULL,
+  loss = c("error", "warn", "allow")
+)
 }
 \arguments{
 \item{df}{A source data frame.}
@@ -16,7 +23,10 @@ apply_column_map(df, mapping, contract, coerce = TRUE, warn_coercion = TRUE)
 \item{coerce}{Logical; coerce each output column to its declared type.}
 
 \item{warn_coercion}{Warn when coercion turns non-missing source values into
-\code{NA}.}
+\code{NA}. Deprecated; use \code{loss}.}
+
+\item{loss}{Policy when coercion would discard populated values: error by
+default, or explicitly warn/allow.}
 }
 \value{
 A tibble with contract-named (subset of) columns.

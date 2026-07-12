@@ -2,31 +2,30 @@
 % Please edit documentation in R/cache.R
 \name{read_cache}
 \alias{read_cache}
-\title{Read from the materialisation cache, if present and still fresh.}
+\title{Read a fresh, verified cache entry}
 \usage{
 read_cache(
   key = NULL,
   source = NULL,
   dir = getOption("tritonIngest.cache_dir"),
-  format = c("rds", "parquet")
+  format = c("rds", "parquet"),
+  transform_context = NULL
 )
 }
 \arguments{
-\item{key}{Cache key. Defaults to one derived from \code{source}.}
+\item{key}{Cache key, derived from \code{source} when omitted.}
 
-\item{source}{Path(s) to the current source file(s); compared against the
-recorded fingerprint. \code{NULL} skips the freshness check.}
+\item{source}{Current source path(s).}
 
-\item{dir}{Cache directory (see \code{\link[=cache_dir]{cache_dir()}}).}
+\item{dir}{Cache directory.}
 
-\item{format}{\code{"rds"} (default) or \code{"parquet"}.}
+\item{format}{\code{"rds"} or \code{"parquet"}.}
+
+\item{transform_context}{Transformation identity used when the entry was written.}
 }
 \value{
-The cached object, or \code{NULL} on a miss / stale source.
+Cached object or \code{NULL} on any miss/mismatch.
 }
 \description{
-Returns the cached object when the data file and its sidecar exist and -- when
-the sidecar recorded a source fingerprint -- the current \code{source} still matches
-it. A miss or a stale/changed source returns \code{NULL} (with a message), so the
-caller re-parses rather than trusting an out-of-date cache.
+Read a fresh, verified cache entry
 }

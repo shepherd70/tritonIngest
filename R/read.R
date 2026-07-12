@@ -68,7 +68,7 @@ sniff_format <- function(path) {
 # Read just the header with no name repair, so a duplicated source column can be
 # reported *before* the reader silently makes the names unique. A duplicated
 # analyte label is the signature of a copy-paste or mislabelled column.
-.warn_duplicate_header <- function(path, ext, sheet) {
+.inspect_duplicate_header <- function(path, ext, sheet) {
   nms <- tryCatch({
     if (ext %in% c("csv", "txt")) {
       names(readr::read_csv(path, n_max = 0, name_repair = "minimal",
@@ -83,20 +83,17 @@ sniff_format <- function(path) {
                                col_types = "text", .name_repair = "minimal"))
     }
   }, error = function(e) NULL, warning = function(w) NULL)
-  if (is.null(nms) || !length(nms)) return(invisible(NULL))
+  if (is.null(nms) || !length(nms)) return(NULL)
 
   nms <- trimws(as.character(nms))
   real <- nms[!is.na(nms) & nzchar(nms)]
   dups <- unique(real[duplicated(real)])
-  if (!length(dups)) return(invisible(NULL))
+  if (!length(dups)) return(NULL)
 
   where <- vapply(dups, function(d) paste(which(nms == d), collapse = ", "), character(1))
-  warning("read_tabular(): duplicate column name(s) in the source header: ",
-          paste0("'", dups, "' at positions ", where, collapse = "; "),
-          ". The reader has made them unique; a duplicated label usually means a ",
-          "copy-pasted or mislabelled column. Check the source before trusting either copy.",
-          call. = FALSE)
-  invisible(NULL)
+  data.frame(original = rep(dups, lengths(strsplit(where, ", ", fixed = TRUE))),
+             position = unlist(lapply(dups, function(d) which(nms == d))),
+             stringsAsFactors = FALSE)
 }
 
 #' Read a tabular data file (CSV/TSV/XLSX) as all-text columns.
@@ -126,10 +123,15 @@ sniff_format <- function(path) {
 #' @param format Force a reader: one of `"csv"`, `"tsv"`, `"txt"`, `"xlsx"`,
 #'   `"xls"`. Defaults to `NULL` (derive from the extension and verify against the
 #'   file's signature).
+#' @param duplicate_names Policy for populated duplicate source headers. The
+#'   default `"error"` fails closed; `"warn"` or `"repair"` allow the reader's
+#'   unique-name repair and attach a `name_repairs` attribute.
 #' @return A tibble.
 #' @export
 read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
-                         format = NULL) {
+                         format = NULL,
+                         duplicate_names = c("error", "warn", "repair")) {
+  duplicate_names <- match.arg(duplicate_names)
   if (!file.exists(path)) stop("File not found: ", path)
 
   if (is.null(format)) {
@@ -142,9 +144,20 @@ read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
     }
   }
 
-  if (isTRUE(col_names)) .warn_duplicate_header(path, ext, sheet)
+  repairs <- if (isTRUE(col_names)) .inspect_duplicate_header(path, ext, sheet) else NULL
+  if (!is.null(repairs)) {
+    detail <- paste0("'", unique(repairs$original), "' at positions ",
+                     vapply(unique(repairs$original), function(d)
+                       paste(repairs$position[repairs$original == d], collapse = ", "),
+                       character(1)), collapse = "; ")
+    msg <- paste0("read_tabular(): duplicate source header(s): ", detail,
+                  ". A duplicated label can identify different variables; repair ",
+                  "does not make the meaning safe.")
+    if (duplicate_names == "error") stop(msg, call. = FALSE)
+    if (duplicate_names == "warn") warning(msg, call. = FALSE)
+  }
 
-  if (ext %in% c("csv", "txt")) {
+  out <- if (ext %in% c("csv", "txt")) {
     ct <- col_types %||% readr::cols(.default = readr::col_character())
     readr::read_csv(path, col_names = col_names, col_types = ct, progress = FALSE)
   } else if (ext == "tsv") {
@@ -156,6 +169,12 @@ read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
   } else {
     stop("Unsupported file type: .", ext, " (use CSV, TSV, or XLSX)")
   }
+  if (!is.null(repairs)) {
+    repairs$repaired <- names(out)[repairs$position]
+    attr(out, "name_repairs") <- repairs
+    attr(out, "diagnostics") <- list(.duplicate_header_diagnostic(repairs, "read"))
+  }
+  out
 }
 
 # Translate a strptime format into an anchored regex the whole string must match.
@@ -256,6 +275,22 @@ coerce_excel_date <- function(x,
                               origin = "1899-12-30",
                               serial_range = c(1, 2958465),
                               strict = TRUE) {
+  if (inherits(x, "Date")) return(x)
+  parsed_origin <- tryCatch(as.Date(origin), error = function(e) as.Date(NA))
+  if (length(origin) != 1L || is.na(origin) || is.na(parsed_origin)) {
+    stop("`origin` must be one valid Date value.", call. = FALSE)
+  }
+  if (!is.character(formats) || !length(formats) || anyNA(formats) ||
+      any(!nzchar(formats))) {
+    stop("`formats` must be a non-empty character vector.", call. = FALSE)
+  }
+  if (!is.numeric(serial_range) || length(serial_range) != 2L ||
+      anyNA(serial_range) || serial_range[1] > serial_range[2]) {
+    stop("`serial_range` must be two ordered, non-missing numbers.", call. = FALSE)
+  }
+  if (length(strict) != 1L || is.na(strict)) {
+    stop("`strict` must be TRUE or FALSE.", call. = FALSE)
+  }
   serial    <- suppressWarnings(as.numeric(x))
   is_serial <- !is.na(serial) & serial >= serial_range[1] & serial <= serial_range[2]
 

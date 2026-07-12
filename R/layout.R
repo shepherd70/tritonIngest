@@ -203,12 +203,38 @@ looks_transposed <- function(df,
 #' @export
 transpose_table <- function(df, header_rows, body_rows, label_cols, sample_cols,
                             na_strings = c("-", "--", "n/a", "N/A")) {
-  stopifnot(is.data.frame(df), length(header_rows) >= 1, length(label_cols) >= 1)
+  if (!is.data.frame(df)) stop("`df` must be a data frame.", call. = FALSE)
+  if (!length(header_rows) || !length(label_cols) || !length(body_rows) ||
+      !length(sample_cols)) {
+    stop("header_rows, body_rows, label_cols, and sample_cols must be non-empty.",
+         call. = FALSE)
+  }
   if (is.null(names(header_rows)) || any(!nzchar(names(header_rows)))) {
     stop("`header_rows` must be a *named* integer vector (output name -> row index).", call. = FALSE)
   }
   if (is.null(names(label_cols)) || any(!nzchar(names(label_cols)))) {
     stop("`label_cols` must be a *named* integer vector (output name -> column index).", call. = FALSE)
+  }
+  indexes <- list(header_rows = header_rows, body_rows = body_rows,
+                  label_cols = label_cols, sample_cols = sample_cols)
+  limits <- c(header_rows = nrow(df), body_rows = nrow(df),
+              label_cols = ncol(df), sample_cols = ncol(df))
+  for (nm in names(indexes)) {
+    value <- indexes[[nm]]
+    if (anyNA(value) || any(value != as.integer(value)) || any(value < 1L) ||
+        any(value > limits[[nm]]) || anyDuplicated(value)) {
+      stop("`", nm, "` contains invalid, out-of-range, or duplicate indices.",
+           call. = FALSE)
+    }
+  }
+  if (length(intersect(header_rows, body_rows))) {
+    stop("`header_rows` and `body_rows` must not overlap.", call. = FALSE)
+  }
+  if (length(intersect(label_cols, sample_cols))) {
+    stop("`label_cols` and `sample_cols` must not overlap.", call. = FALSE)
+  }
+  if (anyDuplicated(c(names(header_rows), names(label_cols)))) {
+    stop("Header and label output names must be unique.", call. = FALSE)
   }
   clash <- intersect(c(names(header_rows), names(label_cols)), "value_raw")
   if (length(clash)) stop("`value_raw` is a reserved output name.", call. = FALSE)

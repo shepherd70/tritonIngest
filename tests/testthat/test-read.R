@@ -26,6 +26,14 @@ test_that("coerce_excel_date handles serial / ISO / NA mixes", {
                as.Date("1899-12-30") + c(45847, 45909))
 })
 
+test_that("coerce_excel_date preserves Date values and validates arguments", {
+  x <- as.Date(c("2026-01-02", NA))
+  expect_identical(coerce_excel_date(x), x)
+  expect_error(coerce_excel_date("1", origin = "not-a-date"), "origin")
+  expect_error(coerce_excel_date("1", serial_range = c(2, 1)), "serial_range")
+  expect_error(coerce_excel_date("1", formats = character()), "formats")
+})
+
 test_that("coerce_excel_date parses year-first slash dates and respects origin", {
   expect_equal(coerce_excel_date("2023/08/22"), as.Date("2023-08-22"))
   # the same serial under the 1904 system lands later than under the 1900 default
@@ -99,13 +107,17 @@ test_that("sniff_format identifies content, not the extension (RC2)", {
   expect_error(read_tabular(zipped), "format = \"xlsx\"")
 })
 
-test_that("read_tabular warns about duplicate source column names (RC6)", {
+test_that("read_tabular fails closed on duplicate source column names", {
   tmp <- tempfile(fileext = ".csv"); on.exit(unlink(tmp))
   writeLines(c("site,zinc,zinc", "A,1,2"), tmp)
-  expect_warning(df <- read_tabular(tmp), "duplicate column name")
-  expect_warning(read_tabular(tmp), "at positions 2, 3")
-  # the reader still repairs them; the point is that it no longer does so silently
+  expect_error(read_tabular(tmp), "duplicate source header")
+  expect_warning(df <- read_tabular(tmp, duplicate_names = "warn"),
+                 "at positions 2, 3")
   expect_equal(ncol(df), 3)
+  repaired <- suppressWarnings(read_tabular(tmp, duplicate_names = "repair"))
+  diag <- attr(repaired, "diagnostics")[[1]]
+  expect_equal(diag$details$repairs[[2]]$repaired, "zinc...3")
+  expect_true(diag$requires_review)
   # col_names = FALSE has no header to check
   expect_silent(read_tabular(tmp, col_names = FALSE))
 })

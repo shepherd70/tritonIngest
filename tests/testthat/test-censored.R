@@ -43,6 +43,15 @@ test_that("a supplied DL column never becomes a right-censored ceiling", {
   expect_equal(p$censor_limit, c(2420, NA))
 })
 
+test_that("bare right-censor tokens use only the explicit censor limit", {
+  p <- parse_censored(c("TNTC", ">80"), censor_limit = c(500, 100))
+  expect_equal(p$censor_limit, c(500, 80))
+  expect_match(p$parse_note[2], "differs from censor-limit column")
+  expect_error(parse_censored(c("TNTC", "TNTC"), censor_limit = c(1, 2, 3)),
+               "must be 1 or match")
+  expect_error(parse_censored("TNTC", censor_limit = -1), "non-negative")
+})
+
 test_that("direction-blind substitution DROPS right-censored values, never halves them", {
   # regression: putting the ceiling in detection_limit made an un-updated caller
   # substitute 0.5 * 2420 = 1210 -- a fabricated number BELOW the true value.

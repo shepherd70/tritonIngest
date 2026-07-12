@@ -12,7 +12,7 @@ test_that("check_unique finds duplicate keys and names the rows", {
 
   uniq <- data.frame(a = 1:3, b = 4:6)
   expect_equal(check_unique(uniq, c("a", "b"), "t"), character(0))
-  expect_equal(check_unique(uniq, "nope", "t"), character(0))     # absent col skipped
+  expect_match(check_unique(uniq, "nope", "t"), "unique key is incomplete")
   expect_equal(check_unique(uniq[0, ], "a", "t"), character(0))   # zero rows
 })
 
@@ -38,6 +38,13 @@ test_that("check_range catches physically impossible values", {
   expect_error(check_range(d, list(pH = 3), "t"), "must be c\\(min, max\\)")
   # NA values are not out-of-range
   expect_equal(check_range(data.frame(x = c(NA, 5)), list(x = c(0, 10)), "t"), character(0))
+})
+
+test_that("check_range reports populated values that cannot be parsed", {
+  msgs <- check_range(data.frame(x = c("1", "bad", "")), list(x = c(0, 10)), "t")
+  expect_length(msgs, 1)
+  expect_match(msgs, "not numeric")
+  expect_match(msgs, "row\\(s\\) 2")
 })
 
 test_that("check_monotonic finds the backwards step a range check cannot", {

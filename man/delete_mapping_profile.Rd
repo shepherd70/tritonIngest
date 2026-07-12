@@ -2,7 +2,7 @@
 % Please edit documentation in R/profiles.R
 \name{delete_mapping_profile}
 \alias{delete_mapping_profile}
-\title{Delete a mapping profile.}
+\title{Delete a mapping profile}
 \usage{
 delete_mapping_profile(
   name_or_path,
@@ -10,13 +10,13 @@ delete_mapping_profile(
 )
 }
 \arguments{
-\item{name_or_path}{Profile name or path to a profile JSON file.}
+\item{name_or_path}{Profile name/path.}
 
-\item{dir}{Profiles directory (see \code{\link[=mapping_profiles_dir]{mapping_profiles_dir()}}).}
+\item{dir}{Profiles directory.}
 }
 \value{
-\code{TRUE} if a file was removed, \code{FALSE} if none existed.
+\code{TRUE} if removed.
 }
 \description{
-Delete a mapping profile.
+Delete a mapping profile
 }

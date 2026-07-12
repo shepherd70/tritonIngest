@@ -2,17 +2,16 @@
 % Please edit documentation in R/profiles.R
 \name{list_mapping_profiles}
 \alias{list_mapping_profiles}
-\title{List saved mapping profiles.}
+\title{List mapping profiles}
 \usage{
 list_mapping_profiles(dir = getOption("tritonIngest.profiles_dir"))
 }
 \arguments{
-\item{dir}{Profiles directory (see \code{\link[=mapping_profiles_dir]{mapping_profiles_dir()}}).}
+\item{dir}{Profiles directory.}
 }
 \value{
-A tibble with \code{name}, \code{file}, and \code{modified} (POSIXct), newest first;
-zero rows if none exist.
+Tibble with name, schema, file, and modified time.
 }
 \description{
-List saved mapping profiles.
+List mapping profiles
 }

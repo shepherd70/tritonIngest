@@ -2,7 +2,7 @@
 % Please edit documentation in R/cache.R
 \name{cached_ingest}
 \alias{cached_ingest}
-\title{Ingest a source, using the cache when fresh and rebuilding it when not.}
+\title{Ingest a source using a verified cache}
 \usage{
 cached_ingest(
   source,
@@ -11,31 +11,28 @@ cached_ingest(
   dir = getOption("tritonIngest.cache_dir"),
   format = c("rds", "parquet"),
   fingerprint = c("md5", "size_mtime"),
+  transform_context = NULL,
   ...
 )
 }
 \arguments{
-\item{source}{Path(s) to the source file(s).}
+\item{source}{Source path(s).}
 
-\item{parse}{Function called as \code{parse(source, ...)} on a cache miss; must
-return the object to cache. Defaults to \code{\link[=read_tabular]{read_tabular()}}.}
+\item{parse}{Parser called as \code{parse(source, ...)}.}
 
-\item{key}{Cache key. Defaults to one derived from \code{source}.}
+\item{key, dir, format, fingerprint}{Cache settings.}
 
-\item{dir}{Cache directory (see \code{\link[=cache_dir]{cache_dir()}}).}
+\item{transform_context}{Required for custom parsers; automatically generated
+for \code{\link[=read_tabular]{read_tabular()}}.}
 
-\item{format}{\code{"rds"} (default) or \code{"parquet"}.}
-
-\item{fingerprint}{Source-fingerprint method (see \code{\link[=write_cache]{write_cache()}}).}
-
-\item{...}{Passed to \code{parse}.}
+\item{...}{Parser arguments included in the transformation fingerprint.}
 }
 \value{
-The canonical object, from cache or freshly parsed.
+Cached or freshly parsed object.
 }
 \description{
-The standard ingest-with-cache flow: try \code{\link[=read_cache]{read_cache()}}; on a miss/stale
-source, run \code{parse(source, ...)}, write the result to the cache, and return
-it. \code{parse} defaults to \code{\link[=read_tabular]{read_tabular()}} but is typically a project-specific
-function that parses \emph{and} validates into the canonical object.
+Custom parsers must supply \code{transform_context} with \code{parser_id},
+\code{parser_version}, and \code{schema_version}. The context and \code{...} arguments are
+fingerprinted so a changed sheet, contract, profile, or parser configuration
+cannot reuse an obsolete object.
 }

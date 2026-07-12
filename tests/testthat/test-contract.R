@@ -63,15 +63,62 @@ test_that("auto_map uses each source column at most once", {
 test_that("apply_column_map reports values destroyed by coercion (RC5)", {
   df <- data.frame(result = c("1.2", "<0.25", "ND", ">2420"), stringsAsFactors = FALSE)
   ct <- list(cf_field("result", "numeric", TRUE))
-  expect_warning(out <- apply_column_map(df, list(result = "result"), ct),
+  expect_error(apply_column_map(df, list(result = "result"), ct),
+               "coercion discarded non-missing values")
+  expect_warning(out <- apply_column_map(df, list(result = "result"), ct, loss = "warn"),
                  "coercion discarded non-missing values")
-  expect_warning(apply_column_map(df, list(result = "result"), ct),
+  expect_warning(apply_column_map(df, list(result = "result"), ct, loss = "warn"),
                  "3 of 4 non-missing values")
   expect_equal(out$result, c(1.2, NA, NA, NA))
-  expect_silent(apply_column_map(df, list(result = "result"), ct, warn_coercion = FALSE))
+  expect_warning(apply_column_map(df, list(result = "result"), ct,
+                                  warn_coercion = FALSE), "deprecated")
   # and no warning when nothing is lost
   ok <- data.frame(result = c("1.2", "3.4"), stringsAsFactors = FALSE)
   expect_silent(apply_column_map(ok, list(result = "result"), ct))
+})
+
+test_that("contracts reject duplicate and malformed field definitions", {
+  expect_error(as_contract(list(cf_field("site"), cf_field("site"))), "duplicate")
+  expect_error(as_contract(list(list(name = "x"))), "malformed")
+})
+
+test_that("strict integer, date, datetime, and time types share one registry", {
+  ct <- as_contract(list(
+    cf_field("count", "integer", TRUE),
+    cf_field("day", "date", TRUE, formats = "%Y-%m-%d"),
+    cf_field("stamp", "datetime", TRUE, formats = "%Y-%m-%d %H:%M", tz = "UTC"),
+    cf_field("clock", "time", TRUE, formats = "%H:%M")
+  ))
+  raw <- data.frame(count = c("2", "2.5"), day = c("2026-01-02", "bad"),
+                    stamp = c("2026-01-02 03:04", "bad"), clock = c("03:04", "bad"))
+  expect_error(suppressWarnings(apply_column_map(
+                 raw, as.list(stats::setNames(names(raw), names(raw))), ct)),
+               "coercion discarded")
+  out <- suppressWarnings(apply_column_map(
+    raw, as.list(stats::setNames(names(raw), names(raw))), ct, loss = "allow"))
+  expect_equal(out$count, c(2L, NA_integer_))
+  expect_s3_class(out$day, "Date")
+  expect_s3_class(out$stamp, "POSIXct")
+  expect_s3_class(out$clock, "hms")
+})
+
+test_that("strict readiness requires rows and valid required values", {
+  empty <- tibble::tibble(year = integer(), site = character(), species = character(),
+                          length_mm = numeric())
+  expect_false(contract_is_ready(empty, test_contract()))
+  bad <- tibble::tibble(year = 2024.5, site = "A", species = "RB", length_mm = 10)
+  expect_false(contract_is_ready(bad, test_contract()))
+  expect_true(contract_is_ready(bad, test_contract(), policy = "structure"))
+})
+
+test_that("validation counts use populated values as the invalid denominator", {
+  ct <- as_contract(list(cf_field("value", "numeric", TRUE)))
+  x <- tibble::tibble(value = c(NA, NA, "1", "bad"))
+  v <- validate_against_contract(x, ct, max_invalid_fraction = 0.4)
+  expect_equal(v$populated, 2L)
+  expect_equal(v$invalid, 1L)
+  expect_equal(v$invalid_fraction, 0.5)
+  expect_equal(v$severity, "error")
 })
 
 test_that("apply_column_map renames, selects, and coerces to declared types", {

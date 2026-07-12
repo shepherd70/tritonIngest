@@ -10,7 +10,8 @@ clean_table(
   header_rows = NULL,
   trim_ws = TRUE,
   drop_labels = FALSE,
-  sep = " "
+  sep = " ",
+  duplicate_names = c("error", "warn", "repair")
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ precedence over \code{header_row}. The body starts after \code{max(header_rows)}
 \code{\link[=drop_label_rows]{drop_label_rows()}}).}
 
 \item{sep}{Separator used to join the pieces of a multi-row header.}
+
+\item{duplicate_names}{Policy for duplicated promoted names. The default
+\code{"error"} fails closed; override modes attach \code{name_repairs} provenance.}
 }
 \value{
 A tibble with promoted names and structural junk removed.

@@ -4,7 +4,13 @@
 \alias{check_range}
 \title{Check that numeric columns fall inside declared bounds}
 \usage{
-check_range(data, bounds, table_name, max_report = 5L)
+check_range(
+  data,
+  bounds,
+  table_name,
+  max_report = 5L,
+  report_unparseable = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame to check.}
@@ -16,6 +22,9 @@ are skipped.}
 \item{table_name}{Human-readable name of the table, used in failure messages.}
 
 \item{max_report}{Maximum number of offending values to name per column.}
+
+\item{report_unparseable}{Report populated values that cannot be parsed as
+numeric instead of silently skipping them.}
 }
 \value{
 Character vector of failure messages; empty if every value is in range.

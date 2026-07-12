@@ -4,19 +4,30 @@
 \alias{validate_against_contract}
 \title{Validate a (mapped) data frame against a contract.}
 \usage{
-validate_against_contract(df, contract)
+validate_against_contract(
+  df,
+  contract,
+  policy = c("strict", "structure"),
+  max_invalid_fraction = 0
+)
 }
 \arguments{
 \item{df}{A data frame with contract-named columns.}
 
 \item{contract}{A contract (list of specs or tibble).}
+
+\item{policy}{\code{"strict"} validates values and structure; \code{"structure"}
+checks only presence and population.}
+
+\item{max_invalid_fraction}{Maximum tolerated fraction of invalid populated
+values before a field becomes an error.}
 }
 \value{
 A tibble: \code{field}, \code{required}, \code{status}, \code{severity}
-(\code{"error"}/\code{"warning"}/\code{"ok"}), \code{issue} (NA when ok).
+(\code{"error"}/\code{"warning"}/\code{"ok"}), \code{issue}, and total/populated/missing/
+invalid counts plus the invalid fraction.
 }
 \description{
-Reports, per contract field, whether it is present and usable. Statuses:
-\code{"ok"}, \code{"missing"} (column absent), \code{"all_na"} (present but every value NA),
-and \code{"type_warn"} (declared numeric/integer but >50\% non-coercible).
+Reports, per contract field, whether it is present, populated, and valid for
+its declared type.
 }

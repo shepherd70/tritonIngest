@@ -1,11 +1,11 @@
 # tritonIngest — Design Document
 
-**Status:** Implemented (v0.5.0) — Phase 0–1 complete, plus an added validation
-kernel and materialisation cache. Phase 2 done: `bw-analysis-code` consumes the
-shared package (pinned `v0.4.3`); Phases 3–4 (`water-chemistry-qaqc`, chemistry
-ingestion in bw) pending ·
+**Status:** Implemented (v0.7.0 release candidate) — shared engine, validation,
+cache v2, canonical bundles, and both consumer integrations complete on rollout
+branches. Cross-language manifests and diagnostics conform to
+`tabular-ingestion-spec` 1.0.0-rc.1. ·
 **Author:** drafted for Travis Shepherd · **Date drafted:** 2026-06-08 ·
-**Last reconciled:** 2026-06-25
+**Last reconciled:** 2026-07-12
 
 A lean, domain-agnostic R package for **tabular data ingestion**: read messy
 field/lab workbooks, detect their layout, map their columns onto a declared
@@ -80,7 +80,9 @@ the consuming repos. tritonIngest is *plumbing only*.
 
 ## 3. Architecture & principles
 
-1. **Pure functions, no side effects** (except the explicit profile read/write).
+1. **Pure functions, explicit artifact side effects.** Ingestion transformations
+   are pure; profile, cache, and canonical-bundle writes are explicit, atomic,
+   fingerprinted operations.
    Cold-session unit-testable — both repos already hold this line.
 2. **Contracts are data, passed in — never a hardcoded global.** This is the one
    substantive refactor vs bw's current code: bw's `auto_map(source_cols, role)`
@@ -95,7 +97,10 @@ the consuming repos. tritonIngest is *plumbing only*.
    were dropped. No stats/plot/Shiny stack, so an import-only consumer stays
    light. Fuzzy matching uses base `utils::adist` (as bw already does) — no
    `stringdist` dependency.
-4. **Backward-compatible migration.** Each repo keeps its current public function
+4. **Fail-closed semantics.** Duplicate headers, ambiguous dates, fuzzy
+   suggestions, stale profiles, and lossy coercions cannot silently become
+   trusted canonical data.
+5. **Backward-compatible migration.** Each repo keeps its current public function
    names as thin re-exports/aliases of the shared ones, so no downstream call
    site breaks during migration.
 

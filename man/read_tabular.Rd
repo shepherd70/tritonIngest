@@ -9,7 +9,8 @@ read_tabular(
   sheet = NULL,
   col_types = NULL,
   col_names = TRUE,
-  format = NULL
+  format = NULL,
+  duplicate_names = c("error", "warn", "repair")
 )
 }
 \arguments{
@@ -31,6 +32,10 @@ workbook has title/metadata rows above the real header, then recover it with
 \item{format}{Force a reader: one of \code{"csv"}, \code{"tsv"}, \code{"txt"}, \code{"xlsx"},
 \code{"xls"}. Defaults to \code{NULL} (derive from the extension and verify against the
 file's signature).}
+
+\item{duplicate_names}{Policy for populated duplicate source headers. The
+default \code{"error"} fails closed; \code{"warn"} or \code{"repair"} allow the reader's
+unique-name repair and attach a \code{name_repairs} attribute.}
 }
 \value{
 A tibble.

@@ -1,6 +1,6 @@
 Package: tritonIngest
 Title: Tabular Data Ingestion Toolkit
-Version: 0.6.0
+Version: 0.7.0
 Authors@R:
     person("Travis", "Shepherd", email = "travis.shepherd@tritonenv.com",
            role = c("aut", "cre"))
@@ -22,7 +22,9 @@ Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.2)
 Imports:
+    digest,
     dplyr,
+    hms,
     jsonlite,
     purrr,
     readr,

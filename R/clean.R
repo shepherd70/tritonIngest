@@ -167,10 +167,14 @@ drop_label_rows <- function(df, min_cells = 2L) {
 #' @param drop_labels Also drop rows with fewer than two populated cells (see
 #'   [drop_label_rows()]).
 #' @param sep Separator used to join the pieces of a multi-row header.
+#' @param duplicate_names Policy for duplicated promoted names. The default
+#'   `"error"` fails closed; override modes attach `name_repairs` provenance.
 #' @return A tibble with promoted names and structural junk removed.
 #' @export
 clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRUE,
-                        drop_labels = FALSE, sep = " ") {
+                        drop_labels = FALSE, sep = " ",
+                        duplicate_names = c("error", "warn", "repair")) {
+  duplicate_names <- match.arg(duplicate_names)
   if (!nrow(df) || !ncol(df)) return(tibble::as_tibble(df))
 
   if (!is.null(header_rows)) {
@@ -215,13 +219,21 @@ clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRU
     nm[blank] <- paste0("col_", which(blank))
   }
   dups <- unique(nm[duplicated(nm)])
+  repairs <- NULL
   if (length(dups)) {
-    warning("clean_table(): duplicate header name(s) made unique: ",
-            paste0("'", dups, "'", collapse = ", "),
-            ". A duplicated label usually means a mislabelled or copy-pasted column.",
-            call. = FALSE)
+    repairs <- data.frame(
+      original = rep(dups, vapply(dups, function(d) sum(nm == d), integer(1))),
+      position = unlist(lapply(dups, function(d) which(nm == d))),
+      stringsAsFactors = FALSE
+    )
+    msg <- paste0("clean_table(): duplicate promoted header(s): ",
+                  paste0("'", dups, "'", collapse = ", "),
+                  ". Repair does not establish semantic identity.")
+    if (duplicate_names == "error") stop(msg, call. = FALSE)
+    if (duplicate_names == "warn") warning(msg, call. = FALSE)
   }
   nm <- make.unique(nm, sep = "_")
+  if (!is.null(repairs)) repairs$repaired <- nm[repairs$position]
 
   body <- if (last >= nrow(df)) df[0, , drop = FALSE]
           else df[(last + 1):nrow(df), , drop = FALSE]
@@ -235,5 +247,10 @@ clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRU
     chr <- which(vapply(body, is.character, logical(1)))
     for (j in chr) body[[j]] <- trimws(body[[j]])
   }
-  tibble::as_tibble(body)
+  body <- tibble::as_tibble(body)
+  if (!is.null(repairs)) {
+    attr(body, "name_repairs") <- repairs
+    attr(body, "diagnostics") <- list(.duplicate_header_diagnostic(repairs, "structure"))
+  }
+  body
 }
