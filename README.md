@@ -45,7 +45,7 @@ the cross-repo migration plan.
   JSON diagnostics (`write_canonical_bundle`, `read_canonical_bundle`).
 
 Cross-language records are governed by the separately released
-`tabular-ingestion-spec` repository (pinned to `1.0.0-rc.1`). The Python
+`tabular-ingestion-spec` repository (pinned to `1.0.0`). The Python
 spreadsheet-cleanup service may preserve and inventory environmental inputs,
 but this R package remains the authoritative environmental canonicalizer; the
 two engines do not call each other at runtime.

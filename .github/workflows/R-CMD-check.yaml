@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: shepherd70/tabular-ingestion-spec
-          ref: v1.0.0-rc.1
+          ref: v1.0.0
           path: .spec
 
       - uses: r-lib/actions/setup-pandoc@v2

@@ -90,7 +90,7 @@ write_canonical_bundle <- function(x, dir, name, sources, contract, diagnostics 
     run_id = run_id,
     created_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
     engine = list(name = "tritonIngest", language = "R",
-                  version = .package_version(), spec_version = "1.0.0-rc.1"),
+                  version = .package_version(), spec_version = "1.0.0"),
     sources = source_info,
     artifacts = list(list(path = data_name, format = format,
                           sha256 = .file_sha256(data_path), row_count = nrow(x),

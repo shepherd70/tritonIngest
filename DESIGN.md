@@ -3,7 +3,7 @@
 **Status:** Implemented (v0.7.0 release candidate) — shared engine, validation,
 cache v2, canonical bundles, and both consumer integrations complete on rollout
 branches. Cross-language manifests and diagnostics conform to
-`tabular-ingestion-spec` 1.0.0-rc.1. ·
+`tabular-ingestion-spec` 1.0.0. ·
 **Author:** drafted for Travis Shepherd · **Date drafted:** 2026-06-08 ·
 **Last reconciled:** 2026-07-12
 
