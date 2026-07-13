@@ -36,6 +36,7 @@ reference:
   - cf_field
   - as_contract
   - contract_fields
+  - contract_fingerprint
   - auto_map
   - apply_column_map
   - complete_to_contract
@@ -50,6 +51,7 @@ reference:
   - list_mapping_profiles
   - delete_mapping_profile
   - mapping_profiles_dir
+  - upgrade_mapping_profile
 - title: Lab values
   desc: Parse non-detects, substitute working values, and reconcile units.
   contents:
@@ -75,3 +77,9 @@ reference:
   - read_cache
   - cached_ingest
   - cache_dir
+- title: Canonical artifacts & diagnostics
+  desc: Write and verify language-neutral canonical bundles and structured diagnostics.
+  contents:
+  - write_canonical_bundle
+  - read_canonical_bundle
+  - tabular_diagnostic
