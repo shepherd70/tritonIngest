@@ -41,6 +41,16 @@ ND_GT_REGEX     <- paste0("^>\\s*", .NUM_RE, "$")
 #' @noRd
 CENSOR_REGEX    <- paste0("^[<>]\\s*", .NUM_RE, "$")
 
+# Excel and laboratory systems commonly substitute the mathematical less-than-
+# or-equal / greater-than-or-equal glyphs for the ASCII censor operators. Build
+# them from code points at runtime: embedding the glyphs in source caused locale
+# translation failures on Windows R builds with a non-UTF-8 native encoding.
+.normalize_censor_operators <- function(x) {
+  x <- as.character(x)
+  x <- gsub(intToUtf8(0x2264), "<", x, fixed = TRUE)
+  gsub(intToUtf8(0x2265), ">", x, fixed = TRUE)
+}
+
 # Full form: optional leading flag, optional censor operator, a number, optional
 # trailing flag. Captures "178d", ">45.5c", "114c,RRR", "<10 DLCI", "MBEF <1".
 #
@@ -103,7 +113,9 @@ parse_censored <- function(value_raw, detection_limit = NULL, censor_limit = NUL
                            na_strings = c("-", "--", "n/a", "N/A"),
                            nd_tokens = ND_TOKENS, over_tokens = OVER_TOKENS,
                            qualifiers = TRUE) {
-  raw <- trimws(as.character(value_raw))
+  raw_original <- trimws(as.character(value_raw))
+  raw <- .normalize_censor_operators(raw_original)
+  normalized_operator <- !is.na(raw_original) & raw != raw_original
   n <- length(raw)
   if (!is.null(detection_limit) && !length(detection_limit) %in% c(1L, n)) {
     stop("`detection_limit` length (", length(detection_limit),
@@ -132,6 +144,13 @@ parse_censored <- function(value_raw, detection_limit = NULL, censor_limit = NUL
   cl_out    <- rep(NA_real_, n)       # censoring bound, either direction
   qual      <- rep(NA_character_, n)
   note      <- rep(NA_character_, n)
+  note[normalized_operator] <- "normalized Unicode censor operator"
+  append_note <- function(idx, text) {
+    if (!length(idx)) return(invisible(NULL))
+    current <- note[idx]
+    note[idx] <<- ifelse(is.na(current), text, paste(current, text, sep = "; "))
+    invisible(NULL)
+  }
 
   up <- toupper(raw)
   empty <- is.na(raw) | raw == "" | up %in% toupper(as.character(na_strings))
@@ -190,16 +209,17 @@ parse_censored <- function(value_raw, detection_limit = NULL, censor_limit = NUL
       lt_abs <- idx[is_lt]
       disagree <- !is.na(dl_col[lt_abs]) &
         abs(dl_col[lt_abs] - dl_out[lt_abs]) > .Machine$double.eps^0.5
-      note[lt_abs[disagree]] <- "DL in text differs from detection-limit column; text used"
+      append_note(lt_abs[disagree],
+                  "DL in text differs from detection-limit column; text used")
 
       gt_abs <- idx[is_gt]
       gt_disagree <- !is.na(ul_col[gt_abs]) &
         abs(ul_col[gt_abs] - cl_out[gt_abs]) > .Machine$double.eps^0.5
-      note[gt_abs[gt_disagree]] <-
-        "upper limit in text differs from censor-limit column; text used"
+      append_note(gt_abs[gt_disagree],
+                  "upper limit in text differs from censor-limit column; text used")
     }
     bad <- todo[!hit]
-    note[bad] <- paste0("unparseable result text: '", raw[bad], "'")
+    append_note(bad, paste0("unparseable result text: '", raw_original[bad], "'"))
   }
 
   tibble::tibble(value = value, censored = censored,

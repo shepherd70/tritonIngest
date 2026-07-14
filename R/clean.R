@@ -175,7 +175,9 @@ clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRU
                         drop_labels = FALSE, sep = " ",
                         duplicate_names = c("error", "warn", "repair")) {
   duplicate_names <- match.arg(duplicate_names)
-  if (!nrow(df) || !ncol(df)) return(tibble::as_tibble(df))
+  if (!nrow(df) || !ncol(df)) {
+    return(.inherit_ingest_metadata(tibble::as_tibble(df), df))
+  }
 
   if (!is.null(header_rows)) {
     rows <- sort(unique(as.integer(header_rows)))
@@ -193,7 +195,9 @@ clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRU
                 "non-blank row. Pass header_row= to override.")
         nonblank <- ncol(df) - rowSums(.blank_matrix(df))
         hr <- which(nonblank > 0)[1]
-        if (is.na(hr)) return(tibble::as_tibble(df[0, , drop = FALSE]))
+        if (is.na(hr)) {
+          return(.inherit_ingest_metadata(tibble::as_tibble(df[0, , drop = FALSE]), df))
+        }
       }
     }
     hr <- as.integer(hr)
@@ -248,9 +252,10 @@ clean_table <- function(df, header_row = NULL, header_rows = NULL, trim_ws = TRU
     for (j in chr) body[[j]] <- trimws(body[[j]])
   }
   body <- tibble::as_tibble(body)
+  extra_diagnostics <- list()
   if (!is.null(repairs)) {
     attr(body, "name_repairs") <- repairs
-    attr(body, "diagnostics") <- list(.duplicate_header_diagnostic(repairs, "structure"))
+    extra_diagnostics <- list(.duplicate_header_diagnostic(repairs, "structure"))
   }
-  body
+  .inherit_ingest_metadata(body, df, extra_diagnostics)
 }

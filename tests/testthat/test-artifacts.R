@@ -21,3 +21,21 @@ test_that("canonical bundles round-trip and verify identity", {
                        null = "null", na = "null")
   expect_error(read_canonical_bundle(manifest), "checksum")
 })
+
+test_that("canonical bundles inherit ingestion diagnostics by default", {
+  skip_if_not_installed("arrow")
+  source <- tempfile(fileext = ".csv")
+  writeLines(c("site", "A"), source)
+  x <- data.frame(site = "A")
+  attr(x, "diagnostics") <- list(tabular_diagnostic(
+    "formula_present", "info", "intake", "Formula provenance requires review",
+    requires_review = TRUE))
+  ct <- as_contract(list(cf_field("site")))
+  manifest <- write_canonical_bundle(
+    x, tempfile("bundle_"), "sample", source, ct,
+    transform_context = list(parser_id = "test", parser_version = "1",
+                             schema_version = "test/v1"))
+  bundle <- read_canonical_bundle(manifest)
+  expect_equal(bundle$diagnostics[[1]]$code, "formula_present")
+  expect_equal(bundle$manifest$diagnostics$summary$info, 1)
+})

@@ -11,7 +11,8 @@ skip_if_no_zip <- function() skip_if_not_installed("zip")
          '<sheetData>', paste(cells, collapse = ""), '</sheetData></worksheet>')
 }
 
-make_workbook <- function(states = c(alpha = NA, beta = "hidden", gamma = "veryHidden")) {
+make_workbook <- function(states = c(alpha = NA, beta = "hidden", gamma = "veryHidden"),
+                          worksheet_xml = NULL) {
   skip_if_no_zip()
   root <- file.path(tempfile("wb-")); dir.create(root)
   dir.create(file.path(root, "_rels"))
@@ -44,7 +45,8 @@ make_workbook <- function(states = c(alpha = NA, beta = "hidden", gamma = "veryH
     file.path(root, "xl", "_rels", "workbook.xml.rels"))
 
   for (i in seq_along(states)) {
-    writeLines(.sheet_xml(c("site", nm[i])),
+    xml <- if (is.null(worksheet_xml)) .sheet_xml(c("site", nm[i])) else worksheet_xml[[i]]
+    writeLines(xml,
                file.path(root, "xl", "worksheets", sprintf("sheet%d.xml", i)))
   }
 
@@ -63,6 +65,17 @@ make_workbook <- function(states = c(alpha = NA, beta = "hidden", gamma = "veryH
   old <- setwd(root); on.exit(setwd(old), add = TRUE)
   zip::zipr(out, list.files(root, all.files = FALSE))
   out
+}
+
+.formula_sheet_xml <- function() {
+  paste0('<?xml version="1.0" encoding="UTF-8"?>',
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">',
+    '<sheetData>',
+    '<row r="1"><c r="A1" t="inlineStr"><is><t>value</t></is></c></row>',
+    '<row r="2"><c r="A2"><f>1+1</f><v>2</v></c></row>',
+    '<row r="3"><c r="A3"><f>2+2</f></c></row>',
+    '</sheetData><mergeCells count="1"><mergeCell ref="A4:B4"/></mergeCells>',
+    '</worksheet>')
 }
 
 test_that("list_sheets reports every sheet AND its visibility (RC1)", {
@@ -103,6 +116,44 @@ test_that("read_all_sheets reads them all, and can skip hidden ones", {
   sub <- read_all_sheets(wb, sheets = c("beta"))
   expect_equal(names(sub), "beta")
   expect_error(read_all_sheets(wb, sheets = "nope"), "None of `sheets`")
+})
+
+test_that("formula inventory is sheet-specific and policy-controlled", {
+  wb <- make_workbook(c(calc = NA, plain = NA),
+                      worksheet_xml = list(.formula_sheet_xml(), .sheet_xml(c("value", "3"))))
+  on.exit(unlink(wb), add = TRUE)
+
+  inv <- inspect_workbook(wb)
+  expect_equal(inv$formula_cells, c(2L, 0L))
+  expect_equal(inv$formula_gaps, c(1L, 0L))
+  expect_equal(inv$merged_ranges, c(1L, 0L))
+
+  expect_warning(x <- read_tabular(wb, sheet = "calc", formula_policy = "warn"),
+                 "2 formula cell")
+  expect_equal(vapply(attr(x, "diagnostics"), `[[`, character(1), "code"),
+               c("formula_present", "formula_gap"))
+  expect_error(read_tabular(wb, sheet = "calc", formula_policy = "error"),
+               "cached results")
+  expect_silent(allowed <- read_tabular(wb, sheet = "calc", formula_policy = "allow"))
+  expect_equal(attr(allowed, "diagnostics")[[1]]$code, "formula_present")
+  expect_silent(read_tabular(wb, sheet = "plain"))
+})
+
+test_that("read_all_sheets scans formulas once and cleaning preserves provenance", {
+  wb <- make_workbook(c(calc = NA, plain = NA),
+                      worksheet_xml = list(.formula_sheet_xml(), .sheet_xml(c("value", "3"))))
+  on.exit(unlink(wb), add = TRUE)
+  expect_silent(all <- read_all_sheets(wb, formula_policy = "allow"))
+  expect_equal(attr(all$calc, "diagnostics")[[1]]$code, "formula_present")
+  cleaned <- clean_table(read_tabular(wb, sheet = "calc", col_names = FALSE,
+                                      formula_policy = "allow"), header_row = 1)
+  expect_equal(attr(cleaned, "diagnostics")[[1]]$code, "formula_present")
+})
+
+test_that("headerless XLSX reads do not emit name-repair chatter", {
+  wb <- make_workbook(c(alpha = NA))
+  on.exit(unlink(wb), add = TRUE)
+  expect_silent(read_tabular(wb, col_names = FALSE))
 })
 
 test_that("list_sheets falls back to NA visibility for a non-zip workbook", {

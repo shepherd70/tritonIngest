@@ -18,7 +18,8 @@ the cross-repo migration plan.
 ## What it does
 
 - **Read** CSV/TSV/XLSX as all-text (`read_tabular`) so fragile notation
-  survives; coerce mixed Excel-serial/ISO dates (`coerce_excel_date`).
+  survives; inventory formulas and missing cached results (`inspect_workbook`);
+  coerce mixed Excel-serial/ISO dates (`coerce_excel_date`).
 - **Clean** structural junk — find the real header row and strip blank rows /
   spacer columns when a workbook has title or metadata rows above the data
   (`clean_table`, `find_header_row`, `drop_blank_rows`, `drop_blank_cols`).
@@ -82,9 +83,7 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.7.0 release candidate — fail-closed headers/coercion, strict typed
-contracts, transformation-aware cache v2, fingerprinted profile v2, structured
-diagnostics, and verified canonical bundles. Both R consumers are being tested
-against this candidate: fish/effort/habitat keeps its domain contracts, while
-water chemistry keeps its strict local profile and carries left/right censor
-metadata into its domain object.
+v0.7.1 development — v0.7.0 is released with fail-closed headers/coercion,
+strict typed contracts, transformation-aware cache v2, fingerprinted profile
+v2, structured diagnostics, and verified canonical bundles. The 0.7.1
+hardening release adds Unicode censor operators and XLSX formula provenance.
