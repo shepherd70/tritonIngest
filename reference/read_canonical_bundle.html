@@ -39,7 +39,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_canonical_bundle</span><span class="op">(</span><span class="va">manifest</span>, verify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_canonical_bundle</span><span class="op">(</span><span class="va">manifest</span>, verify <span class="op">=</span> <span class="cn">TRUE</span>, sources <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -51,12 +51,20 @@
 
 
 <dt id="arg-verify">verify<a class="anchor" aria-label="anchor" href="#arg-verify"></a></dt>
-<dd><p>Verify artifact and source hashes before reading.</p></dd>
+<dd><p>Verify bundle-contained artifact checksums before reading. When
+<code>sources</code> is supplied, also verify current source identity.</p></dd>
+
+
+<dt id="arg-sources">sources<a class="anchor" aria-label="anchor" href="#arg-sources"></a></dt>
+<dd><p>Optional current source path(s), in manifest order. With
+<code>verify = TRUE</code>, basename, byte size, content signature, and SHA-256 must
+match the manifest. When omitted, source verification is explicitly
+reported as skipped in the returned <code>verification</code> record.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with <code>data</code>, <code>manifest</code>, and <code>diagnostics</code>.</p>
+    <p>A list with <code>data</code>, <code>manifest</code>, <code>diagnostics</code>, and <code>verification</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

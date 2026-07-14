@@ -31,6 +31,12 @@ workbook test.
   workbook identity, exact R cell digests, independent openpyxl semantic
   cell digests, censor and reshape conservation, and canonical-bundle
   round-trip without committing private workbook values.
+- Parquet cache hits now preserve blank positional names from headerless
+  XLSX ingestion.
+  [`read_canonical_bundle()`](https://shepherd70.github.io/tritonIngest/reference/read_canonical_bundle.md)
+  accepts optional live `sources=` paths, verifies their name, size,
+  signature, and SHA-256, and reports every artifact or source check as
+  `verified` or `skipped`.
 
 ## tritonIngest 0.7.0
 

@@ -44,6 +44,7 @@
 <code><a href="../reference/clean_table.html">clean_table()</a></code> preserves ingestion diagnostics, and <code>write_canonical_bundle(diagnostics = NULL)</code> inherits them by default.</li>
 <li>Headerless XLSX reads use minimal name repair, eliminating repetitive readxl/tibble <code>New names</code> output while preserving positional source columns.</li>
 <li>A secure, opt-in real-workbook harness now verifies source and workbook identity, exact R cell digests, independent openpyxl semantic cell digests, censor and reshape conservation, and canonical-bundle round-trip without committing private workbook values.</li>
+<li>Parquet cache hits now preserve blank positional names from headerless XLSX ingestion. <code><a href="../reference/read_canonical_bundle.html">read_canonical_bundle()</a></code> accepts optional live <code>sources=</code> paths, verifies their name, size, signature, and SHA-256, and reports every artifact or source check as <code>verified</code> or <code>skipped</code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="tritoningest-070">tritonIngest 0.7.0<a class="anchor" aria-label="anchor" href="#tritoningest-070"></a></h2>
