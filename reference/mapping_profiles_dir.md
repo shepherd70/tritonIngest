@@ -1,6 +1,6 @@
-# Resolve (and optionally create) the mapping-profiles directory.
+# Resolve the mapping-profile directory
 
-Resolve (and optionally create) the mapping-profiles directory.
+Resolve the mapping-profile directory
 
 ## Usage
 
@@ -15,13 +15,12 @@ mapping_profiles_dir(
 
 - dir:
 
-  Directory to store profiles in. Defaults to
-  `getOption("tritonIngest.profiles_dir")`; errors if neither is set.
+  Directory path.
 
 - create:
 
-  Logical; create the directory if it does not exist.
+  Create it when absent.
 
 ## Value
 
-Absolute path to the profiles directory.
+Normalized absolute path.

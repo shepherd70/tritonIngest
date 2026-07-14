@@ -16,7 +16,8 @@ clean_table(
   header_rows = NULL,
   trim_ws = TRUE,
   drop_labels = FALSE,
-  sep = " "
+  sep = " ",
+  duplicate_names = c("error", "warn", "repair")
 )
 ```
 
@@ -51,6 +52,11 @@ clean_table(
 - sep:
 
   Separator used to join the pieces of a multi-row header.
+
+- duplicate_names:
+
+  Policy for duplicated promoted names. The default `"error"` fails
+  closed; override modes attach `name_repairs` provenance.
 
 ## Value
 

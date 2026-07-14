@@ -1,6 +1,6 @@
-# Save a mapping profile to disk.
+# Save a contract/header-bound mapping profile
 
-Save a mapping profile to disk.
+Save a contract/header-bound mapping profile
 
 ## Usage
 
@@ -8,6 +8,8 @@ Save a mapping profile to disk.
 save_mapping_profile(
   name,
   mappings,
+  contracts,
+  source_cols,
   meta = NULL,
   dir = getOption("tritonIngest.profiles_dir"),
   overwrite = TRUE
@@ -18,26 +20,32 @@ save_mapping_profile(
 
 - name:
 
-  Human-readable profile name (also used to derive the filename).
+  Human-readable profile name.
 
 - mappings:
 
-  A named list keyed by role; each element a named list/char vector of
-  `contract field -> source column`.
+  Named role -\> field/source mapping list.
+
+- contracts:
+
+  Named role -\> contract list.
+
+- source_cols:
+
+  Named role -\> ordered source header list.
 
 - meta:
 
-  Optional named list of provenance (e.g. source kind, sheet).
+  Additional provenance.
 
 - dir:
 
-  Profiles directory (see
-  [`mapping_profiles_dir()`](https://shepherd70.github.io/tritonIngest/reference/mapping_profiles_dir.md)).
+  Profiles directory.
 
 - overwrite:
 
-  Logical; allow overwriting an existing same-named profile.
+  Permit replacing the same profile name.
 
 ## Value
 
-The path to the written JSON file (invisibly).
+Written path, invisibly.

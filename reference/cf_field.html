@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,10 +41,12 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cf_field</span><span class="op">(</span></span>
 <span>  <span class="va">name</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"character"</span>, <span class="st">"numeric"</span>, <span class="st">"integer"</span>, <span class="st">"date"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"character"</span>, <span class="st">"numeric"</span>, <span class="st">"integer"</span>, <span class="st">"logical"</span>, <span class="st">"date"</span>, <span class="st">"datetime"</span>, <span class="st">"time"</span><span class="op">)</span>,</span>
 <span>  required <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  synonyms <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  description <span class="op">=</span> <span class="st">""</span></span>
+<span>  description <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  formats <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tz <span class="op">=</span> <span class="st">"UTC"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -57,7 +59,8 @@
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>One of <code>"character"</code>, <code>"numeric"</code>, <code>"integer"</code>, <code>"date"</code>.</p></dd>
+<dd><p>One of <code>"character"</code>, <code>"numeric"</code>, <code>"integer"</code>, <code>"logical"</code>,
+<code>"date"</code>, <code>"datetime"</code>, or <code>"time"</code>.</p></dd>
 
 
 <dt id="arg-required">required<a class="anchor" aria-label="anchor" href="#arg-required"></a></dt>
@@ -71,6 +74,14 @@ should map to this field (matched after name normalisation).</p></dd>
 
 <dt id="arg-description">description<a class="anchor" aria-label="anchor" href="#arg-description"></a></dt>
 <dd><p>Short human-readable description.</p></dd>
+
+
+<dt id="arg-formats">formats<a class="anchor" aria-label="anchor" href="#arg-formats"></a></dt>
+<dd><p>Optional strict date/datetime/time parse formats.</p></dd>
+
+
+<dt id="arg-tz">tz<a class="anchor" aria-label="anchor" href="#arg-tz"></a></dt>
+<dd><p>Time zone for datetime parsing.</p></dd>
 
 </dl></div>
     <div class="section level2">

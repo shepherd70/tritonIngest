@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
 
 <div id="tritoningest--design-document" class="section level1">
 
-<p><strong>Status:</strong> Implemented (v0.5.0) — Phase 0–1 complete, plus an added validation kernel and materialisation cache. Phase 2 done: <code>bw-analysis-code</code> consumes the shared package (pinned <code>v0.4.3</code>); Phases 3–4 (<code>water-chemistry-qaqc</code>, chemistry ingestion in bw) pending · <strong>Author:</strong> drafted for Travis Shepherd · <strong>Date drafted:</strong> 2026-06-08 · <strong>Last reconciled:</strong> 2026-06-25</p>
+<p><strong>Status:</strong> Implemented (v0.7.0 release candidate) — shared engine, validation, cache v2, canonical bundles, and both consumer integrations complete on rollout branches. Cross-language manifests and diagnostics conform to <code>tabular-ingestion-spec</code> 1.0.0. · <strong>Author:</strong> drafted for Travis Shepherd · <strong>Date drafted:</strong> 2026-06-08 · <strong>Last reconciled:</strong> 2026-07-12</p>
 <p>A lean, domain-agnostic R package for <strong>tabular data ingestion</strong>: read messy field/lab workbooks, detect their layout, map their columns onto a declared schema, parse non-detects/units, and validate the result — shared by <code>water-chemistry-qaqc</code> (chemistry) and <code>bw-analysis-code</code> (fish, effort, habitat, and eventually metals).</p>
 <hr><div class="section level2">
 <h2 id="id_1-why">1. Why<a class="anchor" aria-label="anchor" href="#id_1-why"></a></h2>
@@ -154,11 +154,13 @@
 <div class="section level2">
 <h2 id="id_3-architecture--principles">3. Architecture &amp; principles<a class="anchor" aria-label="anchor" href="#id_3-architecture--principles"></a></h2>
 <ol style="list-style-type: decimal"><li>
-<strong>Pure functions, no side effects</strong> (except the explicit profile read/write). Cold-session unit-testable — both repos already hold this line.</li>
+<strong>Pure functions, explicit artifact side effects.</strong> Ingestion transformations are pure; profile, cache, and canonical-bundle writes are explicit, atomic, fingerprinted operations. Cold-session unit-testable — both repos already hold this line.</li>
 <li>
 <strong>Contracts are data, passed in — never a hardcoded global.</strong> This is the one substantive refactor vs bw’s current code: bw’s <code>auto_map(source_cols, role)</code> looks <code>role</code> up in the global <code>DATA_CONTRACTS</code>. In the shared package the functions take a <strong>contract object</strong> (or a registry handle), so each repo owns its own contracts. A thin compatibility shim in bw (<code>auto_map(cols, role)</code> → <code>auto_map(cols, DATA_CONTRACTS[[role]])</code>) preserves its current call sites.</li>
 <li>
 <strong>Lean dependencies.</strong> Ingestion only. The as-built <code>Imports</code> are <code>readr, readxl, tibble, dplyr, tidyr, purrr, jsonlite</code> plus base <code>stats, tools, utils</code>; <code>arrow</code> is <code>Suggests</code>-only (the optional parquet cache backend). The originally-floated <code>rlang, stringr, here, lubridate</code> proved unnecessary and were dropped. No stats/plot/Shiny stack, so an import-only consumer stays light. Fuzzy matching uses base <code><a href="https://rdrr.io/r/utils/adist.html" class="external-link">utils::adist</a></code> (as bw already does) — no <code>stringdist</code> dependency.</li>
+<li>
+<strong>Fail-closed semantics.</strong> Duplicate headers, ambiguous dates, fuzzy suggestions, stale profiles, and lossy coercions cannot silently become trusted canonical data.</li>
 <li>
 <strong>Backward-compatible migration.</strong> Each repo keeps its current public function names as thin re-exports/aliases of the shared ones, so no downstream call site breaks during migration.</li>
 </ol><div class="section level3">

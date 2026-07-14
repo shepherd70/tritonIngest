@@ -6,7 +6,13 @@ of 42.4, a percentage survival of 150, a negative concentration.
 ## Usage
 
 ``` r
-check_range(data, bounds, table_name, max_report = 5L)
+check_range(
+  data,
+  bounds,
+  table_name,
+  max_report = 5L,
+  report_unparseable = TRUE
+)
 ```
 
 ## Arguments
@@ -28,6 +34,11 @@ check_range(data, bounds, table_name, max_report = 5L)
 - max_report:
 
   Maximum number of offending values to name per column.
+
+- report_unparseable:
+
+  Report populated values that cannot be parsed as numeric instead of
+  silently skipping them.
 
 ## Value
 

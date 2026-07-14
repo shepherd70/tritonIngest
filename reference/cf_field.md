@@ -7,10 +7,12 @@ Build one contract field specification.
 ``` r
 cf_field(
   name,
-  type = c("character", "numeric", "integer", "date"),
+  type = c("character", "numeric", "integer", "logical", "date", "datetime", "time"),
   required = FALSE,
   synonyms = character(0),
-  description = ""
+  description = "",
+  formats = NULL,
+  tz = "UTC"
 )
 ```
 
@@ -22,7 +24,8 @@ cf_field(
 
 - type:
 
-  One of `"character"`, `"numeric"`, `"integer"`, `"date"`.
+  One of `"character"`, `"numeric"`, `"integer"`, `"logical"`, `"date"`,
+  `"datetime"`, or `"time"`.
 
 - required:
 
@@ -36,6 +39,14 @@ cf_field(
 - description:
 
   Short human-readable description.
+
+- formats:
+
+  Optional strict date/datetime/time parse formats.
+
+- tz:
+
+  Time zone for datetime parsing.
 
 ## Value
 

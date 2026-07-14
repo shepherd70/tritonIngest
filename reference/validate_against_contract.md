@@ -1,14 +1,17 @@
 # Validate a (mapped) data frame against a contract.
 
-Reports, per contract field, whether it is present and usable. Statuses:
-`"ok"`, `"missing"` (column absent), `"all_na"` (present but every value
-NA), and `"type_warn"` (declared numeric/integer but \>50%
-non-coercible).
+Reports, per contract field, whether it is present, populated, and valid
+for its declared type.
 
 ## Usage
 
 ``` r
-validate_against_contract(df, contract)
+validate_against_contract(
+  df,
+  contract,
+  policy = c("strict", "structure"),
+  max_invalid_fraction = 0
+)
 ```
 
 ## Arguments
@@ -21,7 +24,18 @@ validate_against_contract(df, contract)
 
   A contract (list of specs or tibble).
 
+- policy:
+
+  `"strict"` validates values and structure; `"structure"` checks only
+  presence and population.
+
+- max_invalid_fraction:
+
+  Maximum tolerated fraction of invalid populated values before a field
+  becomes an error.
+
 ## Value
 
 A tibble: `field`, `required`, `status`, `severity`
-(`"error"`/`"warning"`/`"ok"`), `issue` (NA when ok).
+(`"error"`/`"warning"`/`"ok"`), `issue`, and total/populated/missing/
+invalid counts plus the invalid fraction.

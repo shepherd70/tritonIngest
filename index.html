@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,7 +73,10 @@
 <strong>Validate (generic)</strong> — run a battery of domain-agnostic schema checks that each return failure messages, then abort once with the collected set (<code>check_required_columns</code>, <code>check_column_types</code>, <code>check_no_na</code>, <code>validation_abort</code>). Domain rules stay in the consuming packages.</li>
 <li>
 <strong>Cache</strong> — materialise the parsed canonical object to a fast-reload cache keyed by a fingerprint of the source file, so an unchanged source skips re-ingestion and a moved source auto-invalidates (<code>write_cache</code>, <code>read_cache</code>, <code>cached_ingest</code>; <code>rds</code> or <code>parquet</code> backend).</li>
+<li>
+<strong>Exchange verified artifacts</strong> — write/read canonical Parquet or Feather bundles with source identity, transformation identity, checksums, and shared JSON diagnostics (<code>write_canonical_bundle</code>, <code>read_canonical_bundle</code>).</li>
 </ul>
+<p>Cross-language records are governed by the separately released <code>tabular-ingestion-spec</code> repository (pinned to <code>1.0.0</code>). The Python spreadsheet-cleanup service may preserve and inventory environmental inputs, but this R package remains the authoritative environmental canonicalizer; the two engines do not call each other at runtime.</p>
 </div>
 <div class="section level2">
 <h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
@@ -108,7 +111,7 @@
 <div class="section level2">
 <h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a>
 </h2>
-<p>v0.5.0 — current release. The 0.4.x line ported the engine and made <code>R CMD check --as-cran</code> clean; 0.5.0 hardens the ingestion core: <code><a href="reference/convert_units.html">convert_units()</a></code> adds a mass/mass ladder (mg/kg, ug/g, …) and accepts the Greek-mu spelling of micro units; the non-detect and Excel-date helpers gain length/format validation and clearer warnings; layout detection and value parsing now share one non-detect vocabulary; and mapping-profile / cache key collisions are caught instead of silently overwriting. Standalone package, ported and tested, with an R-CMD-check CI workflow and renv lockfile; beyond the original Phase 0–1 engine it also ships a generic validation kernel (<code>validate.R</code>) and a materialisation cache (<code>cache.R</code>). Phase 2 of the cross-repo migration is done — <code>bw-analysis-code</code> consumes the package (pinned <code>v0.4.3</code>); Phases 3–4 (<code>water-chemistry-qaqc</code>, chemistry ingestion in bw) remain.</p>
+<p>v0.7.0 release candidate — fail-closed headers/coercion, strict typed contracts, transformation-aware cache v2, fingerprinted profile v2, structured diagnostics, and verified canonical bundles. Both R consumers are being tested against this candidate: fish/effort/habitat keeps its domain contracts, while water chemistry keeps its strict local profile and carries left/right censor metadata into its domain object.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

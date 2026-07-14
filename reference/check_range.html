@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_range</span><span class="op">(</span><span class="va">data</span>, <span class="va">bounds</span>, <span class="va">table_name</span>, max_report <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_range</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  <span class="va">bounds</span>,</span>
+<span>  <span class="va">table_name</span>,</span>
+<span>  max_report <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  report_unparseable <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +71,11 @@ are skipped.</p></dd>
 
 <dt id="arg-max-report">max_report<a class="anchor" aria-label="anchor" href="#arg-max-report"></a></dt>
 <dd><p>Maximum number of offending values to name per column.</p></dd>
+
+
+<dt id="arg-report-unparseable">report_unparseable<a class="anchor" aria-label="anchor" href="#arg-report-unparseable"></a></dt>
+<dd><p>Report populated values that cannot be parsed as
+numeric instead of silently skipping them.</p></dd>
 
 </dl></div>
     <div class="section level2">

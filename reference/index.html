@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -198,6 +198,13 @@
 
         <dt>
 
+          <code><a href="contract_fingerprint.html">contract_fingerprint()</a></code>
+
+        </dt>
+        <dd>Deterministic fingerprint of a contract</dd>
+
+        <dt>
+
           <code><a href="auto_map.html">auto_map()</a></code>
 
         </dt>
@@ -252,35 +259,42 @@
           <code><a href="save_mapping_profile.html">save_mapping_profile()</a></code>
 
         </dt>
-        <dd>Save a mapping profile to disk.</dd>
+        <dd>Save a contract/header-bound mapping profile</dd>
 
         <dt>
 
           <code><a href="load_mapping_profile.html">load_mapping_profile()</a></code>
 
         </dt>
-        <dd>Load a mapping profile from disk.</dd>
+        <dd>Load and validate a mapping profile</dd>
 
         <dt>
 
           <code><a href="list_mapping_profiles.html">list_mapping_profiles()</a></code>
 
         </dt>
-        <dd>List saved mapping profiles.</dd>
+        <dd>List mapping profiles</dd>
 
         <dt>
 
           <code><a href="delete_mapping_profile.html">delete_mapping_profile()</a></code>
 
         </dt>
-        <dd>Delete a mapping profile.</dd>
+        <dd>Delete a mapping profile</dd>
 
         <dt>
 
           <code><a href="mapping_profiles_dir.html">mapping_profiles_dir()</a></code>
 
         </dt>
-        <dd>Resolve (and optionally create) the mapping-profiles directory.</dd>
+        <dd>Resolve the mapping-profile directory</dd>
+
+        <dt>
+
+          <code><a href="upgrade_mapping_profile.html">upgrade_mapping_profile()</a></code>
+
+        </dt>
+        <dd>Upgrade a legacy mapping profile without overwriting it</dd>
       </dl></div><div class="section level2">
       <h2 id="lab-values">Lab values<a class="anchor" aria-label="anchor" href="#lab-values"></a></h2>
 
@@ -398,28 +412,58 @@
           <code><a href="write_cache.html">write_cache()</a></code>
 
         </dt>
-        <dd>Write a parsed object to the materialisation cache.</dd>
+        <dd>Write an object to the transformation-aware cache</dd>
 
         <dt>
 
           <code><a href="read_cache.html">read_cache()</a></code>
 
         </dt>
-        <dd>Read from the materialisation cache, if present and still fresh.</dd>
+        <dd>Read a fresh, verified cache entry</dd>
 
         <dt>
 
           <code><a href="cached_ingest.html">cached_ingest()</a></code>
 
         </dt>
-        <dd>Ingest a source, using the cache when fresh and rebuilding it when not.</dd>
+        <dd>Ingest a source using a verified cache</dd>
 
         <dt>
 
           <code><a href="cache_dir.html">cache_dir()</a></code>
 
         </dt>
-        <dd>Resolve (and optionally create) the cache directory.</dd>
+        <dd>Resolve the cache directory</dd>
+      </dl></div><div class="section level2">
+      <h2 id="canonical-artifacts-diagnostics">Canonical artifacts &amp; diagnostics<a class="anchor" aria-label="anchor" href="#canonical-artifacts-diagnostics"></a></h2>
+
+      <div class="section-desc"><p>Write and verify language-neutral canonical bundles and structured diagnostics.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="write_canonical_bundle.html">write_canonical_bundle()</a></code>
+
+        </dt>
+        <dd>Write a verified canonical interchange bundle</dd>
+
+        <dt>
+
+          <code><a href="read_canonical_bundle.html">read_canonical_bundle()</a></code>
+
+        </dt>
+        <dd>Read and verify a canonical interchange bundle</dd>
+
+        <dt>
+
+          <code><a href="tabular_diagnostic.html">tabular_diagnostic()</a></code>
+
+        </dt>
+        <dd>Build a structured tabular-ingestion diagnostic</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

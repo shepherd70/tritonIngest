@@ -208,4 +208,28 @@ in `audits/tritonIngest-audit-2026-06.md`.
   – when two or more numeric columns were present (result + detection
   limit + a numeric QC-lot id) – misclassified the table as wide,
   discarding the analyte column. This removes the need for the interim
-  water-chemistry-qaqc guard.
+  water-chemistry-qaqc guard. \## tritonIngest 0.7.0
+
+- Cache manifests are now backend-specific `triton-cache/v2` records
+  with source, transformation, backend, and artifact-checksum
+  verification, atomic writes, and bounded lock-directory concurrency.
+  Legacy v1 entries are misses.
+
+- Added verified Parquet/Feather canonical bundles using
+  `tabular-artifact/v1` manifests and `tabular-diagnostic/v1`
+  diagnostics.
+
+- Duplicate headers and lossy contract coercion now fail closed by
+  default. Explicit overrides retain structured review diagnostics.
+
+- Contracts share one strict type registry (including date, datetime,
+  and time), expose stable fingerprints, and report
+  total/populated/missing/invalid counts.
+
+- Mapping profiles use `triton-mapping-profile/v2` and bind to contract
+  plus ordered-header fingerprints. V1 profiles require explicit
+  upgrade.
+
+- Bare right-censor tokens accept a separate `censor_limit`; unit
+  normalization folds both Unicode micro characters to ASCII `u` without
+  source-code literals.

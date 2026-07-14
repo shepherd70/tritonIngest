@@ -10,7 +10,14 @@ are discarded, so downstream code sees only contract-named columns.
 ## Usage
 
 ``` r
-apply_column_map(df, mapping, contract, coerce = TRUE, warn_coercion = TRUE)
+apply_column_map(
+  df,
+  mapping,
+  contract,
+  coerce = TRUE,
+  warn_coercion = NULL,
+  loss = c("error", "warn", "allow")
+)
 ```
 
 ## Arguments
@@ -34,6 +41,12 @@ apply_column_map(df, mapping, contract, coerce = TRUE, warn_coercion = TRUE)
 - warn_coercion:
 
   Warn when coercion turns non-missing source values into `NA`.
+  Deprecated; use `loss`.
+
+- loss:
+
+  Policy when coercion would discard populated values: error by default,
+  or explicitly warn/allow.
 
 ## Value
 

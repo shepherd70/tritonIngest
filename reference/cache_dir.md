@@ -1,6 +1,6 @@
-# Resolve (and optionally create) the cache directory.
+# Resolve the cache directory
 
-Resolve (and optionally create) the cache directory.
+Resolve the cache directory
 
 ## Usage
 
@@ -12,13 +12,12 @@ cache_dir(dir = getOption("tritonIngest.cache_dir"), create = TRUE)
 
 - dir:
 
-  Directory to store cache files in. Defaults to
-  `getOption("tritonIngest.cache_dir")`; errors if neither is set.
+  Directory to store cache files in.
 
 - create:
 
-  Logical; create the directory if it does not exist.
+  Create it when missing.
 
 ## Value
 
-Absolute path to the cache directory.
+Normalized absolute path.

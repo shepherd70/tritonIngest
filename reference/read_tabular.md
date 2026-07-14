@@ -13,7 +13,8 @@ read_tabular(
   sheet = NULL,
   col_types = NULL,
   col_names = TRUE,
-  format = NULL
+  format = NULL,
+  duplicate_names = c("error", "warn", "repair")
 )
 ```
 
@@ -50,6 +51,12 @@ read_tabular(
   Force a reader: one of `"csv"`, `"tsv"`, `"txt"`, `"xlsx"`, `"xls"`.
   Defaults to `NULL` (derive from the extension and verify against the
   file's signature).
+
+- duplicate_names:
+
+  Policy for populated duplicate source headers. The default `"error"`
+  fails closed; `"warn"` or `"repair"` allow the reader's unique-name
+  repair and attach a `name_repairs` attribute.
 
 ## Value
 

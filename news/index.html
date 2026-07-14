@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,8 +94,13 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.3" id="tritoningest-043">tritonIngest 0.4.3<a class="anchor" aria-label="anchor" href="#tritoningest-043"></a></h2>
-<ul><li>
-<code><a href="../reference/detect_layout.html">detect_layout()</a></code> now recognises plural parameter/value column names (<code>"results"</code>, <code>"values"</code>, <code>"analytes"</code>, <code>"parameters"</code>, …) and trims surrounding whitespace from column names before matching. Lab exports such as ALS reports label their value column <code>"Results"</code> and pad headers (<code>"Analyte "</code>), which previously missed the long-format vocabulary and – when two or more numeric columns were present (result + detection limit + a numeric QC-lot id) – misclassified the table as wide, discarding the analyte column. This removes the need for the interim water-chemistry-qaqc guard.</li>
+<ul><li><p><code><a href="../reference/detect_layout.html">detect_layout()</a></code> now recognises plural parameter/value column names (<code>"results"</code>, <code>"values"</code>, <code>"analytes"</code>, <code>"parameters"</code>, …) and trims surrounding whitespace from column names before matching. Lab exports such as ALS reports label their value column <code>"Results"</code> and pad headers (<code>"Analyte "</code>), which previously missed the long-format vocabulary and – when two or more numeric columns were present (result + detection limit + a numeric QC-lot id) – misclassified the table as wide, discarding the analyte column. This removes the need for the interim water-chemistry-qaqc guard. ## tritonIngest 0.7.0</p></li>
+<li><p>Cache manifests are now backend-specific <code>triton-cache/v2</code> records with source, transformation, backend, and artifact-checksum verification, atomic writes, and bounded lock-directory concurrency. Legacy v1 entries are misses.</p></li>
+<li><p>Added verified Parquet/Feather canonical bundles using <code>tabular-artifact/v1</code> manifests and <code>tabular-diagnostic/v1</code> diagnostics.</p></li>
+<li><p>Duplicate headers and lossy contract coercion now fail closed by default. Explicit overrides retain structured review diagnostics.</p></li>
+<li><p>Contracts share one strict type registry (including date, datetime, and time), expose stable fingerprints, and report total/populated/missing/invalid counts.</p></li>
+<li><p>Mapping profiles use <code>triton-mapping-profile/v2</code> and bind to contract plus ordered-header fingerprints. V1 profiles require explicit upgrade.</p></li>
+<li><p>Bare right-censor tokens accept a separate <code>censor_limit</code>; unit normalization folds both Unicode micro characters to ASCII <code>u</code> without source-code literals.</p></li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

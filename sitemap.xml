@@ -22,6 +22,7 @@
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/coerce_excel_date.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/complete_to_contract.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/contract_fields.html</loc></url>
+<url><loc>https://shepherd70.github.io/tritonIngest/reference/contract_fingerprint.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/contract_is_ready.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/convert_units.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/delete_mapping_profile.html</loc></url>
@@ -41,14 +42,18 @@
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/parse_censored.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/read_all_sheets.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/read_cache.html</loc></url>
+<url><loc>https://shepherd70.github.io/tritonIngest/reference/read_canonical_bundle.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/read_tabular.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/save_mapping_profile.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/sniff_format.html</loc></url>
+<url><loc>https://shepherd70.github.io/tritonIngest/reference/tabular_diagnostic.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/transpose_table.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/type_matches.html</loc></url>
+<url><loc>https://shepherd70.github.io/tritonIngest/reference/upgrade_mapping_profile.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/validate_against_contract.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/validation_abort.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/working_values.html</loc></url>
 <url><loc>https://shepherd70.github.io/tritonIngest/reference/write_cache.html</loc></url>
+<url><loc>https://shepherd70.github.io/tritonIngest/reference/write_canonical_bundle.html</loc></url>
 </urlset>
 

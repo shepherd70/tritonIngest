@@ -13,7 +13,7 @@ all-text contract from read_tabular() is preserved."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,8 @@ all-text contract from <code><a href="read_tabular.html">read_tabular()</a></cod
 <span>  header_rows <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  trim_ws <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  drop_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  sep <span class="op">=</span> <span class="st">" "</span></span>
+<span>  sep <span class="op">=</span> <span class="st">" "</span>,</span>
+<span>  duplicate_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"error"</span>, <span class="st">"warn"</span>, <span class="st">"repair"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -88,6 +89,11 @@ precedence over <code>header_row</code>. The body starts after <code>max(header_
 
 <dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
 <dd><p>Separator used to join the pieces of a multi-row header.</p></dd>
+
+
+<dt id="arg-duplicate-names">duplicate_names<a class="anchor" aria-label="anchor" href="#arg-duplicate-names"></a></dt>
+<dd><p>Policy for duplicated promoted names. The default
+<code>"error"</code> fails closed; override modes attach <code>name_repairs</code> provenance.</p></dd>
 
 </dl></div>
     <div class="section level2">

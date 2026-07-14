@@ -11,7 +11,7 @@ number it decorates ("178d" -&amp;gt; value 178, qualifier "d").'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@ number it decorates (<code>"178d"</code> -&gt; value 178, qualifier <code>"d"</c
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">parse_censored</span><span class="op">(</span></span>
 <span>  <span class="va">value_raw</span>,</span>
 <span>  detection_limit <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  censor_limit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na_strings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-"</span>, <span class="st">"--"</span>, <span class="st">"n/a"</span>, <span class="st">"N/A"</span><span class="op">)</span>,</span>
 <span>  nd_tokens <span class="op">=</span> <span class="va">ND_TOKENS</span>,</span>
 <span>  over_tokens <span class="op">=</span> <span class="va">OVER_TOKENS</span>,</span>
@@ -67,6 +68,12 @@ number it decorates (<code>"178d"</code> -&gt; value 178, qualifier <code>"d"</c
 <dd><p>Optional numeric vector (recycled if length 1) from a
 separate DL/RL column; used for bare tokens (<code>"ND"</code>) and checked for
 consistency against <code>"&lt;DL"</code> notation.</p></dd>
+
+
+<dt id="arg-censor-limit">censor_limit<a class="anchor" aria-label="anchor" href="#arg-censor-limit"></a></dt>
+<dd><p>Optional numeric upper/quantitation limit (recycled if
+length 1). Used for bare right-censor tokens such as <code>"TNTC"</code>; explicit
+<code>"&gt;x"</code> text wins and disagreement is recorded.</p></dd>
 
 
 <dt id="arg-na-strings">na_strings<a class="anchor" aria-label="anchor" href="#arg-na-strings"></a></dt>

@@ -11,6 +11,7 @@ flag from the number it decorates (`"178d"` -\> value 178, qualifier
 parse_censored(
   value_raw,
   detection_limit = NULL,
+  censor_limit = NULL,
   na_strings = c("-", "--", "n/a", "N/A"),
   nd_tokens = ND_TOKENS,
   over_tokens = OVER_TOKENS,
@@ -29,6 +30,12 @@ parse_censored(
   Optional numeric vector (recycled if length 1) from a separate DL/RL
   column; used for bare tokens (`"ND"`) and checked for consistency
   against `"<DL"` notation.
+
+- censor_limit:
+
+  Optional numeric upper/quantitation limit (recycled if length 1). Used
+  for bare right-censor tokens such as `"TNTC"`; explicit `">x"` text
+  wins and disagreement is recorded.
 
 - na_strings:
 

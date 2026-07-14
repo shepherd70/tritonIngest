@@ -2,7 +2,7 @@ pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles: {}
-last_built: 2026-07-08T23:53Z
+last_built: 2026-07-14T15:46Z
 urls:
   reference: https://shepherd70.github.io/tritonIngest/reference
   article: https://shepherd70.github.io/tritonIngest/articles

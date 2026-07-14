@@ -69,6 +69,8 @@ fuzzy match, coerce, and complete.
   : Coerce field specs into a contract tibble.
 - [`contract_fields()`](https://shepherd70.github.io/tritonIngest/reference/contract_fields.md)
   : Field names of a contract.
+- [`contract_fingerprint()`](https://shepherd70.github.io/tritonIngest/reference/contract_fingerprint.md)
+  : Deterministic fingerprint of a contract
 - [`auto_map()`](https://shepherd70.github.io/tritonIngest/reference/auto_map.md)
   : Auto-map source columns onto a contract.
 - [`apply_column_map()`](https://shepherd70.github.io/tritonIngest/reference/apply_column_map.md)
@@ -89,15 +91,17 @@ Save, load, and manage named JSON column-mapping profiles for reuse
 across runs.
 
 - [`save_mapping_profile()`](https://shepherd70.github.io/tritonIngest/reference/save_mapping_profile.md)
-  : Save a mapping profile to disk.
+  : Save a contract/header-bound mapping profile
 - [`load_mapping_profile()`](https://shepherd70.github.io/tritonIngest/reference/load_mapping_profile.md)
-  : Load a mapping profile from disk.
+  : Load and validate a mapping profile
 - [`list_mapping_profiles()`](https://shepherd70.github.io/tritonIngest/reference/list_mapping_profiles.md)
-  : List saved mapping profiles.
+  : List mapping profiles
 - [`delete_mapping_profile()`](https://shepherd70.github.io/tritonIngest/reference/delete_mapping_profile.md)
-  : Delete a mapping profile.
+  : Delete a mapping profile
 - [`mapping_profiles_dir()`](https://shepherd70.github.io/tritonIngest/reference/mapping_profiles_dir.md)
-  : Resolve (and optionally create) the mapping-profiles directory.
+  : Resolve the mapping-profile directory
+- [`upgrade_mapping_profile()`](https://shepherd70.github.io/tritonIngest/reference/upgrade_mapping_profile.md)
+  : Upgrade a legacy mapping profile without overwriting it
 
 ## Lab values
 
@@ -140,11 +144,22 @@ with the collected set.
 Materialise the canonical object to a fingerprinted fast-reload cache.
 
 - [`write_cache()`](https://shepherd70.github.io/tritonIngest/reference/write_cache.md)
-  : Write a parsed object to the materialisation cache.
+  : Write an object to the transformation-aware cache
 - [`read_cache()`](https://shepherd70.github.io/tritonIngest/reference/read_cache.md)
-  : Read from the materialisation cache, if present and still fresh.
+  : Read a fresh, verified cache entry
 - [`cached_ingest()`](https://shepherd70.github.io/tritonIngest/reference/cached_ingest.md)
-  : Ingest a source, using the cache when fresh and rebuilding it when
-  not.
+  : Ingest a source using a verified cache
 - [`cache_dir()`](https://shepherd70.github.io/tritonIngest/reference/cache_dir.md)
-  : Resolve (and optionally create) the cache directory.
+  : Resolve the cache directory
+
+## Canonical artifacts & diagnostics
+
+Write and verify language-neutral canonical bundles and structured
+diagnostics.
+
+- [`write_canonical_bundle()`](https://shepherd70.github.io/tritonIngest/reference/write_canonical_bundle.md)
+  : Write a verified canonical interchange bundle
+- [`read_canonical_bundle()`](https://shepherd70.github.io/tritonIngest/reference/read_canonical_bundle.md)
+  : Read and verify a canonical interchange bundle
+- [`tabular_diagnostic()`](https://shepherd70.github.io/tritonIngest/reference/tabular_diagnostic.md)
+  : Build a structured tabular-ingestion diagnostic
