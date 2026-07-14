@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/shepherd70/tritonIngest/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/shepherd70/tritonIngest/blob/v0.7.1/DESCRIPTION)
 
 Shepherd T (2026). *tritonIngest: Tabular Data Ingestion Toolkit*. R
 package version 0.7.1, <https://github.com/shepherd70/tritonIngest>.
