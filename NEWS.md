@@ -14,6 +14,10 @@ Real-workbook hardening following a 13-sheet marine water-quality workbook test.
   `write_canonical_bundle(diagnostics = NULL)` inherits them by default.
 * Headerless XLSX reads use minimal name repair, eliminating repetitive
   readxl/tibble `New names` output while preserving positional source columns.
+* A secure, opt-in real-workbook harness now verifies source and workbook
+  identity, exact R cell digests, independent openpyxl semantic cell digests,
+  censor and reshape conservation, and canonical-bundle round-trip without
+  committing private workbook values.
 
 # tritonIngest 0.7.0
 

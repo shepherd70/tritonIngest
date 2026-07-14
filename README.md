@@ -81,6 +81,16 @@ report  <- validate_against_contract(mapped, chem)
 parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censored/DL
 ```
 
+## Secure real-workbook validation
+
+Private workbooks are not committed to the package. An opt-in integration test
+can instead verify a configured source by checksum, reconcile approved sheets
+cell-for-cell against an independent openpyxl reader, test transformation
+conservation, and round-trip a verified canonical bundle. See
+[`tests/REAL-WORKBOOK-VALIDATION.md`](tests/REAL-WORKBOOK-VALIDATION.md) for the
+environment variables and review procedure. The stored baseline contains only
+hashes and structural counts, never cell values.
+
 ## Status
 
 v0.7.1 development — v0.7.0 is released with fail-closed headers/coercion,

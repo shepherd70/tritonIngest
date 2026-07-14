@@ -1,0 +1,41 @@
+{
+  "schema_version": "triton-real-workbook-baseline/v1",
+  "source": {
+    "sha256": "208efe2b2dd7d0548dec35f03a538a61d5ab4bc898dcb3929f8cf510df8145c0",
+    "bytes": 2787231
+  },
+  "inventory": [
+    {"index": 1, "name": "ShortTermGL", "visible": "visible", "formula_cells": 1, "formula_gaps": 0, "merged_ranges": 0},
+    {"index": 2, "name": "BCWQ & CSR_metals comparison", "visible": "visible", "formula_cells": 3953, "formula_gaps": 0, "merged_ranges": 54},
+    {"index": 3, "name": "formatted table", "visible": "visible", "formula_cells": 3950, "formula_gaps": 0, "merged_ranges": 54},
+    {"index": 4, "name": "ALS results", "visible": "visible", "formula_cells": 0, "formula_gaps": 0, "merged_ranges": 1},
+    {"index": 5, "name": "Field results", "visible": "visible", "formula_cells": 0, "formula_gaps": 0, "merged_ranges": 54},
+    {"index": 6, "name": "Dis Al calc", "visible": "visible", "formula_cells": 18016, "formula_gaps": 2996, "merged_ranges": 3},
+    {"index": 7, "name": "NH3 BCWQ Calculator", "visible": "visible", "formula_cells": 15199, "formula_gaps": 0, "merged_ranges": 3},
+    {"index": 8, "name": "BCWQpH-T-MARINE", "visible": "visible", "formula_cells": 0, "formula_gaps": 0, "merged_ranges": 2},
+    {"index": 9, "name": "BCWQ pH-T-Nit", "visible": "visible", "formula_cells": 0, "formula_gaps": 0, "merged_ranges": 1},
+    {"index": 10, "name": "BCWQ Cu WQG Data", "visible": "visible", "formula_cells": 53225, "formula_gaps": 0, "merged_ranges": 0},
+    {"index": 11, "name": "Mn CCME Calculator", "visible": "visible", "formula_cells": 33141, "formula_gaps": 5994, "merged_ranges": 5},
+    {"index": 12, "name": "Mn Look-up table", "visible": "visible", "formula_cells": 0, "formula_gaps": 0, "merged_ranges": 6},
+    {"index": 13, "name": "Mn Calculator Instructions", "visible": "visible", "formula_cells": 0, "formula_gaps": 0, "merged_ranges": 0}
+  ],
+  "primary_sheets": [
+    {"name": "ALS results", "rows": 176, "columns": 32, "nonblank": 4338, "r_text_sha256": "2578b4bc737e0e393376f68a9fedfc18c01c7e3931eed74876e24c4b1428fccf", "semantic_sha256": "b3c85b69e163006e6f2b4e824f2ca45b0a7744a304fd47f55c3a45fc4c3879c6"},
+    {"name": "Field results", "rows": 42, "columns": 27, "nonblank": 552, "r_text_sha256": "537df53a85a1d8c447e7068bad22c09162927d1984dfe7c765efcddad74d00f8", "semantic_sha256": "93ba51ee0d8992e3f92cdb54dafe3de977986c9f415ae727be79c5596c31ee89"}
+  ],
+  "transformations": {
+    "censor": {"tokens": 6337, "parsed": 6337, "left": 6335, "right": 2, "unknown": 0, "missing_limits": 0},
+    "wide": {
+      "sheet": "BCWQ Cu WQG Data",
+      "raw_rows": 26835,
+      "raw_columns": 14,
+      "cleaned_rows": 26834,
+      "cleaned_columns": 9,
+      "parameter_columns": 7,
+      "parameter_names_sha256": "eadc4763dc25a4495c60dc1b5b04c091586bb6378d3e8092f7e06d5fad82cfd6",
+      "output_rows": 134230,
+      "output_columns": 5,
+      "distinct_parameters": 7
+    }
+  }
+}
