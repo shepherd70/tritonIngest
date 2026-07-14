@@ -96,6 +96,25 @@ test_that("parquet backend round-trips a plain table when arrow is available", {
   expect_equal(as.data.frame(got), as.data.frame(x))
 })
 
+test_that("parquet cache hits preserve headerless positional columns", {
+  skip_if_not_installed("arrow")
+  s <- setup_src()
+  calls <- 0L
+  parse <- function(src) {
+    calls <<- calls + 1L
+    out <- data.frame(c("a", "b"), c("1", "2"), check.names = FALSE)
+    names(out) <- c("", "")
+    tibble::as_tibble(out, .name_repair = "minimal")
+  }
+  first <- cached_ingest(s$src, parse = parse, dir = s$dir, format = "parquet",
+                         transform_context = parser_context())
+  second <- cached_ingest(s$src, parse = parse, dir = s$dir, format = "parquet",
+                          transform_context = parser_context())
+  expect_equal(calls, 1L)
+  expect_equal(names(first), c("", ""))
+  expect_equal(second, first)
+})
+
 test_that("parquet warns that it drops a classed object's attributes", {
   skip_if_not_installed("arrow")
   s <- setup_src()
