@@ -11,7 +11,7 @@ skipped rather than aborting the whole workbook."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,8 @@ skipped rather than aborting the whole workbook.</p>
 <span>  col_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  col_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  include_hidden <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  sheets <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  sheets <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  formula_policy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"warn"</span>, <span class="st">"error"</span>, <span class="st">"allow"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,6 +75,10 @@ Set <code>FALSE</code> to read only what a user would see in Excel.</p></dd>
 <dt id="arg-sheets">sheets<a class="anchor" aria-label="anchor" href="#arg-sheets"></a></dt>
 <dd><p>Optional character vector of sheet names, or integer positions,
 to restrict the read to.</p></dd>
+
+
+<dt id="arg-formula-policy">formula_policy<a class="anchor" aria-label="anchor" href="#arg-formula-policy"></a></dt>
+<dd><p>Formula handling policy passed to <code><a href="read_tabular.html">read_tabular()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -11,7 +11,7 @@ write_canonical_bundle(
   name,
   sources,
   contract,
-  diagnostics = list(),
+  diagnostics = NULL,
   transform_context,
   format = c("parquet", "feather")
 )
@@ -43,7 +43,8 @@ write_canonical_bundle(
 
   List of
   [`tabular_diagnostic()`](https://shepherd70.github.io/tritonIngest/reference/tabular_diagnostic.md)
-  objects.
+  objects. `NULL` (default) uses diagnostics carried on `x` from
+  ingestion and cleaning.
 
 - transform_context:
 

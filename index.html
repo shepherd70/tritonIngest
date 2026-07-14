@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tabular Data Ingestion Toolkit">
-<meta name="description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type sniffing, worksheet enumeration including hidden sheets, long/wide/transposed layout detection and reshaping, declarative column contracts with synonym and opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored (non-detect and over-range) value parsing and substitution, unit reconciliation, and row-level validation checks. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
-<meta property="og:description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type sniffing, worksheet enumeration including hidden sheets, long/wide/transposed layout detection and reshaping, declarative column contracts with synonym and opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored (non-detect and over-range) value parsing and substitution, unit reconciliation, and row-level validation checks. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
+<meta name="description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type sniffing, worksheet enumeration including hidden sheets, formula provenance diagnostics, long/wide/transposed layout detection and reshaping, declarative column contracts with synonym and opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored (non-detect and over-range) value parsing and substitution, unit reconciliation, and row-level validation checks. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
+<meta property="og:description" content="Domain-agnostic primitives for ingesting messy field and laboratory data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type sniffing, worksheet enumeration including hidden sheets, formula provenance diagnostics, long/wide/transposed layout detection and reshaping, declarative column contracts with synonym and opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored (non-detect and over-range) value parsing and substitution, unit reconciliation, and row-level validation checks. Shared by the water-chemistry-qaqc and bw-analysis-code projects so each can reuse the same ingestion plumbing without duplicating it. Contains no domain knowledge, statistics, or plotting.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
 </h2>
 <ul>
 <li>
-<strong>Read</strong> CSV/TSV/XLSX as all-text (<code>read_tabular</code>) so fragile notation survives; coerce mixed Excel-serial/ISO dates (<code>coerce_excel_date</code>).</li>
+<strong>Read</strong> CSV/TSV/XLSX as all-text (<code>read_tabular</code>) so fragile notation survives; inventory formulas and missing cached results (<code>inspect_workbook</code>); coerce mixed Excel-serial/ISO dates (<code>coerce_excel_date</code>).</li>
 <li>
 <strong>Clean</strong> structural junk — find the real header row and strip blank rows / spacer columns when a workbook has title or metadata rows above the data (<code>clean_table</code>, <code>find_header_row</code>, <code>drop_blank_rows</code>, <code>drop_blank_cols</code>).</li>
 <li>
@@ -109,9 +109,14 @@
 <span><span class="va">parsed</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/parse_censored.html">parse_censored</a></span><span class="op">(</span><span class="va">mapped</span><span class="op">$</span><span class="va">value_raw</span><span class="op">)</span>       <span class="co"># non-detects -&gt; value/censored/DL</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="secure-real-workbook-validation">Secure real-workbook validation<a class="anchor" aria-label="anchor" href="#secure-real-workbook-validation"></a>
+</h2>
+<p>Private workbooks are not committed to the package. An opt-in integration test can instead verify a configured source by checksum, reconcile approved sheets cell-for-cell against an independent openpyxl reader, test transformation conservation, and round-trip a verified canonical bundle. See <a href="tests/REAL-WORKBOOK-VALIDATION.html"><code>tests/REAL-WORKBOOK-VALIDATION.md</code></a> for the environment variables and review procedure. The stored baseline contains only hashes and structural counts, never cell values.</p>
+</div>
+<div class="section level2">
 <h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a>
 </h2>
-<p>v0.7.0 release candidate — fail-closed headers/coercion, strict typed contracts, transformation-aware cache v2, fingerprinted profile v2, structured diagnostics, and verified canonical bundles. Both R consumers are being tested against this candidate: fish/effort/habitat keeps its domain contracts, while water chemistry keeps its strict local profile and carries left/right censor metadata into its domain object.</p>
+<p>v0.7.1 development — v0.7.0 is released with fail-closed headers/coercion, strict typed contracts, transformation-aware cache v2, fingerprinted profile v2, structured diagnostics, and verified canonical bundles. The 0.7.1 hardening release adds Unicode censor operators and XLSX formula provenance.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

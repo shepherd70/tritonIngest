@@ -11,7 +11,7 @@ parsing. Pass col_types to override on a typed read when that is not needed.'></
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,8 @@ parsing. Pass <code>col_types</code> to override on a typed read when that is no
 <span>  col_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  col_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  format <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  duplicate_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"error"</span>, <span class="st">"warn"</span>, <span class="st">"repair"</span><span class="op">)</span></span>
+<span>  duplicate_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"error"</span>, <span class="st">"warn"</span>, <span class="st">"repair"</span><span class="op">)</span>,</span>
+<span>  formula_policy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"warn"</span>, <span class="st">"error"</span>, <span class="st">"allow"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,6 +93,13 @@ file's signature).</p></dd>
 <dd><p>Policy for populated duplicate source headers. The
 default <code>"error"</code> fails closed; <code>"warn"</code> or <code>"repair"</code> allow the reader's
 unique-name repair and attach a <code>name_repairs</code> attribute.</p></dd>
+
+
+<dt id="arg-formula-policy">formula_policy<a class="anchor" aria-label="anchor" href="#arg-formula-policy"></a></dt>
+<dd><p>XLSX formula policy. <code>"warn"</code> (default) reads cached
+Excel results, emits a warning, and attaches structured diagnostics;
+<code>"error"</code> rejects a sheet containing formulas; <code>"allow"</code> reads silently but
+still records formula diagnostics.</p></dd>
 
 </dl></div>
     <div class="section level2">

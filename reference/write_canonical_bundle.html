@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 <span>  <span class="va">name</span>,</span>
 <span>  <span class="va">sources</span>,</span>
 <span>  <span class="va">contract</span>,</span>
-<span>  diagnostics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  diagnostics <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">transform_context</span>,</span>
 <span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parquet"</span>, <span class="st">"feather"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -76,7 +76,8 @@
 
 
 <dt id="arg-diagnostics">diagnostics<a class="anchor" aria-label="anchor" href="#arg-diagnostics"></a></dt>
-<dd><p>List of <code><a href="tabular_diagnostic.html">tabular_diagnostic()</a></code> objects.</p></dd>
+<dd><p>List of <code><a href="tabular_diagnostic.html">tabular_diagnostic()</a></code> objects. <code>NULL</code> (default)
+uses diagnostics carried on <code>x</code> from ingestion and cleaning.</p></dd>
 
 
 <dt id="arg-transform-context">transform_context<a class="anchor" aria-label="anchor" href="#arg-transform-context"></a></dt>

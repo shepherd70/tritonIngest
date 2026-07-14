@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tritonIngest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,28 @@
       <small>Source: <a href="https://github.com/shepherd70/tritonIngest/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.1" id="tritoningest-071">tritonIngest 0.7.1<a class="anchor" aria-label="anchor" href="#tritoningest-071"></a></h2>
+<p>Real-workbook hardening following a 13-sheet marine water-quality workbook test.</p>
+<ul><li>
+<code><a href="../reference/parse_censored.html">parse_censored()</a></code> and <code><a href="../reference/is_value_like.html">is_value_like()</a></code> normalize the Unicode mathematical operators U+2264/U+2265 to ASCII <code>&lt;</code>/<code>&gt;</code> using runtime code-point construction. Successful parses retain a <code>parse_note</code> recording that normalization.</li>
+<li>New <code><a href="../reference/inspect_workbook.html">inspect_workbook()</a></code> inventories formula cells, formulas without cached results, merged ranges, visibility, and sheet identity directly from OOXML.</li>
+<li>
+<code><a href="../reference/read_tabular.html">read_tabular()</a></code> and <code><a href="../reference/read_all_sheets.html">read_all_sheets()</a></code> gain <code>formula_policy = "warn"</code>, <code>"error"</code>, or <code>"allow"</code>. Formula reads attach shared <code>formula_present</code> and <code>formula_gap</code> diagnostics because readxl consumes Excel’s cached results.</li>
+<li>
+<code><a href="../reference/clean_table.html">clean_table()</a></code> preserves ingestion diagnostics, and <code>write_canonical_bundle(diagnostics = NULL)</code> inherits them by default.</li>
+<li>Headerless XLSX reads use minimal name repair, eliminating repetitive readxl/tibble <code>New names</code> output while preserving positional source columns.</li>
+<li>A secure, opt-in real-workbook harness now verifies source and workbook identity, exact R cell digests, independent openpyxl semantic cell digests, censor and reshape conservation, and canonical-bundle round-trip without committing private workbook values.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="tritoningest-070">tritonIngest 0.7.0<a class="anchor" aria-label="anchor" href="#tritoningest-070"></a></h2>
+<ul><li>Cache manifests are now backend-specific <code>triton-cache/v2</code> records with source, transformation, backend, and artifact-checksum verification, atomic writes, and bounded lock-directory concurrency. Legacy v1 entries are misses.</li>
+<li>Added verified Parquet/Feather canonical bundles using <code>tabular-artifact/v1</code> manifests and <code>tabular-diagnostic/v1</code> diagnostics.</li>
+<li>Duplicate headers and lossy contract coercion now fail closed by default. Explicit overrides retain structured review diagnostics.</li>
+<li>Contracts share one strict type registry (including date, datetime, and time), expose stable fingerprints, and report total/populated/missing/invalid counts.</li>
+<li>Mapping profiles use <code>triton-mapping-profile/v2</code> and bind to contract plus ordered-header fingerprints. V1 profiles require explicit upgrade.</li>
+<li>Bare right-censor tokens accept a separate <code>censor_limit</code>; unit normalization folds both Unicode micro characters to ASCII <code>u</code> without source-code literals.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="tritoningest-060">tritonIngest 0.6.0<a class="anchor" aria-label="anchor" href="#tritoningest-060"></a></h2>
 <p>Pressure-test follow-up (2026-07): fixes the nine root causes recorded in <code>audits/tritonIngest-pressure-test-2026-07-08.md</code>. Four of them corrupted data <strong>silently</strong> – they returned a plausible wrong answer with no error, warning or <code>NA</code> – and are now loud.</p>
@@ -94,13 +116,8 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.3" id="tritoningest-043">tritonIngest 0.4.3<a class="anchor" aria-label="anchor" href="#tritoningest-043"></a></h2>
-<ul><li><p><code><a href="../reference/detect_layout.html">detect_layout()</a></code> now recognises plural parameter/value column names (<code>"results"</code>, <code>"values"</code>, <code>"analytes"</code>, <code>"parameters"</code>, …) and trims surrounding whitespace from column names before matching. Lab exports such as ALS reports label their value column <code>"Results"</code> and pad headers (<code>"Analyte "</code>), which previously missed the long-format vocabulary and – when two or more numeric columns were present (result + detection limit + a numeric QC-lot id) – misclassified the table as wide, discarding the analyte column. This removes the need for the interim water-chemistry-qaqc guard. ## tritonIngest 0.7.0</p></li>
-<li><p>Cache manifests are now backend-specific <code>triton-cache/v2</code> records with source, transformation, backend, and artifact-checksum verification, atomic writes, and bounded lock-directory concurrency. Legacy v1 entries are misses.</p></li>
-<li><p>Added verified Parquet/Feather canonical bundles using <code>tabular-artifact/v1</code> manifests and <code>tabular-diagnostic/v1</code> diagnostics.</p></li>
-<li><p>Duplicate headers and lossy contract coercion now fail closed by default. Explicit overrides retain structured review diagnostics.</p></li>
-<li><p>Contracts share one strict type registry (including date, datetime, and time), expose stable fingerprints, and report total/populated/missing/invalid counts.</p></li>
-<li><p>Mapping profiles use <code>triton-mapping-profile/v2</code> and bind to contract plus ordered-header fingerprints. V1 profiles require explicit upgrade.</p></li>
-<li><p>Bare right-censor tokens accept a separate <code>censor_limit</code>; unit normalization folds both Unicode micro characters to ASCII <code>u</code> without source-code literals.</p></li>
+<ul><li>
+<code><a href="../reference/detect_layout.html">detect_layout()</a></code> now recognises plural parameter/value column names (<code>"results"</code>, <code>"values"</code>, <code>"analytes"</code>, <code>"parameters"</code>, …) and trims surrounding whitespace from column names before matching. Lab exports such as ALS reports label their value column <code>"Results"</code> and pad headers (<code>"Analyte "</code>), which previously missed the long-format vocabulary and – when two or more numeric columns were present (result + detection limit + a numeric QC-lot id) – misclassified the table as wide, discarding the analyte column. This removes the need for the interim water-chemistry-qaqc guard.</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

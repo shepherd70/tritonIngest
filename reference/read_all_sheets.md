@@ -14,7 +14,8 @@ read_all_sheets(
   col_names = TRUE,
   col_types = NULL,
   include_hidden = TRUE,
-  sheets = NULL
+  sheets = NULL,
+  formula_policy = c("warn", "error", "allow")
 )
 ```
 
@@ -38,6 +39,11 @@ read_all_sheets(
 
   Optional character vector of sheet names, or integer positions, to
   restrict the read to.
+
+- formula_policy:
+
+  Formula handling policy passed to
+  [`read_tabular()`](https://shepherd70.github.io/tritonIngest/reference/read_tabular.md).
 
 ## Value
 

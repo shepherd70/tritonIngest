@@ -14,7 +14,8 @@ read_tabular(
   col_types = NULL,
   col_names = TRUE,
   format = NULL,
-  duplicate_names = c("error", "warn", "repair")
+  duplicate_names = c("error", "warn", "repair"),
+  formula_policy = c("warn", "error", "allow")
 )
 ```
 
@@ -57,6 +58,13 @@ read_tabular(
   Policy for populated duplicate source headers. The default `"error"`
   fails closed; `"warn"` or `"repair"` allow the reader's unique-name
   repair and attach a `name_repairs` attribute.
+
+- formula_policy:
+
+  XLSX formula policy. `"warn"` (default) reads cached Excel results,
+  emits a warning, and attaches structured diagnostics; `"error"`
+  rejects a sheet containing formulas; `"allow"` reads silently but
+  still records formula diagnostics.
 
 ## Value
 

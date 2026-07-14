@@ -1,5 +1,58 @@
 # Changelog
 
+## tritonIngest 0.7.1
+
+Real-workbook hardening following a 13-sheet marine water-quality
+workbook test.
+
+- [`parse_censored()`](https://shepherd70.github.io/tritonIngest/reference/parse_censored.md)
+  and
+  [`is_value_like()`](https://shepherd70.github.io/tritonIngest/reference/is_value_like.md)
+  normalize the Unicode mathematical operators U+2264/U+2265 to ASCII
+  `<`/`>` using runtime code-point construction. Successful parses
+  retain a `parse_note` recording that normalization.
+- New
+  [`inspect_workbook()`](https://shepherd70.github.io/tritonIngest/reference/inspect_workbook.md)
+  inventories formula cells, formulas without cached results, merged
+  ranges, visibility, and sheet identity directly from OOXML.
+- [`read_tabular()`](https://shepherd70.github.io/tritonIngest/reference/read_tabular.md)
+  and
+  [`read_all_sheets()`](https://shepherd70.github.io/tritonIngest/reference/read_all_sheets.md)
+  gain `formula_policy = "warn"`, `"error"`, or `"allow"`. Formula reads
+  attach shared `formula_present` and `formula_gap` diagnostics because
+  readxl consumes Excel’s cached results.
+- [`clean_table()`](https://shepherd70.github.io/tritonIngest/reference/clean_table.md)
+  preserves ingestion diagnostics, and
+  `write_canonical_bundle(diagnostics = NULL)` inherits them by default.
+- Headerless XLSX reads use minimal name repair, eliminating repetitive
+  readxl/tibble `New names` output while preserving positional source
+  columns.
+- A secure, opt-in real-workbook harness now verifies source and
+  workbook identity, exact R cell digests, independent openpyxl semantic
+  cell digests, censor and reshape conservation, and canonical-bundle
+  round-trip without committing private workbook values.
+
+## tritonIngest 0.7.0
+
+- Cache manifests are now backend-specific `triton-cache/v2` records
+  with source, transformation, backend, and artifact-checksum
+  verification, atomic writes, and bounded lock-directory concurrency.
+  Legacy v1 entries are misses.
+- Added verified Parquet/Feather canonical bundles using
+  `tabular-artifact/v1` manifests and `tabular-diagnostic/v1`
+  diagnostics.
+- Duplicate headers and lossy contract coercion now fail closed by
+  default. Explicit overrides retain structured review diagnostics.
+- Contracts share one strict type registry (including date, datetime,
+  and time), expose stable fingerprints, and report
+  total/populated/missing/invalid counts.
+- Mapping profiles use `triton-mapping-profile/v2` and bind to contract
+  plus ordered-header fingerprints. V1 profiles require explicit
+  upgrade.
+- Bare right-censor tokens accept a separate `censor_limit`; unit
+  normalization folds both Unicode micro characters to ASCII `u` without
+  source-code literals.
+
 ## tritonIngest 0.6.0
 
 Pressure-test follow-up (2026-07): fixes the nine root causes recorded
@@ -208,28 +261,4 @@ in `audits/tritonIngest-audit-2026-06.md`.
   – when two or more numeric columns were present (result + detection
   limit + a numeric QC-lot id) – misclassified the table as wide,
   discarding the analyte column. This removes the need for the interim
-  water-chemistry-qaqc guard. \## tritonIngest 0.7.0
-
-- Cache manifests are now backend-specific `triton-cache/v2` records
-  with source, transformation, backend, and artifact-checksum
-  verification, atomic writes, and bounded lock-directory concurrency.
-  Legacy v1 entries are misses.
-
-- Added verified Parquet/Feather canonical bundles using
-  `tabular-artifact/v1` manifests and `tabular-diagnostic/v1`
-  diagnostics.
-
-- Duplicate headers and lossy contract coercion now fail closed by
-  default. Explicit overrides retain structured review diagnostics.
-
-- Contracts share one strict type registry (including date, datetime,
-  and time), expose stable fingerprints, and report
-  total/populated/missing/invalid counts.
-
-- Mapping profiles use `triton-mapping-profile/v2` and bind to contract
-  plus ordered-header fingerprints. V1 profiles require explicit
-  upgrade.
-
-- Bare right-censor tokens accept a separate `censor_limit`; unit
-  normalization folds both Unicode micro characters to ASCII `u` without
-  source-code literals.
+  water-chemistry-qaqc guard.

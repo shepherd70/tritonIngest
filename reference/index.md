@@ -14,10 +14,13 @@ the file’s type from its bytes; coerce mixed date encodings.
 
 ## Worksheets
 
-Enumerate a workbook’s sheets (including hidden ones) and read them all.
+Enumerate workbook sheets and formula/merge features, then read selected
+or all sheets.
 
 - [`list_sheets()`](https://shepherd70.github.io/tritonIngest/reference/list_sheets.md)
   : List the worksheets of a workbook, with their visibility.
+- [`inspect_workbook()`](https://shepherd70.github.io/tritonIngest/reference/inspect_workbook.md)
+  : Inspect formula and merge features in an OOXML workbook
 - [`read_all_sheets()`](https://shepherd70.github.io/tritonIngest/reference/read_all_sheets.md)
   : Read every worksheet of a workbook.
 
