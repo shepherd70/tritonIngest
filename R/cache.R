@@ -229,7 +229,7 @@ read_cache <- function(key = NULL, source = NULL,
     if (!requireNamespace("arrow", quietly = TRUE)) {
       stop("Reading a parquet cache needs the 'arrow' package.", call. = FALSE)
     }
-    tibble::as_tibble(arrow::read_parquet(paths$data))
+    tibble::as_tibble(arrow::read_parquet(paths$data), .name_repair = "minimal")
   } else {
     readRDS(paths$data)
   }

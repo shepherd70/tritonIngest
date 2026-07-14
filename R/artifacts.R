@@ -37,6 +37,30 @@
   })
 }
 
+.verify_bundle_sources <- function(expected, sources) {
+  actual <- .source_records(sources)
+  if (length(actual) != length(expected)) {
+    stop("Canonical source count mismatch: manifest records ", length(expected),
+         " source(s), but ", length(actual), " path(s) were supplied.",
+         call. = FALSE)
+  }
+  fields <- c("name", "size_bytes", "content_signature", "sha256")
+  labels <- c(name = "name", size_bytes = "size",
+              content_signature = "content signature", sha256 = "checksum")
+  for (i in seq_along(expected)) {
+    for (field in fields) {
+      wanted <- expected[[i]][[field]]
+      found <- actual[[i]][[field]]
+      if (is.null(wanted) ||
+          !identical(as.character(found), as.character(wanted))) {
+        stop("Canonical source ", labels[[field]], " mismatch at position ", i,
+             " ('", actual[[i]]$name, "').", call. = FALSE)
+      }
+    }
+  }
+  list(status = "verified", count = length(actual))
+}
+
 #' Write a verified canonical interchange bundle
 #'
 #' @param x Data frame to write.
@@ -114,10 +138,15 @@ write_canonical_bundle <- function(x, dir, name, sources, contract, diagnostics 
 #' Read and verify a canonical interchange bundle
 #'
 #' @param manifest Path to a `tabular-artifact/v1` manifest.
-#' @param verify Verify artifact and source hashes before reading.
-#' @return A list with `data`, `manifest`, and `diagnostics`.
+#' @param verify Verify bundle-contained artifact checksums before reading. When
+#'   `sources` is supplied, also verify current source identity.
+#' @param sources Optional current source path(s), in manifest order. With
+#'   `verify = TRUE`, basename, byte size, content signature, and SHA-256 must
+#'   match the manifest. When omitted, source verification is explicitly
+#'   reported as skipped in the returned `verification` record.
+#' @return A list with `data`, `manifest`, `diagnostics`, and `verification`.
 #' @export
-read_canonical_bundle <- function(manifest, verify = TRUE) {
+read_canonical_bundle <- function(manifest, verify = TRUE, sources = NULL) {
   if (!file.exists(manifest)) stop("Manifest not found: ", manifest, call. = FALSE)
   m <- jsonlite::fromJSON(manifest, simplifyVector = FALSE)
   if (!identical(m$schema, "tabular-artifact/v1")) {
@@ -134,8 +163,22 @@ read_canonical_bundle <- function(manifest, verify = TRUE) {
   if (!file.exists(data_path) || !file.exists(diag_path)) {
     stop("Canonical bundle is incomplete.", call. = FALSE)
   }
-  if (isTRUE(verify) && !identical(.file_sha256(data_path), artifact$sha256)) {
-    stop("Canonical artifact checksum mismatch: ", artifact$path, call. = FALSE)
+  if (isTRUE(verify)) {
+    if (!identical(.file_sha256(data_path), artifact$sha256)) {
+      stop("Canonical artifact checksum mismatch: ", artifact$path, call. = FALSE)
+    }
+    artifact_verification <- list(status = "verified", count = 1L)
+    source_verification <- if (is.null(sources)) {
+      list(status = "skipped", count = 0L,
+           reason = "No current source paths were supplied")
+    } else {
+      .verify_bundle_sources(m$sources, sources)
+    }
+  } else {
+    artifact_verification <- list(status = "skipped", count = 0L,
+                                  reason = "verify = FALSE")
+    source_verification <- list(status = "skipped", count = 0L,
+                                reason = "verify = FALSE")
   }
   if (!requireNamespace("arrow", quietly = TRUE)) {
     stop("Reading canonical bundles requires the 'arrow' package.", call. = FALSE)
@@ -146,5 +189,7 @@ read_canonical_bundle <- function(manifest, verify = TRUE) {
     stop("Unsupported canonical artifact format: ", artifact$format, call. = FALSE)
   )
   diagnostics <- jsonlite::fromJSON(diag_path, simplifyVector = FALSE)
-  list(data = data, manifest = m, diagnostics = diagnostics)
+  list(data = data, manifest = m, diagnostics = diagnostics,
+       verification = list(artifact = artifact_verification,
+                           sources = source_verification))
 }

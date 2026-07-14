@@ -18,6 +18,10 @@ Real-workbook hardening following a 13-sheet marine water-quality workbook test.
   identity, exact R cell digests, independent openpyxl semantic cell digests,
   censor and reshape conservation, and canonical-bundle round-trip without
   committing private workbook values.
+* Parquet cache hits now preserve blank positional names from headerless XLSX
+  ingestion. `read_canonical_bundle()` accepts optional live `sources=` paths,
+  verifies their name, size, signature, and SHA-256, and reports every artifact
+  or source check as `verified` or `skipped`.
 
 # tritonIngest 0.7.0
 

@@ -190,8 +190,9 @@ test_that("real-workbook representative canonical bundle verifies and round-trip
       schema_version = "real-workbook-regression/v1"
     )
   )
-  bundle <- read_canonical_bundle(manifest, verify = TRUE)
+  bundle <- read_canonical_bundle(manifest, verify = TRUE, sources = path)
   expect_equal(bundle$data, tibble::as_tibble(melted))
+  expect_equal(bundle$verification$sources$status, "verified")
   expect_identical(bundle$manifest$sources[[1]]$sha256,
                    baseline$source$sha256)
   expect_equal(bundle$manifest$artifacts[[1]]$row_count, nrow(melted))

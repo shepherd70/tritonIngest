@@ -4,15 +4,21 @@
 \alias{read_canonical_bundle}
 \title{Read and verify a canonical interchange bundle}
 \usage{
-read_canonical_bundle(manifest, verify = TRUE)
+read_canonical_bundle(manifest, verify = TRUE, sources = NULL)
 }
 \arguments{
 \item{manifest}{Path to a \code{tabular-artifact/v1} manifest.}
 
-\item{verify}{Verify artifact and source hashes before reading.}
+\item{verify}{Verify bundle-contained artifact checksums before reading. When
+\code{sources} is supplied, also verify current source identity.}
+
+\item{sources}{Optional current source path(s), in manifest order. With
+\code{verify = TRUE}, basename, byte size, content signature, and SHA-256 must
+match the manifest. When omitted, source verification is explicitly
+reported as skipped in the returned \code{verification} record.}
 }
 \value{
-A list with \code{data}, \code{manifest}, and \code{diagnostics}.
+A list with \code{data}, \code{manifest}, \code{diagnostics}, and \code{verification}.
 }
 \description{
 Read and verify a canonical interchange bundle
