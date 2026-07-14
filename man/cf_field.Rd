@@ -6,16 +6,19 @@
 \usage{
 cf_field(
   name,
-  type = c("character", "numeric", "integer", "date"),
+  type = c("character", "numeric", "integer", "logical", "date", "datetime", "time"),
   required = FALSE,
   synonyms = character(0),
-  description = ""
+  description = "",
+  formats = NULL,
+  tz = "UTC"
 )
 }
 \arguments{
 \item{name}{Contract field name (the canonical output column name).}
 
-\item{type}{One of \code{"character"}, \code{"numeric"}, \code{"integer"}, \code{"date"}.}
+\item{type}{One of \code{"character"}, \code{"numeric"}, \code{"integer"}, \code{"logical"},
+\code{"date"}, \code{"datetime"}, or \code{"time"}.}
 
 \item{required}{Logical; is the field required for the data to be usable?}
 
@@ -23,6 +26,10 @@ cf_field(
 should map to this field (matched after name normalisation).}
 
 \item{description}{Short human-readable description.}
+
+\item{formats}{Optional strict date/datetime/time parse formats.}
+
+\item{tz}{Time zone for datetime parsing.}
 }
 \value{
 A field-spec list.

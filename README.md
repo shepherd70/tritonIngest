@@ -40,6 +40,15 @@ the cross-repo migration plan.
   keyed by a fingerprint of the source file, so an unchanged source skips
   re-ingestion and a moved source auto-invalidates (`write_cache`, `read_cache`,
   `cached_ingest`; `rds` or `parquet` backend).
+- **Exchange verified artifacts** — write/read canonical Parquet or Feather
+  bundles with source identity, transformation identity, checksums, and shared
+  JSON diagnostics (`write_canonical_bundle`, `read_canonical_bundle`).
+
+Cross-language records are governed by the separately released
+`tabular-ingestion-spec` repository (pinned to `1.0.0`). The Python
+spreadsheet-cleanup service may preserve and inventory environmental inputs,
+but this R package remains the authoritative environmental canonicalizer; the
+two engines do not call each other at runtime.
 
 ## Install
 
@@ -73,16 +82,9 @@ parsed  <- parse_censored(mapped$value_raw)       # non-detects -> value/censore
 
 ## Status
 
-v0.5.0 — current release. The 0.4.x line ported the engine and made
-`R CMD check --as-cran` clean; 0.5.0 hardens the ingestion core:
-`convert_units()` adds a mass/mass ladder (mg/kg, ug/g, …) and accepts the
-Greek-mu spelling of micro units; the non-detect and Excel-date helpers gain
-length/format validation and clearer warnings; layout detection and value
-parsing now share one non-detect vocabulary; and mapping-profile / cache key
-collisions are caught instead of silently overwriting. Standalone package,
-ported and tested, with an R-CMD-check CI workflow and renv lockfile; beyond
-the original Phase 0–1 engine it also ships a generic validation kernel
-(`validate.R`) and a materialisation cache (`cache.R`). Phase 2 of the
-cross-repo migration is done — `bw-analysis-code` consumes the package
-(pinned `v0.4.3`); Phases 3–4 (`water-chemistry-qaqc`, chemistry ingestion
-in bw) remain.
+v0.7.0 release candidate — fail-closed headers/coercion, strict typed
+contracts, transformation-aware cache v2, fingerprinted profile v2, structured
+diagnostics, and verified canonical bundles. Both R consumers are being tested
+against this candidate: fish/effort/habitat keeps its domain contracts, while
+water chemistry keeps its strict local profile and carries left/right censor
+metadata into its domain object.

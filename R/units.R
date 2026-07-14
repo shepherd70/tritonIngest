@@ -30,16 +30,20 @@ convert_units <- function(value, from, to) {
   # then drop whitespace. Unicode escapes keep this source pure ASCII (R CMD
   # check --as-cran flags non-ASCII characters in code files).
   norm <- function(u) {
-    u <- tolower(ifelse(is.na(u), "", u))
-    u <- gsub("\u03bc", "\u00b5", u)
+    u <- enc2utf8(as.character(ifelse(is.na(u), "", u)))
+    # Construct Unicode at runtime so package parsing works even when the native
+    # Windows session charset is ASCII.
+    u <- gsub(intToUtf8(0x03bc), "u", u, fixed = TRUE)  # Greek small mu
+    u <- gsub(intToUtf8(0x00b5), "u", u, fixed = TRUE)  # micro sign
+    u <- tolower(u)
     gsub("\\s+", "", u)
   }
   # Each ladder holds factors to its own base; conversion is only defined within
   # one ladder. Bases: mg/L (mass/volume) and mg/kg = ppm (mass/mass).
   ladders <- list(
-    c("g/l" = 1e3, "mg/l" = 1, "ug/l" = 1e-3, "\u00b5g/l" = 1e-3, "ng/l" = 1e-6),
-    c("g/kg" = 1e3, "mg/kg" = 1, "ug/kg" = 1e-3, "\u00b5g/kg" = 1e-3,
-      "ng/kg" = 1e-6, "mg/g" = 1e3, "ug/g" = 1, "\u00b5g/g" = 1, "ng/g" = 1e-3)
+    c("g/l" = 1e3, "mg/l" = 1, "ug/l" = 1e-3, "ng/l" = 1e-6),
+    c("g/kg" = 1e3, "mg/kg" = 1, "ug/kg" = 1e-3,
+      "ng/kg" = 1e-6, "mg/g" = 1e3, "ug/g" = 1, "ng/g" = 1e-3)
   )
   fac <- unlist(ladders)                                   # unit -> factor
   lad <- rep(seq_along(ladders), lengths(ladders))         # unit -> ladder id

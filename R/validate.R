@@ -139,6 +139,11 @@ check_no_na <- function(data, columns, table_name) {
 #' @family validation
 check_unique <- function(data, columns, table_name, max_report = 5L) {
   present <- intersect(columns, names(data))
+  missing <- setdiff(columns, names(data))
+  if (length(missing)) {
+    return(sprintf("%s unique key is incomplete; missing column(s): %s",
+                   table_name, paste(missing, collapse = ", ")))
+  }
   if (length(present) == 0 || nrow(data) == 0) return(character(0))
 
   key <- do.call(paste, c(lapply(present, function(cc) as.character(data[[cc]])), sep = " | "))
@@ -168,11 +173,14 @@ check_unique <- function(data, columns, table_name, max_report = 5L) {
 #'   are skipped.
 #' @param table_name Human-readable name of the table, used in failure messages.
 #' @param max_report Maximum number of offending values to name per column.
+#' @param report_unparseable Report populated values that cannot be parsed as
+#'   numeric instead of silently skipping them.
 #'
 #' @return Character vector of failure messages; empty if every value is in range.
 #' @export
 #' @family validation
-check_range <- function(data, bounds, table_name, max_report = 5L) {
+check_range <- function(data, bounds, table_name, max_report = 5L,
+                        report_unparseable = TRUE) {
   if (!length(bounds)) return(character(0))
   if (is.null(names(bounds))) stop("`bounds` must be a named list.", call. = FALSE)
   present <- intersect(names(bounds), names(data))
@@ -181,20 +189,34 @@ check_range <- function(data, bounds, table_name, max_report = 5L) {
   msgs <- unlist(lapply(present, function(cc) {
     lim <- bounds[[cc]]
     if (length(lim) != 2) stop("bounds[['", cc, "']] must be c(min, max).", call. = FALSE)
-    x <- suppressWarnings(as.numeric(data[[cc]]))
+    raw <- data[[cc]]
+    x <- suppressWarnings(as.numeric(raw))
+    populated <- !is.na(raw) & nzchar(trimws(as.character(raw)))
+    unparsable <- which(populated & is.na(x))
     lo <- if (is.na(lim[1])) rep(TRUE, length(x)) else x >= lim[1]
     hi <- if (is.na(lim[2])) rep(TRUE, length(x)) else x <= lim[2]
     bad <- which(!is.na(x) & !(lo & hi))
-    if (!length(bad)) return(NULL)
+    parts <- character(0)
+    if (isTRUE(report_unparseable) && length(unparsable)) {
+      shown_u <- utils::head(unparsable, max_report)
+      parts <- c(parts, sprintf(
+        "%s$%s has %d populated value(s) that are not numeric: %s at row(s) %s%s",
+        table_name, cc, length(unparsable),
+        paste0("'", as.character(raw[shown_u]), "'", collapse = ", "),
+        paste(shown_u, collapse = ","),
+        if (length(unparsable) > max_report)
+          sprintf(" ... and %d more", length(unparsable) - max_report) else ""))
+    }
+    if (!length(bad)) return(parts)
     shown <- utils::head(bad, max_report)
-    sprintf("%s$%s has %d value(s) outside [%s, %s]: %s at row(s) %s%s",
+    c(parts, sprintf("%s$%s has %d value(s) outside [%s, %s]: %s at row(s) %s%s",
             table_name, cc, length(bad),
             if (is.na(lim[1])) "-Inf" else format(lim[1]),
             if (is.na(lim[2])) "Inf" else format(lim[2]),
             paste(format(x[shown]), collapse = ", "),
             paste(shown, collapse = ","),
             if (length(bad) > max_report)
-              sprintf(" ... and %d more", length(bad) - max_report) else "")
+              sprintf(" ... and %d more", length(bad) - max_report) else ""))
   }), use.names = FALSE)
 
   if (is.null(msgs)) character(0) else msgs

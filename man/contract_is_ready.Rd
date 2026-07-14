@@ -4,16 +4,32 @@
 \alias{contract_is_ready}
 \title{Is a mapped frame ready to use for a contract?}
 \usage{
-contract_is_ready(df, contract)
+contract_is_ready(
+  df,
+  contract,
+  policy = c("strict", "structure"),
+  min_rows = 1L,
+  max_invalid_fraction = 0,
+  allow_warnings = FALSE
+)
 }
 \arguments{
 \item{df}{A data frame with contract-named columns.}
 
 \item{contract}{A contract (list of specs or tibble).}
+
+\item{policy}{\code{"strict"} or explicit structural-only \code{"structure"} policy.}
+
+\item{min_rows}{Minimum number of rows required.}
+
+\item{max_invalid_fraction}{Maximum tolerated invalid populated fraction.}
+
+\item{allow_warnings}{Treat warning-only validation results as ready.}
 }
 \value{
 Logical scalar.
 }
 \description{
-\code{TRUE} when no field has \code{severity == "error"}.
+Strict readiness requires the minimum row count and no unresolved field
+warnings or errors. Structural-only readiness is available explicitly.
 }

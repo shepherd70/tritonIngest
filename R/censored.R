@@ -82,6 +82,9 @@ CENSOR_REGEX    <- paste0("^[<>]\\s*", .NUM_RE, "$")
 #' @param detection_limit Optional numeric vector (recycled if length 1) from a
 #'   separate DL/RL column; used for bare tokens (`"ND"`) and checked for
 #'   consistency against `"<DL"` notation.
+#' @param censor_limit Optional numeric upper/quantitation limit (recycled if
+#'   length 1). Used for bare right-censor tokens such as `"TNTC"`; explicit
+#'   `">x"` text wins and disagreement is recorded.
 #' @param na_strings Values (compared case-insensitively after trimming) that mean
 #'   "not measured" rather than a result. Excel exports commonly write `"-"`.
 #' @param nd_tokens,over_tokens Bare left- / right-censored markers.
@@ -96,7 +99,7 @@ CENSOR_REGEX    <- paste0("^[<>]\\s*", .NUM_RE, "$")
 #'   direction), `qualifier` (chr, NA when none), `parse_note` (chr, NA when
 #'   clean).
 #' @export
-parse_censored <- function(value_raw, detection_limit = NULL,
+parse_censored <- function(value_raw, detection_limit = NULL, censor_limit = NULL,
                            na_strings = c("-", "--", "n/a", "N/A"),
                            nd_tokens = ND_TOKENS, over_tokens = OVER_TOKENS,
                            qualifiers = TRUE) {
@@ -106,11 +109,20 @@ parse_censored <- function(value_raw, detection_limit = NULL,
     stop("`detection_limit` length (", length(detection_limit),
          ") must be 1 or match `value_raw` (", n, ").", call. = FALSE)
   }
+  if (!is.null(censor_limit) && !length(censor_limit) %in% c(1L, n)) {
+    stop("`censor_limit` length (", length(censor_limit),
+         ") must be 1 or match `value_raw` (", n, ").", call. = FALSE)
+  }
 
   dl_col <- if (is.null(detection_limit)) {
     rep(NA_real_, n)
   } else {
     suppressWarnings(as.numeric(rep(detection_limit, length.out = n)))
+  }
+  ul_col <- if (is.null(censor_limit)) rep(NA_real_, n) else
+    suppressWarnings(as.numeric(rep(censor_limit, length.out = n)))
+  if (any(dl_col < 0, na.rm = TRUE) || any(ul_col < 0, na.rm = TRUE)) {
+    stop("Detection and censor limits must be non-negative.", call. = FALSE)
   }
 
   value     <- rep(NA_real_, n)
@@ -138,7 +150,8 @@ parse_censored <- function(value_raw, detection_limit = NULL,
   censored[tok_gt] <- TRUE
   direction[tok_gt] <- "right"
   dl_out[tok_gt] <- NA_real_
-  note[tok_gt] <- "over-range token without a quantitation limit"
+  cl_out[tok_gt] <- ul_col[tok_gt]
+  note[tok_gt & is.na(ul_col)] <- "over-range token without a quantitation limit"
 
   # Numeric forms, with optional operator and qualifier ------------------------
   todo <- which(!empty & !tok_nd & !tok_gt)
@@ -178,6 +191,12 @@ parse_censored <- function(value_raw, detection_limit = NULL,
       disagree <- !is.na(dl_col[lt_abs]) &
         abs(dl_col[lt_abs] - dl_out[lt_abs]) > .Machine$double.eps^0.5
       note[lt_abs[disagree]] <- "DL in text differs from detection-limit column; text used"
+
+      gt_abs <- idx[is_gt]
+      gt_disagree <- !is.na(ul_col[gt_abs]) &
+        abs(ul_col[gt_abs] - cl_out[gt_abs]) > .Machine$double.eps^0.5
+      note[gt_abs[gt_disagree]] <-
+        "upper limit in text differs from censor-limit column; text used"
     }
     bad <- todo[!hit]
     note[bad] <- paste0("unparseable result text: '", raw[bad], "'")

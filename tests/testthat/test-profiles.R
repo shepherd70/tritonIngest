@@ -10,7 +10,12 @@ test_that("save/load/list/delete round-trips a profile", {
   on.exit(unlink(dir, recursive = TRUE), add = TRUE)
 
   maps <- list(catch = list(year = "Yr", site = "Station", length_mm = "Fork Length"))
+  contracts <- list(catch = as_contract(list(cf_field("year", "integer", TRUE),
+                                            cf_field("site", "character", TRUE),
+                                            cf_field("length_mm", "numeric", TRUE))))
+  headers <- list(catch = c("Yr", "Station", "Fork Length"))
   path <- save_mapping_profile("2025 master", mappings = maps,
+                               contracts = contracts, source_cols = headers,
                                meta = list(catch = list(kind = "excel", sheet = "Fish")),
                                dir = dir)
   expect_true(file.exists(path))
@@ -19,7 +24,8 @@ test_that("save/load/list/delete round-trips a profile", {
   expect_equal(nrow(lst), 1L)
   expect_equal(lst$name, "2025 master")
 
-  loaded <- load_mapping_profile("2025 master", dir = dir)
+  loaded <- load_mapping_profile("2025 master", contracts = contracts,
+                                 source_cols = headers, dir = dir)
   expect_equal(loaded$name, "2025 master")
   # mapping comes back as a named character vector (field -> source column)
   expect_equal(loaded$mappings$catch[["year"]], "Yr")
@@ -37,19 +43,38 @@ test_that("the profiles dir can come from a package option", {
   options(tritonIngest.profiles_dir = dir)
   on.exit({ options(tritonIngest.profiles_dir = old); unlink(dir, recursive = TRUE) }, add = TRUE)
 
-  save_mapping_profile("opt", mappings = list(r = list(a = "A")))
+  ct <- list(r = as_contract(list(cf_field("a"))))
+  hdr <- list(r = "A")
+  save_mapping_profile("opt", mappings = list(r = list(a = "A")),
+                       contracts = ct, source_cols = hdr)
   expect_equal(list_mapping_profiles()$name, "opt")
 })
 
 test_that("save_mapping_profile errors on a slug collision with a different name", {
   dir <- file.path(tempdir(), paste0("mp_col_", as.integer(Sys.time())))
   on.exit(unlink(dir, recursive = TRUE), add = TRUE)
-  save_mapping_profile("2025 master", mappings = list(r = list(a = "A")), dir = dir)
+  ct <- list(r = as_contract(list(cf_field("a"))))
+  hdr <- list(r = "A")
+  save_mapping_profile("2025 master", mappings = list(r = list(a = "A")),
+                       contracts = ct, source_cols = hdr, dir = dir)
   # "2025_master" sanitises to the same "2025-master.json"
   expect_error(
-    save_mapping_profile("2025_master", mappings = list(r = list(b = "B")), dir = dir),
-    "collides with existing profile")
+    save_mapping_profile("2025_master", mappings = list(r = list(a = "A")),
+                         contracts = ct, source_cols = hdr, dir = dir),
+    "collides with")
   # re-saving the SAME name is a normal overwrite, not a collision
   expect_silent(
-    save_mapping_profile("2025 master", mappings = list(r = list(a = "A2")), dir = dir))
+    save_mapping_profile("2025 master", mappings = list(r = list(a = "A")),
+                         contracts = ct, source_cols = hdr, dir = dir))
+})
+
+test_that("profile use fails when contract or ordered headers are stale", {
+  dir <- tempfile("mp_stale_")
+  ct <- list(r = as_contract(list(cf_field("a"))))
+  save_mapping_profile("p", list(r = list(a = "A")), ct, list(r = "A"), dir = dir)
+  expect_error(load_mapping_profile("p", ct, list(r = c("A", "B")), dir = dir),
+               "stale")
+  changed <- list(r = as_contract(list(cf_field("a"), cf_field("b"))))
+  expect_error(load_mapping_profile("p", changed, list(r = "A"), dir = dir),
+               "stale")
 })

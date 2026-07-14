@@ -2,19 +2,18 @@
 % Please edit documentation in R/cache.R
 \name{cache_dir}
 \alias{cache_dir}
-\title{Resolve (and optionally create) the cache directory.}
+\title{Resolve the cache directory}
 \usage{
 cache_dir(dir = getOption("tritonIngest.cache_dir"), create = TRUE)
 }
 \arguments{
-\item{dir}{Directory to store cache files in. Defaults to
-\code{getOption("tritonIngest.cache_dir")}; errors if neither is set.}
+\item{dir}{Directory to store cache files in.}
 
-\item{create}{Logical; create the directory if it does not exist.}
+\item{create}{Create it when missing.}
 }
 \value{
-Absolute path to the cache directory.
+Normalized absolute path.
 }
 \description{
-Resolve (and optionally create) the cache directory.
+Resolve the cache directory
 }

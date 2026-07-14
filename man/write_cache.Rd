@@ -2,7 +2,7 @@
 % Please edit documentation in R/cache.R
 \name{write_cache}
 \alias{write_cache}
-\title{Write a parsed object to the materialisation cache.}
+\title{Write an object to the transformation-aware cache}
 \usage{
 write_cache(
   x,
@@ -11,33 +11,31 @@ write_cache(
   dir = getOption("tritonIngest.cache_dir"),
   format = c("rds", "parquet"),
   fingerprint = c("md5", "size_mtime"),
-  meta = list()
+  meta = list(),
+  transform_context = NULL
 )
 }
 \arguments{
-\item{x}{The object to cache. For \code{format = "parquet"} it must be a data
-frame; any classes/attributes beyond the plain table are dropped (with a
-warning) -- use \code{"rds"} to preserve a classed object exactly.}
+\item{x}{Object to cache; parquet requires a data frame.}
 
-\item{source}{Path(s) to the source file(s) the object was parsed from. Used
-to fingerprint the inputs; may be \code{NULL} to cache without invalidation.}
+\item{source}{Source file path(s), or \code{NULL} for a provenance-only artifact.}
 
-\item{key}{Cache key (file stem). Defaults to one derived from \code{source}.}
+\item{key}{Cache key; derived from \code{source} when omitted.}
 
-\item{dir}{Cache directory (see \code{\link[=cache_dir]{cache_dir()}}).}
+\item{dir}{Cache directory.}
 
-\item{format}{\code{"rds"} (default) or \code{"parquet"}.}
+\item{format}{\code{"rds"} or \code{"parquet"}.}
 
-\item{fingerprint}{Source-fingerprint method, \code{"md5"} (default) or
-\code{"size_mtime"} (cheaper for very large sources).}
+\item{fingerprint}{\code{"md5"} or \code{"size_mtime"} source fingerprint.}
 
-\item{meta}{Optional named list of extra provenance to record in the sidecar.}
+\item{meta}{Additional metadata.}
+
+\item{transform_context}{Optional named transformation identity. Cache reads
+must supply the same context when one is recorded.}
 }
 \value{
-The path to the written data file (invisibly).
+Data path, invisibly.
 }
 \description{
-Writes the data file plus a JSON sidecar recording the source fingerprint,
-format, timestamp and shape, so \code{\link[=read_cache]{read_cache()}} can later decide whether the
-cache is still fresh.
+Write an object to the transformation-aware cache
 }

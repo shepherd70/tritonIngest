@@ -7,6 +7,7 @@
 parse_censored(
   value_raw,
   detection_limit = NULL,
+  censor_limit = NULL,
   na_strings = c("-", "--", "n/a", "N/A"),
   nd_tokens = ND_TOKENS,
   over_tokens = OVER_TOKENS,
@@ -19,6 +20,10 @@ parse_censored(
 \item{detection_limit}{Optional numeric vector (recycled if length 1) from a
 separate DL/RL column; used for bare tokens (\code{"ND"}) and checked for
 consistency against \code{"<DL"} notation.}
+
+\item{censor_limit}{Optional numeric upper/quantitation limit (recycled if
+length 1). Used for bare right-censor tokens such as \code{"TNTC"}; explicit
+\code{">x"} text wins and disagreement is recorded.}
 
 \item{na_strings}{Values (compared case-insensitively after trimming) that mean
 "not measured" rather than a result. Excel exports commonly write \code{"-"}.}

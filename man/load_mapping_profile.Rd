@@ -2,23 +2,30 @@
 % Please edit documentation in R/profiles.R
 \name{load_mapping_profile}
 \alias{load_mapping_profile}
-\title{Load a mapping profile from disk.}
+\title{Load and validate a mapping profile}
 \usage{
 load_mapping_profile(
   name_or_path,
-  dir = getOption("tritonIngest.profiles_dir")
+  contracts = NULL,
+  source_cols = NULL,
+  dir = getOption("tritonIngest.profiles_dir"),
+  allow_legacy = FALSE
 )
 }
 \arguments{
-\item{name_or_path}{Profile name or path to a profile JSON file.}
+\item{name_or_path}{Profile name or JSON path.}
 
-\item{dir}{Profiles directory (see \code{\link[=mapping_profiles_dir]{mapping_profiles_dir()}}).}
+\item{contracts, source_cols}{Current named role lists.}
+
+\item{dir}{Profiles directory.}
+
+\item{allow_legacy}{Explicitly inspect a v1 profile.}
 }
 \value{
-A list with \code{name}, \code{mappings}, \code{meta}, \code{saved_at}. Each role's
-mapping is a named character vector (contract field -> source column).
+Validated profile list.
 }
 \description{
-Accepts either a profile name (resolved against \code{dir}) or a direct path to a
-\code{.json} file.
+\code{triton-mapping-profile/v2} profiles require current contracts and ordered
+source headers. Legacy v1 profiles are rejected unless \code{allow_legacy = TRUE};
+they remain unvalidated and should only be passed to \code{\link[=upgrade_mapping_profile]{upgrade_mapping_profile()}}.
 }

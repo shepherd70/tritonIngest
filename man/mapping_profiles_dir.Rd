@@ -2,7 +2,7 @@
 % Please edit documentation in R/profiles.R
 \name{mapping_profiles_dir}
 \alias{mapping_profiles_dir}
-\title{Resolve (and optionally create) the mapping-profiles directory.}
+\title{Resolve the mapping-profile directory}
 \usage{
 mapping_profiles_dir(
   dir = getOption("tritonIngest.profiles_dir"),
@@ -10,14 +10,13 @@ mapping_profiles_dir(
 )
 }
 \arguments{
-\item{dir}{Directory to store profiles in. Defaults to
-\code{getOption("tritonIngest.profiles_dir")}; errors if neither is set.}
+\item{dir}{Directory path.}
 
-\item{create}{Logical; create the directory if it does not exist.}
+\item{create}{Create it when absent.}
 }
 \value{
-Absolute path to the profiles directory.
+Normalized absolute path.
 }
 \description{
-Resolve (and optionally create) the mapping-profiles directory.
+Resolve the mapping-profile directory
 }

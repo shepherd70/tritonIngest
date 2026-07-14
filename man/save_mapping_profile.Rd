@@ -2,31 +2,36 @@
 % Please edit documentation in R/profiles.R
 \name{save_mapping_profile}
 \alias{save_mapping_profile}
-\title{Save a mapping profile to disk.}
+\title{Save a contract/header-bound mapping profile}
 \usage{
 save_mapping_profile(
   name,
   mappings,
+  contracts,
+  source_cols,
   meta = NULL,
   dir = getOption("tritonIngest.profiles_dir"),
   overwrite = TRUE
 )
 }
 \arguments{
-\item{name}{Human-readable profile name (also used to derive the filename).}
+\item{name}{Human-readable profile name.}
 
-\item{mappings}{A named list keyed by role; each element a named list/char
-vector of \verb{contract field -> source column}.}
+\item{mappings}{Named role -> field/source mapping list.}
 
-\item{meta}{Optional named list of provenance (e.g. source kind, sheet).}
+\item{contracts}{Named role -> contract list.}
 
-\item{dir}{Profiles directory (see \code{\link[=mapping_profiles_dir]{mapping_profiles_dir()}}).}
+\item{source_cols}{Named role -> ordered source header list.}
 
-\item{overwrite}{Logical; allow overwriting an existing same-named profile.}
+\item{meta}{Additional provenance.}
+
+\item{dir}{Profiles directory.}
+
+\item{overwrite}{Permit replacing the same profile name.}
 }
 \value{
-The path to the written JSON file (invisibly).
+Written path, invisibly.
 }
 \description{
-Save a mapping profile to disk.
+Save a contract/header-bound mapping profile
 }

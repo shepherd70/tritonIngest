@@ -46,14 +46,21 @@ test_that("clean_table is a no-op on already-clean input (header on row 1)", {
   expect_equal(out$count, c("2", "1"))
 })
 
-test_that("clean_table fills blank and de-dupes duplicate header names, loudly (RC6/RC7)", {
+test_that("clean_table fails closed unless header repair is requested", {
   dup <- tibble::tibble(a = c("site", "A", "B"),
-                        b = c("site", "x", "y"),     # duplicate of "site"
-                        c = c("",     "9", "8"))      # blank header over real data
-  expect_warning(out <- clean_table(dup), "duplicate header name")
-  expect_warning(clean_table(dup), "header cell\\(s\\) blank over populated column")
-  expect_equal(names(out), c("site", "site_1", "col_3"))
+                        b = c("site", "x", "y"))
+  expect_error(suppressWarnings(clean_table(dup)), "duplicate promoted header")
+  expect_warning(out <- clean_table(dup, duplicate_names = "warn"),
+                 "duplicate promoted header")
+  expect_equal(names(out), c("site", "site_1"))
   expect_equal(nrow(out), 2)
+  repaired <- suppressWarnings(clean_table(dup, duplicate_names = "repair"))
+  diag <- attr(repaired, "diagnostics")[[1]]
+  expect_equal(diag$details$repairs[[2]]$repaired, "site_1")
+  expect_true(diag$requires_review)
+  blank <- tibble::tibble(a = c("site", "A"), b = c("", "9"))
+  expect_warning(clean_table(blank, header_row = 1),
+                 "header cell\\(s\\) blank over populated column")
   # a blank header over a blank column is normal spacer padding and stays silent
   pad <- tibble::tibble(a = c("site", "A"), b = c("count", "2"), c = c("", ""))
   expect_silent(out <- clean_table(pad))

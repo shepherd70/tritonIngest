@@ -12,6 +12,11 @@ setup_src <- function(rows = 3) {
   list(dir = file.path(d, "cache"), src = src)
 }
 
+parser_context <- function(version = "1") {
+  list(parser_id = "tests::read_tabular", parser_version = version,
+       schema_version = "test-table/v1")
+}
+
 test_that("write_cache then read_cache round-trips an object (rds)", {
   s <- setup_src()
   x <- read_tabular(s$src)
@@ -38,7 +43,7 @@ test_that("read_cache returns NULL when the source changed (stale)", {
 
   Sys.sleep(0.01)
   cat("site,value\nz,99\n", file = s$src)                          # mutate source
-  expect_message(res <- read_cache(source = s$src, dir = s$dir), "stale")
+  expect_message(res <- read_cache(source = s$src, dir = s$dir), "source changed")
   expect_null(res)
 })
 
@@ -52,14 +57,17 @@ test_that("cached_ingest parses once, then serves from cache", {
   calls <- 0
   parse <- function(src) { calls <<- calls + 1; read_tabular(src) }
 
-  a <- cached_ingest(s$src, parse = parse, dir = s$dir)
-  b <- cached_ingest(s$src, parse = parse, dir = s$dir)
+  a <- cached_ingest(s$src, parse = parse, dir = s$dir,
+                     transform_context = parser_context())
+  b <- cached_ingest(s$src, parse = parse, dir = s$dir,
+                     transform_context = parser_context())
   expect_equal(a, b)
   expect_equal(calls, 1)                                           # second call hit cache
 
   Sys.sleep(0.01)
   cat("site,value\nz,99\n", file = s$src)                          # change source
-  suppressMessages(cached_ingest(s$src, parse = parse, dir = s$dir))
+  suppressMessages(cached_ingest(s$src, parse = parse, dir = s$dir,
+                                 transform_context = parser_context()))
   expect_equal(calls, 2)                                           # re-parsed on staleness
 })
 
@@ -103,10 +111,40 @@ test_that("parquet refuses a non-data-frame object", {
                "data frame")
 })
 
-test_that("write_cache warns when an explicit key collides with a different one", {
+test_that("write_cache fails closed when an explicit key collides", {
   s <- setup_src()
   write_cache(read_tabular(s$src), key = "lab data", dir = s$dir)
   # "lab_data" sanitises to the same "lab-data" stem
-  expect_warning(write_cache(read_tabular(s$src), key = "lab_data", dir = s$dir),
-                 "collides with previously cached")
+  expect_error(write_cache(read_tabular(s$src), key = "lab_data", dir = s$dir),
+               "collides with")
+})
+
+test_that("custom cached parsers require transformation identity", {
+  s <- setup_src()
+  expect_error(cached_ingest(s$src, parse = function(x) read_tabular(x), dir = s$dir),
+               "transform_context")
+})
+
+test_that("parser arguments and versions invalidate cache hits", {
+  s <- setup_src()
+  calls <- 0L
+  parse <- function(src, multiplier) {
+    calls <<- calls + 1L
+    data.frame(value = multiplier)
+  }
+  cached_ingest(s$src, parse = parse, multiplier = 2, dir = s$dir,
+                transform_context = parser_context("1"))
+  cached_ingest(s$src, parse = parse, multiplier = 10, dir = s$dir,
+                transform_context = parser_context("1"))
+  cached_ingest(s$src, parse = parse, multiplier = 10, dir = s$dir,
+                transform_context = parser_context("2"))
+  expect_equal(calls, 3L)
+})
+
+test_that("rds and parquet manifests use independent paths", {
+  s <- setup_src()
+  write_cache(data.frame(x = 1), source = s$src, key = "same", dir = s$dir,
+              format = "rds")
+  expect_true(file.exists(file.path(s$dir, "same.rds.cache.json")))
+  expect_false(file.exists(file.path(s$dir, "same.parquet.cache.json")))
 })
