@@ -1,11 +1,11 @@
 # tritonIngest — Design Document
 
-**Status:** Implemented (v0.7.0 release candidate) — shared engine, validation,
-cache v2, canonical bundles, and both consumer integrations complete on rollout
-branches. Cross-language manifests and diagnostics conform to
-`tabular-ingestion-spec` 1.0.0. ·
+**Status:** Implemented (v0.7.1 development) — shared engine, validation,
+cache v2, canonical bundles, formula provenance, and consumer integrations.
+Cross-language manifests and diagnostics conform to `tabular-ingestion-spec`
+1.0.0. ·
 **Author:** drafted for Travis Shepherd · **Date drafted:** 2026-06-08 ·
-**Last reconciled:** 2026-07-12
+**Last reconciled:** 2026-07-14
 
 A lean, domain-agnostic R package for **tabular data ingestion**: read messy
 field/lab workbooks, detect their layout, map their columns onto a declared
@@ -48,6 +48,7 @@ the consuming repos. tritonIngest is *plumbing only*.
 | Capability | Comes from today | tritonIngest API |
 |---|---|---|
 | All-as-text CSV/XLSX reader | wq `read_wq_file`, bw `read_aemp_excel` | `read_tabular(path, sheet = NULL, col_types = NULL, col_names = TRUE)` |
+| OOXML formula/merge inventory | new | `inspect_workbook(path, sheets = NULL)` |
 | Excel serial-date coercion | bw `coerce_excel_date` | `coerce_excel_date(x)` |
 | Structural cleaning (header recovery, blank-row/col strip) | new | `clean_table(df, header_row = NULL, trim_ws = TRUE)`, `find_header_row(df)`, `drop_blank_rows(df)`, `drop_blank_cols(df)` |
 | Value-likeness heuristic | wq `is_value_like` | `is_value_like(x, threshold = 0.8)` |

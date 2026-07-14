@@ -24,7 +24,7 @@
 is_value_like <- function(x, threshold = 0.8,
                           na_strings = c("-", "--", "n/a", "N/A")) {
   x <- x[!is.na(x)]
-  x <- trimws(x)
+  x <- .normalize_censor_operators(trimws(x))
   x <- x[nzchar(x) & !toupper(x) %in% toupper(as.character(na_strings))]
   if (!length(x)) return(FALSE)
   numeric_ok <- suppressWarnings(!is.na(as.numeric(x)))

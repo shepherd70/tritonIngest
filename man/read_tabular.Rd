@@ -10,7 +10,8 @@ read_tabular(
   col_types = NULL,
   col_names = TRUE,
   format = NULL,
-  duplicate_names = c("error", "warn", "repair")
+  duplicate_names = c("error", "warn", "repair"),
+  formula_policy = c("warn", "error", "allow")
 )
 }
 \arguments{
@@ -36,6 +37,11 @@ file's signature).}
 \item{duplicate_names}{Policy for populated duplicate source headers. The
 default \code{"error"} fails closed; \code{"warn"} or \code{"repair"} allow the reader's
 unique-name repair and attach a \code{name_repairs} attribute.}
+
+\item{formula_policy}{XLSX formula policy. \code{"warn"} (default) reads cached
+Excel results, emits a warning, and attaches structured diagnostics;
+\code{"error"} rejects a sheet containing formulas; \code{"allow"} reads silently but
+still records formula diagnostics.}
 }
 \value{
 A tibble.

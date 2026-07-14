@@ -126,12 +126,27 @@ sniff_format <- function(path) {
 #' @param duplicate_names Policy for populated duplicate source headers. The
 #'   default `"error"` fails closed; `"warn"` or `"repair"` allow the reader's
 #'   unique-name repair and attach a `name_repairs` attribute.
+#' @param formula_policy XLSX formula policy. `"warn"` (default) reads cached
+#'   Excel results, emits a warning, and attaches structured diagnostics;
+#'   `"error"` rejects a sheet containing formulas; `"allow"` reads silently but
+#'   still records formula diagnostics.
 #' @return A tibble.
 #' @export
 read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
                          format = NULL,
-                         duplicate_names = c("error", "warn", "repair")) {
+                         duplicate_names = c("error", "warn", "repair"),
+                         formula_policy = c("warn", "error", "allow")) {
+  .read_tabular_impl(path, sheet, col_types, col_names, format,
+                     duplicate_names, formula_policy, formula_info = NULL)
+}
+
+.read_tabular_impl <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
+                               format = NULL,
+                               duplicate_names = c("error", "warn", "repair"),
+                               formula_policy = c("warn", "error", "allow"),
+                               formula_info = NULL, inspect_formulas = TRUE) {
   duplicate_names <- match.arg(duplicate_names)
+  formula_policy <- match.arg(formula_policy)
   if (!file.exists(path)) stop("File not found: ", path)
 
   if (is.null(format)) {
@@ -157,6 +172,20 @@ read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
     if (duplicate_names == "warn") warning(msg, call. = FALSE)
   }
 
+  if (isTRUE(inspect_formulas) && is.null(formula_info) &&
+      ext %in% c("xlsx", "xls") &&
+      sniff_format(path) == "zip") {
+    formula_info <- tryCatch(
+      inspect_workbook(path, sheets = sheet %||% 1L),
+      error = function(e) {
+        msg <- paste0("read_tabular(): formula inventory failed: ", conditionMessage(e))
+        if (formula_policy == "error") stop(msg, call. = FALSE)
+        if (formula_policy == "warn") warning(msg, call. = FALSE)
+        NULL
+      }
+    )
+  }
+
   out <- if (ext %in% c("csv", "txt")) {
     ct <- col_types %||% readr::cols(.default = readr::col_character())
     readr::read_csv(path, col_names = col_names, col_types = ct, progress = FALSE)
@@ -165,7 +194,8 @@ read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
     readr::read_tsv(path, col_names = col_names, col_types = ct, progress = FALSE)
   } else if (ext %in% c("xlsx", "xls")) {
     readxl::read_excel(path, sheet = sheet, col_names = col_names,
-                       col_types = col_types %||% "text")
+                       col_types = col_types %||% "text",
+                       .name_repair = if (isTRUE(col_names)) "unique" else "minimal")
   } else {
     stop("Unsupported file type: .", ext, " (use CSV, TSV, or XLSX)")
   }
@@ -174,7 +204,7 @@ read_tabular <- function(path, sheet = NULL, col_types = NULL, col_names = TRUE,
     attr(out, "name_repairs") <- repairs
     attr(out, "diagnostics") <- list(.duplicate_header_diagnostic(repairs, "read"))
   }
-  out
+  .apply_formula_policy(out, formula_info, formula_policy)
 }
 
 # Translate a strptime format into an anchored regex the whole string must match.

@@ -1,13 +1,14 @@
 Package: tritonIngest
 Title: Tabular Data Ingestion Toolkit
-Version: 0.7.0
+Version: 0.7.1
 Authors@R:
     person("Travis", "Shepherd", email = "travis.shepherd@tritonenv.com",
            role = c("aut", "cre"))
 Description: Domain-agnostic primitives for ingesting messy field and laboratory
     data workbooks: all-as-text reading of CSV/TSV/XLSX with content-based type
-    sniffing, worksheet enumeration including hidden sheets, long/wide/transposed
-    layout detection and reshaping, declarative column contracts with synonym and
+    sniffing, worksheet enumeration including hidden sheets, formula provenance
+    diagnostics, long/wide/transposed layout detection and reshaping,
+    declarative column contracts with synonym and
     opt-in fuzzy auto-mapping, reusable JSON column-mapping profiles, censored
     (non-detect and over-range) value parsing and substitution, unit
     reconciliation, and row-level validation checks. Shared by the

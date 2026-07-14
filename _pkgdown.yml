@@ -11,9 +11,10 @@ reference:
   - sniff_format
   - coerce_excel_date
 - title: Worksheets
-  desc: Enumerate a workbook's sheets (including hidden ones) and read them all.
+  desc: Enumerate workbook sheets and formula/merge features, then read selected or all sheets.
   contents:
   - list_sheets
+  - inspect_workbook
   - read_all_sheets
 - title: Clean structural junk
   desc: Recover the real header row and strip blank rows / spacer columns / label rows from dirty workbooks.

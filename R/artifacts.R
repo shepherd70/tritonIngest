@@ -44,12 +44,13 @@
 #' @param name Artifact stem.
 #' @param sources Source file path(s).
 #' @param contract Contract describing the canonical table.
-#' @param diagnostics List of [tabular_diagnostic()] objects.
+#' @param diagnostics List of [tabular_diagnostic()] objects. `NULL` (default)
+#'   uses diagnostics carried on `x` from ingestion and cleaning.
 #' @param transform_context Named transformation identity; see [cached_ingest()].
 #' @param format `"parquet"` (default) or `"feather"`.
 #' @return Manifest path, invisibly.
 #' @export
-write_canonical_bundle <- function(x, dir, name, sources, contract, diagnostics = list(),
+write_canonical_bundle <- function(x, dir, name, sources, contract, diagnostics = NULL,
                                    transform_context,
                                    format = c("parquet", "feather")) {
   format <- match.arg(format)
@@ -58,6 +59,7 @@ write_canonical_bundle <- function(x, dir, name, sources, contract, diagnostics 
     stop("Canonical bundles require the 'arrow' package.", call. = FALSE)
   }
   context <- .validate_transform_context(transform_context)
+  if (is.null(diagnostics)) diagnostics <- attr(x, "diagnostics") %||% list()
   diagnostics <- .as_diagnostics(diagnostics)
   dir <- normalizePath(dir, winslash = "/", mustWork = FALSE)
   dir.create(dir, recursive = TRUE, showWarnings = FALSE)

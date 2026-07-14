@@ -10,6 +10,12 @@ test_that("is_value_like uses the shared non-detect vocabulary", {
   expect_true(is_value_like(c("1.2", "3.4", "NON-DETECT", "nondetect")))
 })
 
+test_that("is_value_like shares Unicode censor normalization with parsing", {
+  le <- intToUtf8(0x2264)
+  ge <- intToUtf8(0x2265)
+  expect_true(is_value_like(c("1.2", paste0(le, "0.1"), paste0(ge, "670"))))
+})
+
 test_that("detect_layout finds long via parameter/value names", {
   df <- tibble::tibble(site = "A", parameter = "zinc", value = "1.2")
   d <- detect_layout(df)

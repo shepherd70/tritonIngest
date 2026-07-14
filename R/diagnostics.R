@@ -71,6 +71,14 @@ tabular_diagnostic <- function(code, severity = c("info", "warning", "error"),
        error = sum(sev == "error"))
 }
 
+.inherit_ingest_metadata <- function(x, source, extra_diagnostics = list()) {
+  diagnostics <- c(attr(source, "diagnostics") %||% list(), extra_diagnostics)
+  if (length(diagnostics)) attr(x, "diagnostics") <- diagnostics
+  features <- attr(source, "workbook_features")
+  if (!is.null(features)) attr(x, "workbook_features") <- features
+  x
+}
+
 .duplicate_header_diagnostic <- function(repairs, stage) {
   records <- lapply(seq_len(nrow(repairs)), function(i) {
     list(original = repairs$original[[i]], repaired = repairs$repaired[[i]],

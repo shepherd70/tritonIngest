@@ -10,7 +10,7 @@ write_canonical_bundle(
   name,
   sources,
   contract,
-  diagnostics = list(),
+  diagnostics = NULL,
   transform_context,
   format = c("parquet", "feather")
 )
@@ -26,7 +26,8 @@ write_canonical_bundle(
 
 \item{contract}{Contract describing the canonical table.}
 
-\item{diagnostics}{List of \code{\link[=tabular_diagnostic]{tabular_diagnostic()}} objects.}
+\item{diagnostics}{List of \code{\link[=tabular_diagnostic]{tabular_diagnostic()}} objects. \code{NULL} (default)
+uses diagnostics carried on \code{x} from ingestion and cleaning.}
 
 \item{transform_context}{Named transformation identity; see \code{\link[=cached_ingest]{cached_ingest()}}.}
 

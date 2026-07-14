@@ -9,7 +9,8 @@ read_all_sheets(
   col_names = TRUE,
   col_types = NULL,
   include_hidden = TRUE,
-  sheets = NULL
+  sheets = NULL,
+  formula_policy = c("warn", "error", "allow")
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ Set \code{FALSE} to read only what a user would see in Excel.}
 
 \item{sheets}{Optional character vector of sheet names, or integer positions,
 to restrict the read to.}
+
+\item{formula_policy}{Formula handling policy passed to \code{\link[=read_tabular]{read_tabular()}}.}
 }
 \value{
 A named list of tibbles, one per sheet read, in workbook order. Each

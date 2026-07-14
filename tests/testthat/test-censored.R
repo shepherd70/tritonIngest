@@ -37,6 +37,16 @@ test_that("parse_censored recognises right-censored values (RC4)", {
   expect_false(any(grepl("unparseable", p$parse_note[1:2])))
 })
 
+test_that("Unicode censor operators normalize without losing provenance", {
+  le <- intToUtf8(0x2264)
+  ge <- intToUtf8(0x2265)
+  p <- parse_censored(c(paste0(le, "0.01"), paste0(ge, "670")))
+  expect_equal(p$censor_direction, c("left", "right"))
+  expect_equal(p$censor_limit, c(0.01, 670))
+  expect_equal(p$detection_limit, c(0.01, NA))
+  expect_match(p$parse_note, "normalized Unicode censor operator")
+})
+
 test_that("a supplied DL column never becomes a right-censored ceiling", {
   p <- parse_censored(c(">2420", "TNTC"), detection_limit = c(1, 1))
   expect_true(all(is.na(p$detection_limit)))   # a ">x" result has no DL
