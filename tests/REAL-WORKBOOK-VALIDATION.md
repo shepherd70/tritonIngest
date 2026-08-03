@@ -4,11 +4,20 @@ The ordinary test suite uses only generated or sanitized fixtures. A private
 workbook can be validated without copying it into this repository by setting
 two environment variables and running the opt-in test:
 
+```bash
+export TRITON_REAL_WORKBOOK=/secure/source.xlsx
+export TRITON_REAL_WORKBOOK_PYTHON=/path/to/python
+Rscript -e "pkgload::load_all(); testthat::test_file('tests/testthat/test-real-workbook.R')"
+```
+
 ```powershell
 $env:TRITON_REAL_WORKBOOK = "C:\secure\source.xlsx"
 $env:TRITON_REAL_WORKBOOK_PYTHON = "C:\path\to\python.exe"
 Rscript -e "pkgload::load_all(); testthat::test_file('tests/testthat/test-real-workbook.R')"
 ```
+
+The workbook itself normally lives on Egnyte (`G:`), which only mounts on
+Windows — run the check there, or copy the file across deliberately first.
 
 The configured Python must provide `openpyxl`. If the Python variable is not
 set, the independent-reader check is skipped; all R-only source, inventory,
