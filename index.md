@@ -2,8 +2,8 @@
 
 Domain-agnostic R primitives for ingesting messy field and laboratory
 data workbooks. Shared plumbing for the `water-chemistry-qaqc`
-(chemistry) and `bw-analysis-code` (fish / effort / habitat) projects so
-they don’t duplicate their ingestion layers.
+(chemistry) and `bw-analysis-code` (fish / effort / habitat) private
+projects so they don’t duplicate their ingestion layers.
 
 **It contains no domain knowledge, statistics, or plotting** — just the
 reusable ingestion engine. See
